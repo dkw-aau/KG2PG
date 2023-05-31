@@ -116,23 +116,34 @@ public class DataTranslatorFileBased {
                     if (!nodes[1].toString().equals(typePredicate)) {
                         Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
                         int propertyKey = resourceEncoder.encodeAsResource(nodes[1].toString());
-                        System.out.println("propertyKey = " + propertyKey);
-                        //find out if the property could be a key value to some or all of the nodes
 
-                        boolean isKeyValueFlag = false;
+                        System.out.println("propertyKey = " + propertyKey);
+                        boolean literalFlag = false;
                         for (Integer pgEdge : pgEdgeSet) {
                             if (pgEdge.equals(propertyKey)) {
                                 System.out.println("pgEdge = " + pgEdge);
                                 PgEdge currEdge = PgEdge.getEdgeById(pgEdge);
-                                if (currEdge.isProperty() && currEdge.isLiteral() ) {
-                                    isKeyValueFlag = true;
-                                    System.out.println("isKeyValueFlag = " + nodes[1].toString() + isKeyValueFlag + " - " + currEdge.getDataType());
+                                //FIXME: Think again if you should use isProperty() or only isLiteral(). What would be the difference?
+                                if (currEdge.isProperty() && currEdge.isLiteral()) {
+                                    System.out.println("isKeyValueFlag = " + nodes[1].toString() + " - " + currEdge.getDataType());
+                                    literalFlag = true;
                                     break;
                                 }
                             }
                         }
+                        if (literalFlag) {
+                            System.out.println("literalFlag = " + true);
+                            //TODO: Add the object value as key value property to the node
+                        } else {
+                            System.out.println("literalFlag = " + false);
+                            //TODO: Add the object value as edge to the node with a match to a specific node (which should exist already)
+                            String cypherQuery = """
+                                    MATCH (s {id: "JaneDoe"}), (u {id: "MIT"})
+                                    CREATE (s)-[:studiesAt]->(u)
+                                    """;
+                        }
 
-
+                        //FIXME: The following code snippet is not required
                         for (int entity : entityTypes) {
                             Pair<Integer, Integer> pair = new Pair<>(entity, propertyKey);
                             if (schemaTranslator.getPgSchema().getNodeEdgeTarget().containsKey(pair)) {
@@ -143,9 +154,6 @@ public class DataTranslatorFileBased {
                                 System.out.println("___________________________");
                             }
                         }
-                        //TODO: encode the property and create pairs for entity type and property and check in PG-Schema
-                        // if the pair exists and find out its target type.
-                        // If the returned set of target types is unique,
                     }
 
 
