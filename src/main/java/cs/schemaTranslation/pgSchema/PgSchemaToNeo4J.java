@@ -1,21 +1,21 @@
 package cs.schemaTranslation.pgSchema;
 
-import cs.commons.StringEncoder;
+import cs.commons.ResourceEncoder;
 import kotlin.Pair;
 
 import java.util.Map;
 import java.util.Set;
 
 public class PgSchemaToNeo4J {
-    StringEncoder stringEncoder;
+    ResourceEncoder resourceEncoder;
     PgSchema pgSchema;
 
-    public PgSchemaToNeo4J(StringEncoder encoder, PgSchema pgSchema) {
-        this.stringEncoder = encoder;
+    public PgSchemaToNeo4J(ResourceEncoder encoder, PgSchema pgSchema) {
+        this.resourceEncoder = encoder;
         this.pgSchema = pgSchema;
     }
 
-    public String generateNeo4jQueries() {
+    public void generateNeo4jQueries() {
         StringBuilder queryBuilder = new StringBuilder();
 
         // Iterate over nodesToEdges map
@@ -24,28 +24,33 @@ public class PgSchemaToNeo4J {
             Set<Integer> edgeIds = entry.getValue();
 
             // Create Neo4j query to create node
-            String createNodeQuery = String.format("CREATE (n:Node {id: %d, iri : \"%s\"});\n", nodeId, getLastPartAfterSlash(stringEncoder.decode(nodeId)));
+            String createNodeQuery = String.format("CREATE (n:Node {id: %d, iri : \"%s\"});\n", nodeId, resourceEncoder.decodeAsResource(nodeId).getLocalName());
             queryBuilder.append(createNodeQuery);
-
         }
 
+        System.out.println(queryBuilder);
+
         // Iterate over nodeEdgeTarget map
-        for (Map.Entry<Pair<Integer, Integer>, Integer> entry : pgSchema.nodeEdgeTarget.entrySet()) {
+        for (Map.Entry<Pair<Integer, Integer>, Set<Integer>> entry : pgSchema.nodeEdgeTarget.entrySet()) {
             Pair<Integer, Integer> key = entry.getKey();
             Integer sourceNodeId = key.getFirst();
             Integer edgeId = key.getSecond();
-            Integer targetNodeId = entry.getValue();
-
-            // Create Neo4j query to create edge with source and target nodes
-            String createEdgeWithNodesQuery = String.format("""
-                    MATCH (source:Node {id: %d}), (target:Node {id: %d})
-                    WITH source, target
-                    CREATE (source)-[:Edge {id: %d , iri: "%s"}]->(target);
-                    """, sourceNodeId, targetNodeId, edgeId, getLastPartAfterSlash(stringEncoder.decode(edgeId)));
-            queryBuilder.append(createEdgeWithNodesQuery);
+            for (Integer targetNode : entry.getValue()) {
+                // Create Neo4j query to create edge with source and target nodes
+                StringBuilder qb = new StringBuilder();
+                String createEdgeWithNodesQuery = String.format("""
+                        MATCH (source:Node {id: %d}), (target:Node {id: %d})
+                        WITH source, target
+                        CREATE (source)-[:Edge {id: %d , iri: "%s"}]->(target);
+                        """, sourceNodeId, targetNode, edgeId, resourceEncoder.decodeAsResource(edgeId).getURI());
+                qb.append(createEdgeWithNodesQuery);
+                System.out.println(qb);
+            }
         }
-        System.out.println(queryBuilder.toString());
-        return queryBuilder.toString();
+    }
+
+    public String replaceAngles(String str) {
+        return str.replaceAll("<", "").replaceAll(">", "");
     }
 
     public String getLastPartAfterSlash(String url) {

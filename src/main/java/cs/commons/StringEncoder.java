@@ -1,38 +1,56 @@
 package cs.commons;
 
+import org.semanticweb.yars.nx.Node;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class StringEncoder {
-    private final Map<String, Integer> encodingMap;
-    private int nextId;
+public class StringEncoder implements Encoder {
+    int counter;
+    HashMap<Integer, String> table;
+    HashMap<String, Integer> reverseTable;
 
     public StringEncoder() {
-        encodingMap = new HashMap<>();
-        nextId = 0;
+        this.counter = -1;
+        this.table = new HashMap<>();
+        this.reverseTable = new HashMap<>();
     }
 
-    public int encode(String str) {
-        if (encodingMap.containsKey(str)) {
-            return encodingMap.get(str);
+    public int encode(String val) {
+        if (reverseTable.containsKey(val)) {
+            return reverseTable.get(val);
         } else {
-            encodingMap.put(str, nextId);
-            int encodedValue = nextId;
-            nextId++;
-            return encodedValue;
+            this.counter++;
+            table.put(counter, val);
+            reverseTable.put(val, counter);
+            return counter;
         }
     }
 
-    public String decode(int encodedValue) {
-        for (Map.Entry<String, Integer> entry : encodingMap.entrySet()) {
-            if (entry.getValue() == encodedValue) {
-                return entry.getKey();
-            }
-        }
-        throw new IllegalArgumentException("Invalid encoded value: " + encodedValue);
+//    public boolean isEncoded(String val) {
+//        return reverseTable.containsKey(val);
+//    }
+
+
+    public HashMap<Integer, String> getTable() {
+        return table;
     }
 
-    public int size() {
-        return encodingMap.size();
+    public String decode(int val) {
+        return this.table.get(val);
+    }
+
+    @Override
+    public int encodeNode(Node val) {
+        return 0;
+    }
+
+    @Override
+    public Node decodeNode(int val) {
+        return null;
+    }
+
+    public HashMap<String, Integer> getRevTable() {
+        return reverseTable;
     }
 }

@@ -2,7 +2,7 @@ package cs.schemaTranslation;
 
 import cs.Main;
 import cs.commons.Reader;
-import cs.commons.StringEncoder;
+import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.pgSchema.PgEdge;
 import cs.schemaTranslation.pgSchema.PgNode;
 import cs.schemaTranslation.pgSchema.PgSchema;
@@ -17,20 +17,33 @@ import org.apache.jena.shacl.parser.Constraint;
 import org.apache.jena.shacl.parser.PropertyShape;
 import org.apache.jena.shacl.parser.Shape;
 
+import java.util.Set;
+
 
 /**
  * Translate SHACL shapes schema to Property Graph Schema (PG-Schema)
  */
 public class SchemaTranslator {
-    StringEncoder encoder;
+    ResourceEncoder resourceEncoder;
     PgSchema pgSchema;
 
-    public SchemaTranslator() {
-        encoder = new StringEncoder();
+    public PgSchema getPgSchema() {
+        return pgSchema;
+    }
+
+    public SchemaTranslator(ResourceEncoder encoder) {
+        resourceEncoder = encoder;
         pgSchema = new PgSchema();
         Shapes shapes = readShapes();
         parseShapes(shapes);
-        PgSchemaToNeo4J pgSchemaToNeo4J = new PgSchemaToNeo4J(encoder, pgSchema);
+        pgSchema.postProcessPgSchema();
+        System.out.println(pgSchema.toString());
+
+        convertToNeo4jQueries();
+    }
+
+    private void convertToNeo4jQueries() {
+        PgSchemaToNeo4J pgSchemaToNeo4J = new PgSchemaToNeo4J(resourceEncoder, pgSchema);
         pgSchemaToNeo4J.generateNeo4jQueries();
     }
 
@@ -40,13 +53,14 @@ public class SchemaTranslator {
         return Shapes.parse(shapesModel);
     }
 
+    //* Parse SHACL shapes and create PG-Schema
     private void parseShapes(Shapes shapes) {
-        // At first convert all Node Shapes to PG-Nodes
         for (Shape t : shapes.getTargetShapes()) {
             String nodeTarget = "";
-            for (Target target : t.getTargets())
-                nodeTarget = target.getObject().getURI(); // our node shapes have only one target
-            int encodedTarget = encoder.encode(nodeTarget);
+            for (Target target : t.getTargets()) {
+                nodeTarget = target.getObject().getURI(); //  node shapes have only one target
+            }
+            int encodedTarget = resourceEncoder.encodeAsResource(nodeTarget);
             PgNode pgNode = null;
             if (pgSchema.getNodesToEdges().containsKey(encodedTarget)) {
                 pgNode = PgNode.getNodeById(encodedTarget);
@@ -62,7 +76,7 @@ public class SchemaTranslator {
     }
 
     private void parsePropertyShapeConstraints(PropertyShape ps, PgNode pgNode) {
-        PgEdge pgEdge = new PgEdge(encoder.encode(ps.getPath().toString()));
+        PgEdge pgEdge = new PgEdge(resourceEncoder.encodeAsResource(ps.getPath().toString()));
         pgSchema.addSourceEdge(pgNode, pgEdge);
 
         for (Constraint constraint : ps.getConstraints()) {
@@ -90,30 +104,29 @@ public class SchemaTranslator {
                 case "MaxCount" -> {
                     Integer maxCount = ((MaxCount) constraint).getMaxCount();
                     pgEdge.setMaxCount(maxCount);
-                    pgEdge.handlePropertyType();
                 }
                 case "DatatypeConstraint" -> {
                     Node dataTypeConstraint = ((DatatypeConstraint) constraint).getDatatype();
                     pgEdge.setDataType(dataTypeConstraint.getLocalName());
+                    pgEdge.setLiteral(true);
                 }
-                case "InConstraint" -> { //FIXME : Do you need this?
+                /*case "InConstraint" -> { //FIXME : Do you need this?
                     Node inConstraint = ((InConstraint) constraint).getComponent();
-                }
-                case "NodeKind" -> { //FIXME : check if this is correct
-                    NodeKindConstraint nodeKindConstraint = ((NodeKindConstraint) constraint);
-                    //nodeKindConstraint.getKind();
-                }
+                }*/
                 default -> {
                     System.out.println("Default case: unhandled constraint: " + constraint);
                 }
             }
         }
 
+        if (pgEdge.getMinCount() != null && pgEdge.getMaxCount() != null) {
+            pgEdge.handlePropertyType();
+        }
     }
 
     private void parseClassConstraint(PgNode pgNode, PgEdge pgEdge, ClassConstraint constraint) {
         Node classConstraint = constraint.getExpectedClass();
-        PgNode targetPgNode = initPgNode(encoder.encode(classConstraint.getURI()));
+        PgNode targetPgNode = initPgNode(resourceEncoder.encodeAsResource(classConstraint.getURI()));
         pgSchema.addTargetEdge(pgNode, pgEdge, targetPgNode);
     }
 

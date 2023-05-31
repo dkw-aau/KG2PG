@@ -7,7 +7,8 @@ import java.util.*;
 public class PgSchema {
 
     Map<Integer, Set<Integer>> nodesToEdges;
-    Map<Pair<Integer, Integer>, Integer> nodeEdgeTarget;
+    Map<Pair<Integer, Integer>, Set<Integer>> nodeEdgeTarget;
+    Set<Integer> pgEdges;
 
     public PgSchema() {
         nodesToEdges = new HashMap<>();
@@ -23,14 +24,31 @@ public class PgSchema {
     }
 
     public void addTargetEdge(PgNode sourcePgNode, PgEdge pgEdge, PgNode targetPgNode) {
-        nodeEdgeTarget.put(new Pair<>(sourcePgNode.getId(), pgEdge.getId()), targetPgNode.getId());
+        Pair<Integer, Integer> pair = new Pair<>(sourcePgNode.getId(), pgEdge.getId());
+        if (nodeEdgeTarget.get(pair) != null) {
+            nodeEdgeTarget.get(pair).add(targetPgNode.getId());
+        } else {
+            nodeEdgeTarget.put(pair, new HashSet<>());
+            nodeEdgeTarget.get(pair).add(targetPgNode.getId());
+        }
     }
 
     public Map<Integer, Set<Integer>> getNodesToEdges() {
         return nodesToEdges;
     }
 
-    public Map<Pair<Integer, Integer>, Integer> getNodeEdgeTarget() {
+    public Map<Pair<Integer, Integer>, Set<Integer>> getNodeEdgeTarget() {
         return nodeEdgeTarget;
+    }
+
+    public void postProcessPgSchema() {
+        pgEdges = new HashSet<Integer>();
+        for (Set<Integer> set : nodesToEdges.values()) {
+            pgEdges.addAll(set);
+        }
+    }
+
+    public Set<Integer> getPgEdges() {
+        return pgEdges;
     }
 }

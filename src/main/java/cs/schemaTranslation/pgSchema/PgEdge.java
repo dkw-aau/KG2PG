@@ -1,24 +1,36 @@
 package cs.schemaTranslation.pgSchema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PgEdge {
-    Integer id;
+    private final Integer id;
     Integer minCount;
     Integer maxCount;
-
-
     String dataType;
+    Boolean isLiteral = false;
     Boolean isProperty = false;
+    private static Map<Integer, PgEdge> edgeMap = new HashMap<>();
 
     public PgEdge(Integer id) {
         this.id = id;
+        edgeMap.put(id, this); // Add the current edge to the edgeMap
+    }
+
+    public Boolean isLiteral() {
+        return isLiteral;
+    }
+
+    public void setLiteral(Boolean literal) {
+        isLiteral = literal;
+    }
+
+    public static PgEdge getEdgeById(Integer edgeId) {
+        return edgeMap.get(edgeId);
     }
 
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public Integer getMinCount() {
@@ -37,7 +49,7 @@ public class PgEdge {
         this.maxCount = maxCount;
     }
 
-    public Boolean getProperty() {
+    public Boolean isProperty() {
         return isProperty;
     }
 

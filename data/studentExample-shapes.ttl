@@ -4,8 +4,57 @@
 @prefix sh:    <http://www.w3.org/ns/shacl#> .
 @prefix shape: <http://shaclshapes.org/> .
 @prefix ex:    <http://example.org/> .
-@prefix ub:    <http://www.lehigh.edu/~zhp2/2004/0401/univ-bench.owl#> .
 
+shape:StudentShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:advisedByStudentShapeProperty ;
+    sh:property    shape:instanceTypeStudentShapeProperty ;
+    sh:property    shape:nameStudentShapeProperty ;
+    sh:property    shape:studiesAtStudentShapeProperty ;
+    sh:property    shape:takesCourseStudentShapeProperty ;
+    sh:targetClass ex:Student .
+
+
+shape:instanceTypeStudentShapeProperty
+    rdf:type sh:PropertyShape ;
+    sh:in    ( ex:Student ) ;
+    sh:path  rdf:type .
+
+shape:advisedByStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Lecturer ; ] [ sh:NodeKind sh:IRI ;
+                                                  sh:class    ex:Professor ; ] ) ;
+    sh:path     ex:advisedBy .
+
+shape:nameStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:name .
+
+
+shape:studiesAtStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:University ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:UniversityShape ;
+    sh:path     ex:studiesAt .
+
+shape:takesCourseStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:Course ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:CourseShape ;
+    sh:path     ex:takesCourse .
 
 shape:CourseShape
     rdf:type       sh:NodeShape ;
@@ -38,14 +87,7 @@ shape:ProfessorShape
     sh:property    shape:worksForProfessorShapeProperty ;
     sh:targetClass ex:Professor .
 
-shape:StudentShape
-    rdf:type       sh:NodeShape ;
-    sh:property    shape:advisedByStudentShapeProperty ;
-    sh:property    shape:instanceTypeStudentShapeProperty ;
-    sh:property    shape:nameStudentShapeProperty ;
-    sh:property    shape:studiesAtStudentShapeProperty ;
-    sh:property    shape:takesCourseStudentShapeProperty ;
-    sh:targetClass ex:Student .
+
 
 shape:UniversityShape
     rdf:type       sh:NodeShape ;
@@ -53,19 +95,12 @@ shape:UniversityShape
     sh:property    shape:nameUniversityShapeProperty ;
     sh:targetClass ex:University .
 
-shape:advisedByStudentShapeProperty
-    rdf:type    sh:PropertyShape ;
-    sh:minCount 1 ;
-    sh:or       ( [ sh:NodeKind sh:IRI ;
-                    sh:class    ex:Professor ; ]
-                  [ sh:NodeKind sh:IRI ;
-                    sh:class    ex:Lecturer ; ] ) ;
-    sh:path     ex:advisedBy .
 
 shape:docDegreeFromLecturerShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:University ;
+    sh:maxCount 1 ;
     sh:node     shape:UniversityShape ;
     sh:path     ex:docDegreeFrom .
 
@@ -73,6 +108,7 @@ shape:docDegreeFromProfessorShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:University ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node     shape:UniversityShape ;
     sh:path     ex:docDegreeFrom .
@@ -97,10 +133,7 @@ shape:instanceTypeProfessorShapeProperty
     sh:in    ( ex:Professor ) ;
     sh:path  rdf:type .
 
-shape:instanceTypeStudentShapeProperty
-    rdf:type sh:PropertyShape ;
-    sh:in    ( ex:Student ) ;
-    sh:path  rdf:type .
+
 
 shape:instanceTypeUniversityShapeProperty
     rdf:type sh:PropertyShape ;
@@ -111,6 +144,7 @@ shape:nameCourseShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:Literal ;
     sh:datatype xsd:string ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:path     ex:name .
 
@@ -118,6 +152,7 @@ shape:nameDepartmentShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:Literal ;
     sh:datatype xsd:string ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:path     ex:name .
 
@@ -125,6 +160,7 @@ shape:nameLecturerShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:Literal ;
     sh:datatype xsd:string ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:path     ex:name .
 
@@ -132,43 +168,26 @@ shape:nameProfessorShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:Literal ;
     sh:datatype xsd:string ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:path     ex:name .
 
-shape:nameStudentShapeProperty
-    rdf:type    sh:PropertyShape ;
-    sh:NodeKind sh:Literal ;
-    sh:datatype xsd:string ;
-    sh:minCount 1 ;
-    sh:path     ex:name .
+
 
 shape:nameUniversityShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:Literal ;
     sh:datatype xsd:string ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:path     ex:name .
 
-shape:studiesAtStudentShapeProperty
-    rdf:type    sh:PropertyShape ;
-    sh:NodeKind sh:IRI ;
-    sh:class    ex:University ;
-    sh:minCount 1 ;
-    sh:node     shape:UniversityShape ;
-    sh:path     ex:studiesAt .
-
-shape:takesCourseStudentShapeProperty
-    rdf:type    sh:PropertyShape ;
-    sh:NodeKind sh:IRI ;
-    sh:class    ex:Course ;
-    sh:minCount 1 ;
-    sh:node     shape:CourseShape ;
-    sh:path     ex:takesCourse .
 
 shape:teacherOfLecturerShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:Course ;
+    sh:maxCount 1 ;
     sh:node     shape:CourseShape ;
     sh:path     ex:teacherOf .
 
@@ -176,6 +195,7 @@ shape:teacherOfProfessorShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:Course ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node     shape:CourseShape ;
     sh:path     ex:teacherOf .
@@ -184,6 +204,7 @@ shape:worksForDepartmentShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:University ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node     shape:UniversityShape ;
     sh:path     ex:worksFor .
@@ -192,6 +213,7 @@ shape:worksForLecturerShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:Department ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node     shape:DepartmentShape ;
     sh:path     ex:worksFor .
@@ -200,6 +222,7 @@ shape:worksForProfessorShapeProperty
     rdf:type    sh:PropertyShape ;
     sh:NodeKind sh:IRI ;
     sh:class    ex:Department ;
+    sh:maxCount 1 ;
     sh:minCount 1 ;
     sh:node     shape:DepartmentShape ;
     sh:path     ex:worksFor .

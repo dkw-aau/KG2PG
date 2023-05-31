@@ -4,6 +4,7 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -113,6 +114,11 @@ public class FilesUtil {
             e.printStackTrace();
         }
         return q;
+    }
+
+    public static String getFileName(String path) {
+        File file = new File(path);
+        return FilenameUtils.removeExtension(file.getName());
     }
     
 }
