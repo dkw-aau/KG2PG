@@ -3,17 +3,21 @@ package cs.graphTranslation;
 import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.schemaTranslation.pgSchema.PgEdge;
-import cs.schemaTranslation.pgSchema.PgNode;
+import cs.utils.Constants;
+import cs.utils.neo.Neo4jGraph;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
 import org.semanticweb.yars.nx.parser.ParseException;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
-import kotlin.Pair;
 
 public class DataTranslatorFileBased {
     String rdfFilePath;
@@ -31,6 +35,10 @@ public class DataTranslatorFileBased {
     Map<Integer, Integer> classEntityCount; // Size == T
     SchemaTranslator schemaTranslator;
 
+    List<String> createNodeQueries;
+    List<String> createKeyValuesQueries;
+    List<String> createEdgeQueries;
+
     public DataTranslatorFileBased(String filePath, int expNoOfClasses, int expNoOfInstances, String typePredicate, ResourceEncoder resourceEncoder, SchemaTranslator schemaTranslator) {
         this.rdfFilePath = filePath;
         this.expectedNumberOfClasses = expNoOfClasses;
@@ -43,23 +51,24 @@ public class DataTranslatorFileBased {
     }
 
     /**
-     * ============================================= Run Parser ========================================
+     * ============================================= Run Translator ========================================
      */
     public void run() {
-        entityExtraction();
-        entitiesToPgNodes();
-        entityConstraintsExtraction();
+        entityExtraction(); // extract entities and store in entityDataHashMap
+        entitiesToPgNodes(); // iterate over extracted entities and convert them to PG-Nodes
+        propertiesToPgKeysAndEdges();
+        //executeQueriesOverNeo4j();
+        writeQueriesToFile();
         System.out.println("STATS: \n\t" + "No. of Classes: " + classEntityCount.size());
     }
 
 
     /**
-     * ============================================= Phase 1: Entity Extraction ========================================
+     * ============================================= 1st Pass on file: Entity Extraction ========================================
      * Streaming over RDF (NT Format) triples <s,p,o> line by line to extract set of entity types and frequency of each entity.
      * =================================================================================================================
      */
-    protected void entityExtraction() {
-        System.out.println("invoked::firstPass()");
+    private void entityExtraction() {
         StopWatch watch = new StopWatch();
         watch.start();
         try {
@@ -87,8 +96,11 @@ public class DataTranslatorFileBased {
         watch.stop();
     }
 
-
+    /**
+     * Entities to PG Nodes conversion
+     */
     private void entitiesToPgNodes() {
+        createNodeQueries = new ArrayList<>();
         entityDataHashMap.forEach(((node, entityData) -> {
             //System.out.println(node + " : " + entityData.getClassTypes());
             StringBuilder sb = new StringBuilder();
@@ -97,14 +109,18 @@ public class DataTranslatorFileBased {
                 sb.append(":").append(resourceEncoder.decodeAsResource(classID).getLocalName());
             });
             sb.append(" { iri : \"").append(node.getLabel()).append("\"})");
-            System.out.println(sb);
+            createNodeQueries.add(sb.toString());
         }));
     }
 
-
-    protected void entityConstraintsExtraction() {
+    /**
+     * ============================================= 2nd Pass on file: Entity's data (properties, etc) extraction and PG (key, values) or Edges creation ========================================
+     */
+    private void propertiesToPgKeysAndEdges() {
         StopWatch watch = new StopWatch();
         watch.start();
+        createKeyValuesQueries = new ArrayList<>();
+        createEdgeQueries = new ArrayList<>();
         try {
             Set<Integer> pgEdgeSet = schemaTranslator.getPgSchema().getPgEdges();
             Files.lines(Path.of(rdfFilePath)).forEach(line -> {
@@ -114,67 +130,39 @@ public class DataTranslatorFileBased {
                     Node entityNode = nodes[0];
 
                     if (!nodes[1].toString().equals(typePredicate)) {
-                        Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
+                        //Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
                         int propertyKey = resourceEncoder.encodeAsResource(nodes[1].toString());
 
-                        System.out.println("propertyKey = " + propertyKey);
+                        //System.out.println("propertyKey = " + propertyKey);
                         boolean literalFlag = false;
+                        //iterate over all edges in the PG-Schema
                         for (Integer pgEdge : pgEdgeSet) {
                             if (pgEdge.equals(propertyKey)) {
-                                System.out.println("pgEdge = " + pgEdge);
+                                //System.out.println("pgEdge = " + pgEdge);
                                 PgEdge currEdge = PgEdge.getEdgeById(pgEdge);
                                 //FIXME: Think again if you should use isProperty() or only isLiteral(). What would be the difference?
                                 if (currEdge.isProperty() && currEdge.isLiteral()) {
-                                    System.out.println("isKeyValueFlag = " + nodes[1].toString() + " - " + currEdge.getDataType());
+                                    //System.out.println("isKeyValueFlag = " + nodes[1].toString() + " - " + currEdge.getDataType());
                                     literalFlag = true;
                                     break;
                                 }
                             }
                         }
-                        if (literalFlag) {
-                            System.out.println("literalFlag = " + true);
-                            //TODO: Add the object value as key value property to the node
-                        } else {
-                            System.out.println("literalFlag = " + false);
-                            //TODO: Add the object value as edge to the node with a match to a specific node (which should exist already)
-                            String cypherQuery = """
-                                    MATCH (s {id: "JaneDoe"}), (u {id: "MIT"})
-                                    CREATE (s)-[:studiesAt]->(u)
-                                    """;
-                        }
 
-                        //FIXME: The following code snippet is not required
-                        for (int entity : entityTypes) {
-                            Pair<Integer, Integer> pair = new Pair<>(entity, propertyKey);
-                            if (schemaTranslator.getPgSchema().getNodeEdgeTarget().containsKey(pair)) {
-                                System.out.println("pair = " + pair);
-                                System.out.println("schemaTranslator.getPgSchema().getNodeEdgeTarget().get(pair) = " + schemaTranslator.getPgSchema().getNodeEdgeTarget().get(pair));
-                            } else {
-                                System.out.println("pair = " + pair);
-                                System.out.println("___________________________");
-                            }
+                        Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
+                        String entityIri = entityNode.getLabel();
+                        if (literalFlag) {
+                            String key = propAsResource.getLocalName();
+                            String keyValue = nodes[2].toString();
+                            String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, %s);", entityIri, key, key, keyValue);
+                            createKeyValuesQueries.add(query);
+                        } else {
+                            String objectIri = nodes[2].getLabel();
+                            //Add the object value as edge to the node with a match to a specific node (which should exist already)
+                            String query = String.format("MATCH (s {iri: \"%s\"}), (u {iri: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, objectIri, propAsResource.getLocalName());
+                            createEdgeQueries.add(query);
                         }
                     }
-
-
-//                    //Declaring required sets
-//                    Set<Integer> objTypesIDs = new HashSet<>(10);
-//                    Set<Tuple2<Integer, Integer>> prop2objTypeTuples = new HashSet<>(10);
-//
-//
-//                    String objectType = extractObjectType(nodes[2].toString());
-//                    int propID = stringEncoder.encode(nodes[1].getLabel());
-//
-//                    // object is an instance or entity of some class e.g., :Paris is an instance of :City & :Capital
-//                    if (objectType.equals("IRI")) {
-//                        objTypesIDs = parseIriTypeObject(objTypesIDs, prop2objTypeTuples, nodes, entityNode, propID);
-//                    }
-//                    // Object is of type literal, e.g., xsd:String, xsd:Integer, etc.
-//                    else {
-//                        parseLiteralTypeObject(objTypesIDs, entityNode, objectType, propID);
-//                    }
-//                    // for each type (class) of current entity -> append the property and object type in classToPropWithObjTypes HashMap
-//                    updateClassToPropWithObjTypesMap(objTypesIDs, entityNode, propID);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -184,4 +172,26 @@ public class DataTranslatorFileBased {
         }
         watch.stop();
     }
+    private void writeQueriesToFile(){
+        try {
+            FileWriter fileWriter = new FileWriter(Constants.PG_QUERY_FILE_PATH);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            createNodeQueries.forEach(printWriter::println);
+            createKeyValuesQueries.forEach(printWriter::println);
+            createEdgeQueries.forEach(printWriter::println);
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void executeQueriesOverNeo4j() {
+        Neo4jGraph neo4jGraph = new Neo4jGraph();
+        neo4jGraph.deleteAllFromNeo4j();
+        neo4jGraph.executeMultipleCypherQueries(createNodeQueries);
+        neo4jGraph.executeMultipleCypherQueries(createKeyValuesQueries);
+        neo4jGraph.executeMultipleCypherQueries(createEdgeQueries);
+        neo4jGraph.close();
+    }
+
 }
+

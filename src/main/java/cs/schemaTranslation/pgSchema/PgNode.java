@@ -1,6 +1,8 @@
 package cs.schemaTranslation.pgSchema;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PgNode {
@@ -8,6 +10,9 @@ public class PgNode {
     private String nodeShapeIri;
 
     private static Map<Integer, PgNode> nodeMap;
+    private static List<Integer> propIDs;
+
+    String type;
 
     public PgNode(Integer id) {
         this.id = id;
@@ -29,6 +34,22 @@ public class PgNode {
 
     public static PgNode getNodeById(Integer id) {
         return nodeMap.get(id);
+    }
+
+
+    public void addPropId(int id) {
+        if (propIDs == null) {
+            propIDs = new ArrayList<>();
+        }
+        propIDs.add(id);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override

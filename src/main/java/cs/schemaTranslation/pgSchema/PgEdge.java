@@ -66,9 +66,12 @@ public class PgEdge {
     }
 
     //A method to check if minCount and maxCount are 1 then set isProperty to true
-    public void handlePropertyType() {
+    public boolean handlePropertyType() {
         if (this.minCount == 1 && this.maxCount == 1) {
             this.isProperty = true;
+            return true;
+        } else {
+            return false;
         }
     }
 }
