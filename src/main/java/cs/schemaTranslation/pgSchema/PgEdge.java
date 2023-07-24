@@ -5,11 +5,9 @@ import java.util.Map;
 
 public class PgEdge {
     private final Integer id;
-    Integer minCount;
-    Integer maxCount;
     String dataType;
-    Boolean isLiteral = false;
-    Boolean isProperty = false;
+    Boolean isLiteral = false; // When property is single type data type constraint then isLiteral = true
+    //Boolean isProperty = false; // When MinCount = MixCount = 1, then isProperty = true     //FIXME: remove it not required
     private static Map<Integer, PgEdge> edgeMap = new HashMap<>();
 
     public PgEdge(Integer id) {
@@ -33,29 +31,9 @@ public class PgEdge {
         return id;
     }
 
-    public Integer getMinCount() {
-        return minCount;
-    }
-
-    public void setMinCount(Integer minCount) {
-        this.minCount = minCount;
-    }
-
-    public Integer getMaxCount() {
-        return maxCount;
-    }
-
-    public void setMaxCount(Integer maxCount) {
-        this.maxCount = maxCount;
-    }
-
-    public Boolean isProperty() {
+    /*public Boolean isProperty() {
         return isProperty;
-    }
-
-    public void setProperty(Boolean property) {
-        isProperty = property;
-    }
+    }*/
 
     public String getDataType() {
         return dataType;
@@ -65,13 +43,7 @@ public class PgEdge {
         this.dataType = dataType;
     }
 
-    //A method to check if minCount and maxCount are 1 then set isProperty to true
-    public boolean handlePropertyType() {
-        if (this.minCount == 1 && this.maxCount == 1) {
-            this.isProperty = true;
-            return true;
-        } else {
-            return false;
-        }
-    }
+  /*  public void setIsProperty(boolean status) {
+        isProperty = status;
+    }*/
 }

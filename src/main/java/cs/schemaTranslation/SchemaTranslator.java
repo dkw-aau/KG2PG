@@ -6,9 +6,9 @@ import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.pgSchema.PgEdge;
 import cs.schemaTranslation.pgSchema.PgNode;
 import cs.schemaTranslation.pgSchema.PgSchema;
-import cs.schemaTranslation.pgSchema.PgSchemaToNeo4J;
+import cs.schemaTranslation.pgSchema.PgSchemaWriter;
 import cs.utils.ConfigManager;
-import cs.utils.Constants;
+import kotlin.Pair;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
@@ -22,7 +22,6 @@ import org.apache.jena.shacl.parser.Shape;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -42,8 +41,8 @@ public class SchemaTranslator {
     }
 
     private void convertToNeo4jQueries() {
-        PgSchemaToNeo4J pgSchemaToNeo4J = new PgSchemaToNeo4J(resourceEncoder, pgSchema);
-        pgSchemaToNeo4J.generateCypherQueries();
+        PgSchemaWriter pgSchemaToNeo4J = new PgSchemaWriter(resourceEncoder, pgSchema);
+        pgSchemaToNeo4J.parseSchema();
         pgSchemaToNeo4J.writePgSchemaCypherQueriesToFile();
         //pgSchemaToNeo4J.executeQueriesOverNeo4j();
     }
@@ -52,15 +51,14 @@ public class SchemaTranslator {
         Model shapesModel = Reader.readFileToModel(ConfigManager.getProperty("shapes_path"), "TURTLE");
         Main.logger.info(String.valueOf(shapesModel.size()));
         Shapes shapes = Shapes.parse(shapesModel);
-        extractShNodeFromShaclShapes(shapesModel);
+        //extractShNodeFromShaclShapes(shapesModel);
         return shapes;
     }
 
     //* Parse SHACL shapes and create PG-Schema
     private void parseShapes(Shapes shapes) {
-        //TODO: Sometimes, node shapes do not have target, s we need to check if the target is null or not
+        //TODO: Sometimes, node shapes do not have target, so we need to check if the target is null or not
         for (Shape t : shapes.getTargetShapes()) {
-            //TODO: for hierarchies, find out all shacl shapes having sh:node and use their values to build hierarchies
             String nodeTarget = "";
             for (Target target : t.getTargets()) {
                 nodeTarget = target.getObject().getURI(); //  node shapes have only one target
@@ -80,21 +78,24 @@ public class SchemaTranslator {
         }
     }
 
+    /**
+     * This method will parse the constraints of a property shape and transform them into PG-Schema constraints
+     */
     private void parsePropertyShapeConstraints(PropertyShape ps, PgNode pgNode) {
-        PgEdge pgEdge = new PgEdge(resourceEncoder.encodeAsResource(ps.getPath().toString()));
+        PgEdge pgEdge = new PgEdge(resourceEncoder.encodeAsResource(ps.getPath().toString().replace("<", "").replace(">", "")));
         pgSchema.addSourceEdge(pgNode, pgEdge);
-
+        int minCount = 0;
+        int maxCount = 0;
         for (Constraint constraint : ps.getConstraints()) {
             //System.out.println(constraint.getClass().getSimpleName());
             switch (constraint.getClass().getSimpleName()) {
                 // ******   cardinality constraints
                 case "MinCount" -> {
-                    Integer minCount = ((MinCount) constraint).getMinCount();
-                    pgEdge.setMinCount(minCount);
+                    minCount = ((MinCount) constraint).getMinCount();
+
                 }
                 case "MaxCount" -> {
-                    Integer maxCount = ((MaxCount) constraint).getMaxCount();
-                    pgEdge.setMaxCount(maxCount);
+                    maxCount = ((MaxCount) constraint).getMaxCount();
                 }
 
                 //******  node kind constraints : IRI or Literal ******
@@ -123,58 +124,49 @@ public class SchemaTranslator {
                             }
                         }
                     }
-
                     if (classConstraints.size() > 0 && datatypeConstraints.size() > 0) { // Heterogeneous (Literal and IRI) Multi Type Constraint
-                        System.out.println("Heterogeneous (Literal and IRI) Multi Type Constraint");
-                        datatypeConstraints.forEach(dtConstraint -> { //create a new node for each datatype constraint
-                            Node dataTypeConstraint = dtConstraint.getDatatype();
-                            dataTypeConstraint.getLocalName();
-
-                            PgNode dtPgNode = null;
-                            int dtPgNodeEncoded = resourceEncoder.encodeAsResource(dataTypeConstraint.getURI());
-                            if (pgSchema.getNodesToEdges().containsKey(dtPgNodeEncoded)) {
-                                dtPgNode = PgNode.getNodeById(dtPgNodeEncoded);
-                            } else {
-                                dtPgNode = new PgNode(dtPgNodeEncoded);
-                                pgSchema.addNode(dtPgNode);
-                            }
-                            //TODO: Set the type of the PG Node as Abstract
-                            dtPgNode.setType(dataTypeConstraint.getLocalName());
-                            pgSchema.addTargetEdge(pgNode, pgEdge, dtPgNode);
-                        });
+                        handleMultiDataTypeConstraints(pgNode, pgEdge, datatypeConstraints);
                         classConstraints.forEach(classConstraint -> parseClassConstraint(pgNode, pgEdge, classConstraint));
-
                     } else if (classConstraints.size() > 0) { // Homogeneous (IRI) Multi Type Constraint
-                        System.out.println("Homogeneous (IRI) Multi Type Constraint");
                         classConstraints.forEach(classConstraint -> parseClassConstraint(pgNode, pgEdge, classConstraint));
                     } else if (datatypeConstraints.size() > 0) { // Homogeneous (Literal) Multi Type Constraint
-                        System.out.println("Homogeneous (Literal) Multi Type Constraint");
-                        //TODO: Solution 1: Create a new node for each datatype constraint
-
-                        //TODO: Solution 2: Create edge with datatype constraint
-
+                        handleMultiDataTypeConstraints(pgNode, pgEdge, datatypeConstraints);
                     }
                 }
 
-                case "ShNode" -> {
-                    ShNode shNode = ((ShNode) constraint);
-                }
-
-                /*case "InConstraint" -> { //FIXME : Do you need this?
-                    Node inConstraint = ((InConstraint) constraint).getComponent();
-                }*/
-                default -> {
-                    //System.out.println("Default case: unhandled constraint: " + constraint);
-                }
+                /* case "ShNode" -> { ShNode shNode = ((ShNode) constraint); } */ //FIXME : Do you need this?
+                /*case "InConstraint" -> { Node inConstraint = ((InConstraint) constraint).getComponent(); }*/ //FIXME : Do you need this?
+                default -> { /*System.out.println("Default case: unhandled constraint: " + constraint); */}
             }
         }
 
-        if (pgEdge.getMinCount() != null && pgEdge.getMaxCount() != null) {
-            boolean status = pgEdge.handlePropertyType();
-            if (status) {
-                pgNode.addPropId(pgEdge.getId());
-            }
+        Pair<Integer, Integer> cardPair = new Pair<>(minCount, maxCount);
+        Pair<Integer, Integer> nodeEdgePair = new Pair<>(pgNode.getId(), pgEdge.getId());
+        if (pgSchema.getNodeEdgeTarget().get(nodeEdgePair) != null) {
+            pgSchema.getNodeEdgeCardinalityMap().put(nodeEdgePair, cardPair);
+        } else {
+            pgSchema.getNodeEdgeCardinalityMap().put(nodeEdgePair, cardPair);
         }
+    }
+
+    /**
+     * This method will create a new node for each datatype constraint
+     */
+    private void handleMultiDataTypeConstraints(PgNode pgNode, PgEdge pgEdge, List<DatatypeConstraint> datatypeConstraints) {
+        datatypeConstraints.forEach(dtConstraint -> { //create a new node for each datatype constraint
+            Node dataTypeConstraint = dtConstraint.getDatatype();
+            dataTypeConstraint.getLocalName();
+            PgNode dtPgNode = null;
+            int dtPgNodeEncoded = resourceEncoder.encodeAsResource(dataTypeConstraint.getURI());
+            if (PgNode.getNodeById(dtPgNodeEncoded) == null) {
+                dtPgNode = new PgNode(dtPgNodeEncoded);
+                pgSchema.addNode(dtPgNode);
+            } else {
+                dtPgNode = PgNode.getNodeById(dtPgNodeEncoded);
+            }
+            dtPgNode.setAbstract(true);
+            pgSchema.addTargetEdge(pgNode, pgEdge, dtPgNode);
+        });
     }
 
     private void parseClassConstraint(PgNode pgNode, PgEdge pgEdge, ClassConstraint constraint) {

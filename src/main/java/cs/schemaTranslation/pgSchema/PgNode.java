@@ -6,18 +6,27 @@ import java.util.List;
 import java.util.Map;
 
 public class PgNode {
-    private final Integer id;
-    private String nodeShapeIri;
+    private Integer id; // Node ID
+    private String nodeShapeIri; // IRI of the SHACL shape that corresponds to this node
 
-    private static Map<Integer, PgNode> nodeMap;
-    private static List<Integer> propIDs;
 
-    String type;
+    private static Map<Integer, PgNode> nodeMap; // Map of node IDs to nodes
+    Boolean isAbstract = false; // Is this node abstract?
 
     public PgNode(Integer id) {
         this.id = id;
-        nodeMap = new HashMap<>();
-        nodeMap.put(id, this); // Add the current node to the nodeMap
+        getNodeMap().put(id, this); // Add the current node to the nodeMap
+    }
+
+    /**
+     * Lazy initialization of nodeMap
+     * By using lazy initialization, the nodeMap will be created only when it is accessed for the first time. Subsequent calls to getNodeMap() will return the existing nodeMap, ensuring that all PgNode instances are added to the same map.
+     */
+    private static Map<Integer, PgNode> getNodeMap() {
+        if (nodeMap == null) {
+            nodeMap = new HashMap<>();
+        }
+        return nodeMap;
     }
 
     public Integer getId() {
@@ -33,23 +42,15 @@ public class PgNode {
     }
 
     public static PgNode getNodeById(Integer id) {
-        return nodeMap.get(id);
+        return getNodeMap().get(id);
     }
 
-
-    public void addPropId(int id) {
-        if (propIDs == null) {
-            propIDs = new ArrayList<>();
-        }
-        propIDs.add(id);
+    public Boolean isAbstract() {
+        return isAbstract;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setAbstract(Boolean anAbstract) {
+        isAbstract = anAbstract;
     }
 
     @Override
