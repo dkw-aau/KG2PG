@@ -4,6 +4,7 @@ import cs.commons.ResourceEncoder;
 import cs.utils.Constants;
 import cs.utils.neo.Neo4jGraph;
 import kotlin.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
 
@@ -18,15 +19,17 @@ public class PgSchemaWriter {
     List<String> pgSchemaNodeQueries = new ArrayList<>();
     List<String> pgSchemaEdgesQueries = new ArrayList<>();
 
+    Set<String> pgNodeTypes = new HashSet<>();
+    List<String> pgEdgeTypes = new ArrayList<>();
+    List<String> pgEdgeCardinality = new ArrayList<>();
+
     public PgSchemaWriter(ResourceEncoder encoder, PgSchema pgSchema) {
         this.resourceEncoder = encoder;
         this.pgSchema = pgSchema;
     }
 
     public void parseSchema() {
-
-        // Iterate over pgSchema.nodeEdgeCardinality to create pgNodePgEdgeMap which is a map of nodeId to a map of edgeId to cardinality;
-        Map<Integer, Map<Pair<Integer, Integer>, Pair<Integer, Integer>>> pgNodePgEdgeMap = new HashMap<>();
+        Map<Integer, Map<Pair<Integer, Integer>, Pair<Integer, Integer>>> pgNodePgEdgeMap = new HashMap<>(); // Iterate over pgSchema.nodeEdgeCardinality to create pgNodePgEdgeMap which is a map of nodeId to a map of edgeId to cardinality;
         pgSchema.getNodeEdgeCardinalityMap().forEach((pair, cardinality) -> {
             Integer nodeId = pair.getFirst();
             if (pgNodePgEdgeMap.get(nodeId) != null) {
@@ -66,12 +69,11 @@ public class PgSchemaWriter {
             });
             String nodeType;
             if (properties.isEmpty()) {
-                nodeType = "(%sType: %s { id: %d, iri: \"%s\" })".formatted(nodeAsResource.getLocalName(), nodeAsResource.getLocalName(), nodeId, nodeAsResource.getURI());
+                nodeType = "(%sType: %s { id: %d, iri: \"%s\" })".formatted(nodeAsResource.getLocalName().toLowerCase(), nodeAsResource.getLocalName(), nodeId, nodeAsResource.getURI());
             } else {
-                nodeType = "(%sType: %s { id: %d, iri: \"%s\", %s })".formatted(nodeAsResource.getLocalName(), nodeAsResource.getLocalName(), nodeId, nodeAsResource.getURI(), String.join(", ", properties));
+                nodeType = "(%sType: %s { id: %d, iri: \"%s\", %s })".formatted(nodeAsResource.getLocalName().toLowerCase(), nodeAsResource.getLocalName(), nodeId, nodeAsResource.getURI(), String.join(", ", properties));
             }
-            System.out.println(nodeType);
-
+            pgNodeTypes.add(nodeType);
         });
 
         pgSchema.nodeEdgeTarget.forEach((nodeEdgePair, targetNodes) -> {
@@ -81,45 +83,73 @@ public class PgSchemaWriter {
             Resource sourceNodeAsResource = resourceEncoder.decodeAsResource(sourceNodeId);
             Resource edgeAsResource = resourceEncoder.decodeAsResource(edgeId);
             PgEdge pgEdge = PgEdge.getEdgeById(edgeId);
+            Pair<Integer, Integer> edgeCardinality = pgSchema.getNodeEdgeCardinalityMap().get(nodeEdgePair);
+            boolean skipFlag = edgeCardinality.equals(new Pair<>(-1, -1));
 
             if (targetNodes.isEmpty()) {
-                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s]->()".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName());
-                System.out.println(edgeType);
+                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s { iri: \"%s\" }]->()".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getURI());
+                pgEdgeTypes.add(edgeType);
             } else if (targetNodes.size() == 1) {
                 Resource targetNodeAsResource = resourceEncoder.decodeAsResource(targetNodes.iterator().next());
-                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s]->(:%sType)".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), targetNodeAsResource.getLocalName());
-                System.out.println(edgeType);
+                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s { iri: \"%s\" } ]->(:%sType)".formatted(sourceNodeAsResource.getLocalName().toLowerCase(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getURI(), targetNodeAsResource.getLocalName().toLowerCase());
+                pgEdgeTypes.add(edgeType);
+                if (!skipFlag) {
+                    String edgeCard = "";
+                    char is = sourceNodeAsResource.getLocalName().toLowerCase().charAt(0); //initial for source node
+                    char it = targetNodeAsResource.getLocalName().toLowerCase().charAt(0); // initial for target node
+                    if (edgeCardinality.getFirst().equals(-1)) {
+                        edgeCard = "FOR (%s: %s) COUNT %d..%d OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), 0, edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
+                    } else if (edgeCardinality.getSecond().equals(-1))
+                        edgeCard = "FOR (%s: %s) COUNT %d.. OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
+                    else
+                        edgeCard = "FOR (%s: %s) COUNT %d..%s OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
+                    pgEdgeCardinality.add(edgeCard);
+                }
             } else {
                 List<String> targetNodeTypes = new ArrayList<>();
-                //FIXME: This is a special case, here you will also encounter target abstract node types, so you need to handle them
-
+                List<String> tNodeTypes = new ArrayList<>();
                 for (Integer tNodeId : targetNodes) {
                     Resource targetNodeAsResource = resourceEncoder.decodeAsResource(tNodeId);
                     PgNode targetPgNode = PgNode.getNodeById(tNodeId);
                     if (targetPgNode.isAbstract()) {
-                        targetNodeTypes.add(targetNodeAsResource.getLocalName() + "Type");
-
+                        String nodeType = "(%sType: %s { id: %d, iri: \"%s\" })".formatted(targetNodeAsResource.getLocalName(), targetNodeAsResource.getLocalName(), tNodeId, targetNodeAsResource.getURI());
+                        targetNodeTypes.add(targetNodeAsResource.getLocalName().toLowerCase() );
+                        tNodeTypes.add(StringUtils.capitalize(targetNodeAsResource.getLocalName()));
+                        pgNodeTypes.add(nodeType); // This is a special case, here you will also encounter target abstract node types, so you need to handle them
                     } else {
-                        targetNodeTypes.add(targetNodeAsResource.getLocalName());
-                    }
+                        targetNodeTypes.add(targetNodeAsResource.getLocalName().toLowerCase() + "Type");
+                        tNodeTypes.add(StringUtils.capitalize(targetNodeAsResource.getLocalName()));
 
+                    }
                 }
-                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s]->(:%sType)".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), String.join(" | ", targetNodeTypes));
-                System.out.println(edgeType);
+                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s { iri: \"%s\" }]->(:%sType)".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getURI(), String.join(" | :", targetNodeTypes));
+                pgEdgeTypes.add(edgeType);
+                if (!skipFlag) {
+                    String edgeCard = "";
+                    char is = sourceNodeAsResource.getLocalName().toLowerCase().charAt(0); //initial for source node
+                    char it = 'T';
+                    if (edgeCardinality.getFirst().equals(-1))
+                        //edgeCard = "FOR (%s: %s) COUNT %d..%d OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(sourceNodeAsResource.getLocalName(), sourceNodeAsResource.getLocalName(), 0, edgeCardinality.getSecond(), edgeAsResource.getLocalName(), sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), String.join(" | ", targetNodeTypes), String.join(" | ", targetNodeTypes));
+                        edgeCard = "FOR (%s: %s) COUNT %d..%d OF %s WITHIN (%s)-[:%s]->(%s: {%s})".formatted(is, sourceNodeAsResource.getLocalName(), 0, edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, String.join(" | ", tNodeTypes));
+                    else if (edgeCardinality.getSecond().equals(-1))
+                        edgeCard = "FOR (%s: %s) COUNT %d.. OF %s WITHIN (%s)-[:%s]->(%s: {%s})".formatted(is, sourceNodeAsResource.getLocalName(), 0, it, is, edgeAsResource.getLocalName(), it, String.join(" | ", tNodeTypes));
+                    else
+                        edgeCard = "FOR (%s: %s) COUNT %d..%d OF %s WITHIN (%s)-[:%s]->(%s: {%s})".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, String.join(" | ", tNodeTypes));
+                    pgEdgeCardinality.add(edgeCard);
+                }
             }
         });
 
-
-        System.out.println("=======================================");
-        // Iterate over nodesToEdges map
-        for (Map.Entry<Integer, List<Integer>> entry : pgSchema.nodesToEdges.entrySet()) {
+        // **************  Create Neo4j Queries ********************
+        /*
+        for (Map.Entry<Integer, List<Integer>> entry : pgSchema.nodesToEdges.entrySet()) { // Iterate over nodesToEdges map
             Integer nodeId = entry.getKey();
             String createNodeQuery = String.format("CREATE (n:Node {id: %d, iri : \"%s\"});", nodeId, resourceEncoder.decodeAsResource(nodeId).getURI()); // Create Neo4j query to create node
             pgSchemaNodeQueries.add(createNodeQuery);
         }
 
-        // Iterate over nodeEdgeTarget map
-        for (Map.Entry<Pair<Integer, Integer>, Set<Integer>> entry : pgSchema.nodeEdgeTarget.entrySet()) {
+
+        for (Map.Entry<Pair<Integer, Integer>, Set<Integer>> entry : pgSchema.nodeEdgeTarget.entrySet()) { // Iterate over nodeEdgeTarget map
             Pair<Integer, Integer> key = entry.getKey();
             Integer sourceNodeId = key.getFirst();
             Integer edgeId = key.getSecond();
@@ -130,6 +160,26 @@ public class PgSchemaWriter {
                         """, sourceNodeId, targetNode, edgeId, resourceEncoder.decodeAsResource(edgeId).getURI());
                 pgSchemaEdgesQueries.add(createEdgeWithNodesQuery);
             }
+        }*/
+    }
+
+    public void writePgSchemaSyntaxToFile() {
+        try {
+            FileWriter fileWriter = new FileWriter(Constants.PG_SCHEMA_SYNTAX_FILE_PATH);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter.println(" // Node Types");
+            pgNodeTypes.forEach(printWriter::println);
+
+            printWriter.println("");
+            printWriter.println(" // Edge Types");
+            pgEdgeTypes.forEach(printWriter::println);
+
+            printWriter.println("");
+            printWriter.println(" // Cardinalities of Edges");
+            pgEdgeCardinality.forEach(printWriter::println);
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -37,14 +37,13 @@ public class SchemaTranslator {
         Shapes shapes = readShapes();
         parseShapes(shapes);
         pgSchema.postProcessPgSchema();
-        convertToNeo4jQueries();
+        writePgSchema();
     }
 
-    private void convertToNeo4jQueries() {
-        PgSchemaWriter pgSchemaToNeo4J = new PgSchemaWriter(resourceEncoder, pgSchema);
-        pgSchemaToNeo4J.parseSchema();
-        pgSchemaToNeo4J.writePgSchemaCypherQueriesToFile();
-        //pgSchemaToNeo4J.executeQueriesOverNeo4j();
+    private void writePgSchema() {
+        PgSchemaWriter pgSchemaWriter = new PgSchemaWriter(resourceEncoder, pgSchema);
+        pgSchemaWriter.parseSchema();
+        pgSchemaWriter.writePgSchemaSyntaxToFile();
     }
 
     private Shapes readShapes() {
@@ -84,8 +83,8 @@ public class SchemaTranslator {
     private void parsePropertyShapeConstraints(PropertyShape ps, PgNode pgNode) {
         PgEdge pgEdge = new PgEdge(resourceEncoder.encodeAsResource(ps.getPath().toString().replace("<", "").replace(">", "")));
         pgSchema.addSourceEdge(pgNode, pgEdge);
-        int minCount = 0;
-        int maxCount = 0;
+        int minCount = -1;
+        int maxCount = -1;
         for (Constraint constraint : ps.getConstraints()) {
             //System.out.println(constraint.getClass().getSimpleName());
             switch (constraint.getClass().getSimpleName()) {

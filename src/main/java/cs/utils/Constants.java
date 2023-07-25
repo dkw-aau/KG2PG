@@ -23,5 +23,8 @@ public class Constants {
 
     public static String PG_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_QUERIES.cypher";
     public static String PG_SCHEMA_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA_QUERIES.cypher";
+
+
+    public static String PG_SCHEMA_SYNTAX_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA.txt";
     
 }
