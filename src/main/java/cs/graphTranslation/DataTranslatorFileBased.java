@@ -8,6 +8,7 @@ import cs.utils.neo.Neo4jGraph;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.semanticweb.yars.nx.Literal;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
 import org.semanticweb.yars.nx.parser.ParseException;
@@ -17,7 +18,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DataTranslatorFileBased {
     String rdfFilePath;
@@ -31,7 +35,7 @@ public class DataTranslatorFileBased {
     // T = number of distinct types
     // P = number of distinct predicates
 
-    Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information
+    Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information //FIXME: entityDataHashMap can be simplified as in this transformation we only need to store class types
     Map<Integer, Integer> classEntityCount; // Size == T
     SchemaTranslator schemaTranslator;
 
@@ -122,44 +126,41 @@ public class DataTranslatorFileBased {
         createKeyValuesQueries = new ArrayList<>();
         createEdgeQueries = new ArrayList<>();
         try {
-            Set<Integer> pgEdgeSet = schemaTranslator.getPgSchema().getPgEdges();
+            //Set<Integer> pgEdgeSet = schemaTranslator.getPgSchema().getPgEdges();
+            HashMap<Integer, Boolean> pgEdgeLiteralBooleanMap = schemaTranslator.getPgSchema().getPgEdgeBooleanMap();
             Files.lines(Path.of(rdfFilePath)).forEach(line -> {
                 try {
                     // parsing <s,p,o> of triple from each line as node[0], node[1], and node[2]
                     Node[] nodes = NxParser.parseNodes(line);
-                    Node entityNode = nodes[0];
-
                     if (!nodes[1].toString().equals(typePredicate)) {
-                        //Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
-                        int propertyKey = resourceEncoder.encodeAsResource(nodes[1].toString());
+                        Node entityNode = nodes[0];
+                        String entityIri = entityNode.getLabel();
+                        Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
+                        int propertyKey = resourceEncoder.encodeAsResource(nodes[1].getLabel());
+                        boolean isLiteralProperty = false;
+                        //int objID = resourceEncoder.encodeAsResource(nodes[2].getLabel()); //Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
 
-                        //System.out.println("propertyKey = " + propertyKey);
-                        boolean literalFlag = false;
-                        //iterate over all edges in the PG-Schema
-                        for (Integer pgEdge : pgEdgeSet) {
-                            if (pgEdge.equals(propertyKey)) {
-                                //System.out.println("pgEdge = " + pgEdge);
-                                PgEdge currEdge = PgEdge.getEdgeById(pgEdge);
-                                //FIXME: Think again if you should use isProperty() or only isLiteral(). What would be the difference?
-                                if (currEdge.isProperty() && currEdge.isLiteral()) {
-                                    //System.out.println("isKeyValueFlag = " + nodes[1].toString() + " - " + currEdge.getDataType());
-                                    literalFlag = true;
-                                    break;
-                                }
-                            }
+                        //1: Check if the property is a literal
+                        if (pgEdgeLiteralBooleanMap.containsKey(propertyKey)) {
+                            isLiteralProperty = pgEdgeLiteralBooleanMap.get(propertyKey);
                         }
 
-                        Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
-                        String entityIri = entityNode.getLabel();
-                        if (literalFlag) {
+                        //2: Check if the object node exists in the entityDataHashMap
+                        if (entityDataHashMap.containsKey(nodes[2])) { //create an edge between the entity and the object node using the property as edge label, Add the object value as edge to the node with a match to a specific node (which should exist already)
+                            String objectIri = nodes[2].getLabel();
+                            String query = String.format("MATCH (s {iri: \"%s\"}), (u {iri: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s {iri : \"%s\"}]->(u);", entityIri, objectIri, propAsResource.getLocalName(), propAsResource.getURI());
+                            createEdgeQueries.add(query);
+                        } else if (isLiteralProperty) {
+                            //PgEdge.getEdgeById(propertyKey).getDataType()
                             String key = propAsResource.getLocalName();
                             String keyValue = nodes[2].toString();
-                            String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, %s);", entityIri, key, key, keyValue);
+                            String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, %s), s.iri = COALESCE(s.iri, \"%s\");", entityIri, key, key, keyValue, propAsResource.getURI());
                             createKeyValuesQueries.add(query);
                         } else {
-                            String objectIri = nodes[2].getLabel();
-                            //Add the object value as edge to the node with a match to a specific node (which should exist already)
-                            String query = String.format("MATCH (s {iri: \"%s\"}), (u {iri: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, objectIri, propAsResource.getLocalName());
+                            String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
+                            // Create an edge between the entity and the object node using the property as edge label
+                            String query = String.format("MATCH (s {iri: \"%s\"}), (u {value: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, nodes[2].getLabel(), propAsResource.getLocalName());
+                            createEdgeQueries.add(objectNodeQuery);
                             createEdgeQueries.add(query);
                         }
                     }
@@ -167,23 +168,37 @@ public class DataTranslatorFileBased {
                     e.printStackTrace();
                 }
             });
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             e.printStackTrace();
         }
         watch.stop();
     }
-    private void writeQueriesToFile(){
+
+    private static Resource extractDataType(Node node) {
+        Literal objAsLiteral = ((Literal) node);
+        Resource literalDataType = ResourceFactory.createResource("http://www.w3.org/2001/XMLSchema#string");
+        if (objAsLiteral.getDatatype() != null) {
+            literalDataType = ResourceFactory.createResource(objAsLiteral.getDatatype().getLabel());
+        }
+        return literalDataType;
+    }
+
+    private void writeQueriesToFile() {
         try {
             FileWriter fileWriter = new FileWriter(Constants.PG_QUERY_FILE_PATH);
             PrintWriter printWriter = new PrintWriter(fileWriter);
             createNodeQueries.forEach(printWriter::println);
+            printWriter.println("\n\n");
             createKeyValuesQueries.forEach(printWriter::println);
+            printWriter.println("\n\n");
             createEdgeQueries.forEach(printWriter::println);
             printWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     private void executeQueriesOverNeo4j() {
         Neo4jGraph neo4jGraph = new Neo4jGraph();
         neo4jGraph.deleteAllFromNeo4j();
