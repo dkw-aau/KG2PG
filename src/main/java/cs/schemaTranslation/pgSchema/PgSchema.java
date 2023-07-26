@@ -10,7 +10,7 @@ public class PgSchema {
     Map<Integer, List<Integer>> nodesToEdges; // nodeId -> edgeIds
     Map<Pair<Integer, Integer>, Set<Integer>> nodeEdgeTarget; // <nodeId, edgeId> -> targetNodeIds
     Map<Pair<Integer, Integer>, Pair<Integer, Integer>> nodeEdgeCardinality; // <nodeId, edgeId> -> <minCount, maxCount>
-    Set<Integer> pgEdges; // Set of all edgeIds
+    Map<Integer, Boolean> pgEdgeBooleanMap; // edgeId -> isLiteral
 
     public PgSchema() {
         nodesToEdges = new HashMap<>();
@@ -45,14 +45,18 @@ public class PgSchema {
     }
 
     public void postProcessPgSchema() {
-        pgEdges = new HashSet<Integer>();
+        Set<Integer> pgEdges = new HashSet<Integer>();
         for (List<Integer> set : nodesToEdges.values()) {
             pgEdges.addAll(set);
         }
+        pgEdgeBooleanMap = new HashMap<>();
+        for (Integer edgeId : pgEdges) {
+            pgEdgeBooleanMap.put(edgeId, PgEdge.getEdgeById(edgeId).isLiteral());
+        }
     }
 
-    public Set<Integer> getPgEdges() {
-        return pgEdges;
+    public HashMap<Integer, Boolean> getPgEdgeBooleanMap() {
+        return (HashMap<Integer, Boolean>) pgEdgeBooleanMap;
     }
 
     public Map<Pair<Integer, Integer>, Pair<Integer, Integer>> getNodeEdgeCardinalityMap() {

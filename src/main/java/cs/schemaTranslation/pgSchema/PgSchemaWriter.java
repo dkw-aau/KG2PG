@@ -113,7 +113,7 @@ public class PgSchemaWriter {
                     PgNode targetPgNode = PgNode.getNodeById(tNodeId);
                     if (targetPgNode.isAbstract()) {
                         String nodeType = "(%sType: %s { id: %d, iri: \"%s\" })".formatted(targetNodeAsResource.getLocalName(), targetNodeAsResource.getLocalName(), tNodeId, targetNodeAsResource.getURI());
-                        targetNodeTypes.add(targetNodeAsResource.getLocalName().toLowerCase() );
+                        targetNodeTypes.add(targetNodeAsResource.getLocalName().toLowerCase() + "Type");
                         tNodeTypes.add(StringUtils.capitalize(targetNodeAsResource.getLocalName()));
                         pgNodeTypes.add(nodeType); // This is a special case, here you will also encounter target abstract node types, so you need to handle them
                     } else {
@@ -122,8 +122,10 @@ public class PgSchemaWriter {
 
                     }
                 }
-                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s { iri: \"%s\" }]->(:%sType)".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getURI(), String.join(" | :", targetNodeTypes));
+                String edgeType = "CREATE EDGE TYPE (:%sType)-[%sType: %s { iri: \"%s\" }]->(:%s)".formatted(sourceNodeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getLocalName(), edgeAsResource.getURI(), String.join(" | :", targetNodeTypes));
                 pgEdgeTypes.add(edgeType);
+
+
                 if (!skipFlag) {
                     String edgeCard = "";
                     char is = sourceNodeAsResource.getLocalName().toLowerCase().charAt(0); //initial for source node
