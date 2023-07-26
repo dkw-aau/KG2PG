@@ -1,0 +1,92 @@
+@prefix ex:  <http://x.y/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Students
+
+ex:Bob
+    a              ex:Student, ex:UnderGraduateStudent, ex:Person ;
+    ex:advisedBy   ex:alice ;
+    ex:name        "Bob" ;
+    ex:dob         "1995-01-01"^^xsd:date ;
+    ex:studiesAt   ex:MIT ;
+    ex:takesCourse ex:CompSci202 ;
+    ex:takesCourse "Web Engineering" .
+
+ex:John
+    a              ex:Student, ex:GraduateStudent, ex:Person ;
+    ex:advisedBy   ex:Marry ;
+    ex:name        "John" ;
+    ex:dob         "1994"^^xsd:gYear ;
+    ex:dob         "05-05" ;
+    ex:studiesAt   ex:MIT ;
+    ex:takesCourse ex:CompSci202, ex:Math101 .
+
+# Faculty
+
+ex:Marry
+    a                ex:Professor, ex:Faculty, ex:Person ;
+    ex:docDegreeFrom ex:Stanford ;
+    ex:name          "Marry Donaldson" ;
+    ex:teacherOf     ex:Math101 ;
+    ex:worksFor      ex:MathDept .
+
+
+ex:alice
+    a                ex:Professor, ex:Faculty, ex:Person ;
+    ex:docDegreeFrom ex:MIT ;
+    ex:name          "Alice Smith" ;
+    ex:teacherOf     ex:CompSci202 ;
+    ex:worksFor      ex:CompSciDept .
+
+
+# Courses
+ex:Math101
+    a            ex:Course, ex:GraduateCourse ;
+    ex:name      "Math 101" ;
+    ex:offeredBy ex:MathDept .
+
+ex:CompSci202
+    a            ex:Course, ex:UnderGradCourse ;
+    ex:name      "Computer Science 202" ;
+    ex:offeredBy ex:CompSciDept .
+
+
+# Departments
+
+ex:MathDept
+    a           ex:Department ;
+    ex:name     "Department of Mathematics" ;
+    ex:subOrgOf ex:MIT .
+
+ex:CompSciDept
+    a           ex:Department ;
+    ex:name     "Department of Computer Science" ;
+    ex:subOrgOf ex:MIT .
+
+
+# Universities
+ex:Stanford
+    a          ex:University ;
+    ex:name    "Stanford University" ;
+    ex:address "450 Serra Mall, Stanford, CA 94305" ;
+    ex:country "USA" .
+
+ex:MIT
+    a          ex:University ;
+    ex:name    "Massachusetts Institute of Technology" ;
+    ex:address ex:MitsAddress .
+
+
+ex:MitsAddress
+    a          ex:Address ;
+    ex:street  "77 Massachusetts Avenue" ;
+    ex:city    "Cambridge" ;
+    ex:state   "MA" ;
+    ex:zip     "02139" ;
+    ex:country ex:UsaCountry .
+
+ex:UsaCountry
+    a          ex:Country ;
+    ex:isoCode "US" ;
+    ex:name    "United States of America" .

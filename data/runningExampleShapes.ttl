@@ -1,0 +1,361 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix ex:    <http://x.y/> .
+@prefix shape: <http://shaclshapes.org/> .
+
+
+shape:PersonShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:namePersonShapeProperty ;
+    sh:property    shape:dobPersonShapeProperty ;
+    sh:targetClass ex:Person .
+
+shape:namePersonShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:path     ex:name .
+
+shape:dobPersonShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:maxCount 3 ;
+    sh:or       ( [ sh:NodeKind sh:Literal ;
+                    sh:datatype xsd:string ; ] [ sh:NodeKind sh:Literal ;
+                                                 sh:datatype xsd:date ; ] [ sh:NodeKind sh:Literal ;
+                                                                            sh:datatype xsd:gYear ; ] ) ;
+    sh:path     ex:dob .
+
+
+shape:StudentShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:studiesAtStudentShapeProperty ;
+    sh:targetClass ex:Student ;
+    sh:node        shape:PersonShape .
+
+shape:studiesAtStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:University ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:UniversityShape ;
+    sh:path     ex:studiesAt .
+
+
+
+shape:GraduateStudentShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:advisedByGraduateStudentShapeProperty ;
+    sh:property    shape:takesCourseGraduateStudentShapeProperty ;
+    sh:node        shape:StudentShape ;
+    sh:targetClass ex:GraduateStudent .
+
+
+shape:advisedByGraduateStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Person ; ] [ sh:NodeKind sh:IRI ;
+                                                sh:class    ex:Professor ; ] [ sh:NodeKind sh:IRI ;
+                                                                               sh:class    ex:Faculty ; ] ) ;
+    sh:path     ex:advisedBy .
+
+
+shape:takesCourseGraduateStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Course ; ] [ sh:NodeKind sh:IRI ;
+                                                sh:class    ex:GraduateCourse ; ] [ sh:NodeKind sh:IRI ;
+                                                                                    sh:class    ex:UnderGradCourse ; ] ) ;
+    sh:path     ex:takesCourse .
+
+
+
+shape:UnderGraduateStudentShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:advisedByUnderGraduateStudentShapeProperty ;
+    sh:property    shape:takesCourseUnderGraduateStudentShapeProperty ;
+    sh:targetClass ex:UnderGraduateStudent ;
+    sh:node        shape:StudentShape .
+
+
+shape:advisedByUnderGraduateStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Person ; ] [ sh:NodeKind sh:IRI ;
+                                                sh:class    ex:Lecturer ; ] [ sh:NodeKind sh:IRI ;
+                                                                              sh:class    ex:Professor ; ] [ sh:NodeKind
+                                                                                                                     sh:IRI ;
+                                                                                                             sh:class
+                                                                                                                     ex:Faculty ; ] ) ;
+    sh:path     ex:advisedBy .
+
+shape:takesCourseUnderGraduateStudentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Course ; ] [ sh:NodeKind sh:Literal ;
+                                                sh:datatype xsd:string ; ] [ sh:NodeKind sh:IRI ;
+                                                                             sh:class    ex:UnderGradCourse ; ] ) ;
+    sh:path     ex:takesCourse .
+
+
+shape:FacultyShape
+    rdf:type       sh:NodeShape ;
+    sh:targetClass ex:Faculty ;
+    sh:node        shape:PersonShape .
+
+
+shape:ProfessorShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:docDegreeFromProfessorShapeProperty ;
+    sh:property    shape:teacherOfProfessorShapeProperty ;
+    sh:property    shape:worksForProfessorShapeProperty ;
+    sh:targetClass ex:Professor ;
+    sh:node        shape:FacultyShape .
+
+shape:docDegreeFromProfessorShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:University ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:UniversityShape ;
+    sh:path     ex:docDegreeFrom .
+
+shape:teacherOfProfessorShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Course ; ] [ sh:NodeKind sh:IRI ;
+                                                sh:class    ex:GraduateCourse ; ] [ sh:NodeKind sh:IRI ;
+                                                                                    sh:class    ex:UnderGradCourse ; ] ) ;
+    sh:path     ex:teacherOf .
+
+shape:worksForProfessorShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:Department ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:DepartmentShape ;
+    sh:path     ex:worksFor .
+
+
+
+shape:LecturerShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:teacherOfLecturerShapeProperty ;
+    sh:property    shape:worksForLecturerShapeProperty ;
+    sh:targetClass ex:Lecturer ;
+    sh:node        shape:FacultyShape .
+
+shape:teacherOfLecturerShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:minCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:IRI ;
+                    sh:class    ex:Course ; ] [ sh:NodeKind sh:IRI ;
+                                                sh:class    ex:UnderGradCourse ; ] ) ;
+    sh:path     ex:teacherOf .
+
+shape:worksForLecturerShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:Department ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:DepartmentShape ;
+    sh:path     ex:worksFor .
+
+
+shape:CountryShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:isoCodeCountryShapeProperty ;
+    sh:property    shape:nameCountryShapeProperty ;
+    sh:targetClass ex:Country .
+
+
+shape:isoCodeCountryShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:isoCode .
+
+
+shape:nameCountryShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:name .
+
+
+
+shape:CourseShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:nameCourseShapeProperty ;
+    sh:targetClass ex:Course .
+
+
+shape:nameCourseShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:name .
+
+shape:GraduateCourseShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:offeredByGraduateCourseShapeProperty ;
+    sh:targetClass ex:GraduateCourse ;
+    sh:node        shape:CourseShape .
+
+
+shape:offeredByGraduateCourseShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:Department ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:DepartmentShape ;
+    sh:path     ex:offeredBy .
+
+shape:UnderGradCourseShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:offeredByUnderGradCourseShapeProperty ;
+    sh:targetClass ex:UnderGradCourse ;
+    sh:node        shape:CourseShape .
+
+
+shape:offeredByUnderGradCourseShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:Department ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:DepartmentShape ;
+    sh:path     ex:offeredBy .
+
+
+
+shape:DepartmentShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:nameDepartmentShapeProperty ;
+    sh:property    shape:subOrgOfDepartmentShapeProperty ;
+    sh:targetClass ex:Department .
+
+
+shape:nameDepartmentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:name .
+
+shape:subOrgOfDepartmentShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:University ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:UniversityShape ;
+    sh:path     ex:subOrgOf .
+
+
+shape:UniversityShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:nameUniversityShapeProperty ;
+    sh:property    shape:addressUniversityShapeProperty ;
+    sh:property    shape:countryUniversityShapeProperty ;
+    sh:targetClass ex:University .
+
+shape:nameUniversityShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 100 ;
+    sh:minCount 1 ;
+    sh:path     ex:name .
+
+shape:addressUniversityShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:maxCount 1 ;
+    sh:or       ( [ sh:NodeKind sh:Literal ;
+                    sh:datatype xsd:string ; ] [ sh:NodeKind sh:IRI ;
+                                                 sh:class    ex:Address ; ] ) ;
+    sh:path     ex:address .
+
+
+shape:countryUniversityShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:path     ex:country .
+
+
+
+shape:AddressShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:cityAddressShapeProperty ;
+    sh:property    shape:countryAddressShapeProperty ;
+    sh:property    shape:stateAddressShapeProperty ;
+    sh:property    shape:streetAddressShapeProperty ;
+    sh:property    shape:zipAddressShapeProperty ;
+    sh:targetClass ex:Address .
+
+shape:cityAddressShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:city .
+
+shape:countryAddressShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:IRI ;
+    sh:class    ex:Country ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:node     shape:CountryShape ;
+    sh:path     ex:country .
+
+
+shape:stateAddressShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:state .
+
+shape:streetAddressShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:street .
+
+
+shape:zipAddressShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:maxCount 1 ;
+    sh:minCount 1 ;
+    sh:path     ex:zip .
+
+
