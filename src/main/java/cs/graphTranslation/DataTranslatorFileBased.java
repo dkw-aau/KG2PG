@@ -194,7 +194,7 @@ public class DataTranslatorFileBased {
                 }
             } else {
                 // Handle the case when the node is not a Literal
-                System.err.println("Error: Node is not a Literal");
+                //System.err.println("Error: Node is not a Literal");
                 return literalDataType;
             }
         } catch (NullPointerException e) {
