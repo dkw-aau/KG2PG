@@ -1,8 +1,0 @@
-CONSTRUCT {
-  ?entity ?p ?o .
-}
-WHERE {
-  ?entity a <http://dbpedia.org/ontology/MusicalArtist> .
-  ?entity ?p ?o .
-    OPTIONAL { ?o a ?otype. }
-}

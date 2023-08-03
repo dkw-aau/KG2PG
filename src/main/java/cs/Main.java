@@ -29,10 +29,6 @@ public class Main {
 
         SchemaTranslator schemaTranslator = new SchemaTranslator(resourceEncoder);
 
-        resourceEncoder.getTable().forEach((k, v) -> {
-            System.out.println(k + " " + v);
-        });
-
         //Graph Data Translation
         DataTranslatorFileBased dtFb = new DataTranslatorFileBased(datasetPath, numberOfClasses, numberOfInstances, Constants.RDF_TYPE, resourceEncoder, schemaTranslator);
         dtFb.run();

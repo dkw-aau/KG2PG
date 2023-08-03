@@ -4,6 +4,7 @@ import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.schemaTranslation.pgSchema.PgEdge;
 import cs.utils.Constants;
+import cs.utils.Utils;
 import cs.utils.neo.Neo4jGraph;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class DataTranslatorFileBased {
     String rdfFilePath;
@@ -98,12 +100,15 @@ public class DataTranslatorFileBased {
             e.printStackTrace();
         }
         watch.stop();
+        Utils.logTime("entityExtraction() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
     /**
      * Entities to PG Nodes conversion
      */
     private void entitiesToPgNodes() {
+        StopWatch watch = new StopWatch();
+        watch.start();
         createNodeQueries = new ArrayList<>();
         entityDataHashMap.forEach(((node, entityData) -> {
             //System.out.println(node + " : " + entityData.getClassTypes());
@@ -115,6 +120,8 @@ public class DataTranslatorFileBased {
             sb.append(" { iri : \"").append(node.getLabel()).append("\"})");
             createNodeQueries.add(sb.toString());
         }));
+        watch.stop();
+        Utils.logTime("entitiesToPgNodes()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
     /**
@@ -173,18 +180,37 @@ public class DataTranslatorFileBased {
             e.printStackTrace();
         }
         watch.stop();
+        Utils.logTime("propertiesToPgKeysAndEdges()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
     private static Resource extractDataType(Node node) {
-        Literal objAsLiteral = ((Literal) node);
         Resource literalDataType = ResourceFactory.createResource("http://www.w3.org/2001/XMLSchema#string");
-        if (objAsLiteral.getDatatype() != null) {
-            literalDataType = ResourceFactory.createResource(objAsLiteral.getDatatype().getLabel());
+
+        try {
+            if (node instanceof Literal) {
+                Literal objAsLiteral = (Literal) node;
+                if (objAsLiteral.getDatatype() != null) {
+                    literalDataType = ResourceFactory.createResource(objAsLiteral.getDatatype().getLabel());
+                }
+            } else {
+                // Handle the case when the node is not a Literal
+                System.err.println("Error: Node is not a Literal");
+                return literalDataType;
+            }
+        } catch (NullPointerException e) {
+            // Handle NullPointerException here
+            System.err.println("Error: Node is null or does not have a datatype");
+            e.printStackTrace();
+            return literalDataType;
         }
+
         return literalDataType;
     }
 
+
     private void writeQueriesToFile() {
+        StopWatch watch = new StopWatch();
+        watch.start();
         try {
             FileWriter fileWriter = new FileWriter(Constants.PG_QUERY_FILE_PATH);
             PrintWriter printWriter = new PrintWriter(fileWriter);
@@ -197,6 +223,8 @@ public class DataTranslatorFileBased {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        watch.stop();
+        Utils.logTime("writeQueriesToFile()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
     private void executeQueriesOverNeo4j() {

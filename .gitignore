@@ -21,3 +21,14 @@ gradle
 
 ### Mac OS ###
 .DS_Store
+
+# ignore files in folder foo
+Output/DBpedia/*
+# but keep the folder
+!Output/DBpedia/.keep
+
+
+# ignore files in folder foo
+Output/runningExample/*
+# but keep the folder
+!Output/runningExample/.keep

@@ -1,0 +1,382 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+
+<http://shaclshapes.org/AutomobileShape>
+    rdf:type                                 <http://www.w3.org/ns/shacl#NodeShape> ;
+    <http://shaclshapes.org/support>         "10276"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/alternativeNameAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/assemblyAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/automobilePlatformAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/batteryAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/bodyStyleAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/classAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/designCompanyAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/designerAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/differentFromAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/engineAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/heightAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/labelAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/layoutAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/lengthAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/manufactoryAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/manufacturerAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/modelEndYearAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/modelStartYearAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/nameAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/numberOfDoorsAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/predecessorAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/productionEndYearAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/productionStartDateAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/productionStartYearAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/rangeAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/relatedMeanOfTransportationAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/salesAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/sameAsAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/seeAlsoAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/soundRecordingAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/successorAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/transmissionAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/typeAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/variantOfAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/weightAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/wheelbaseAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/widthAutomobileShapeProperty> ;
+    <http://www.w3.org/ns/shacl#targetClass> <http://dbpedia.org/ontology/Automobile> .
+
+<http://shaclshapes.org/alternativeNameAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   2.26E-1 ;
+    <http://shaclshapes.org/support>      "113"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> rdf:langString ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/alternativeName> .
+
+<http://shaclshapes.org/assemblyAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://shaclshapes.org/confidence>   8E-3 ;
+                                          <http://shaclshapes.org/support>      "4"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Town> ; ]
+                                        [ <http://shaclshapes.org/confidence>   4.4E-2 ;
+                                          <http://shaclshapes.org/support>      "22"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Country> ; ]
+                                        [ <http://shaclshapes.org/confidence>   6E-3 ;
+                                          <http://shaclshapes.org/support>      "3"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/City> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2E-3 ;
+                                          <http://shaclshapes.org/support>      "1"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Settlement> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/assembly> .
+
+<http://shaclshapes.org/automobilePlatformAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   1.2E-2 ;
+    <http://shaclshapes.org/support>      "6"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ;
+    <http://www.w3.org/ns/shacl#node>     <http://shaclshapes.org/AutomobileShape> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/automobilePlatform> .
+
+<http://shaclshapes.org/batteryAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   2E-3 ;
+    <http://shaclshapes.org/support>      "1"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Battery> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/battery> .
+
+<http://shaclshapes.org/bodyStyleAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/bodyStyle> .
+
+<http://shaclshapes.org/classAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/class> .
+
+<http://shaclshapes.org/designCompanyAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://shaclshapes.org/confidence>   3.6E-2 ;
+                                          <http://shaclshapes.org/support>      "18"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/FashionDesigner> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2E-3 ;
+                                          <http://shaclshapes.org/support>      "1"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Engineer> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/designCompany> .
+
+<http://shaclshapes.org/designerAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://shaclshapes.org/confidence>   3.6E-2 ;
+                                          <http://shaclshapes.org/support>      "18"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/FashionDesigner> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2E-3 ;
+                                          <http://shaclshapes.org/support>      "1"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Engineer> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/designer> .
+
+<http://shaclshapes.org/differentFromAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> owl:differentFrom .
+
+<http://shaclshapes.org/engineAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://shaclshapes.org/confidence>   1.2E-2 ;
+                                          <http://shaclshapes.org/support>      "6"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Device> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2E-2 ;
+                                          <http://shaclshapes.org/support>      "10"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Engine> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2E-3 ;
+                                          <http://shaclshapes.org/support>      "1"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ; ]
+                                        [ <http://shaclshapes.org/confidence>   6E-3 ;
+                                          <http://shaclshapes.org/support>      "3"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Company> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2.12E-1 ;
+                                          <http://shaclshapes.org/support>      "106"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/AutomobileEngine> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/engine> .
+
+<http://shaclshapes.org/heightAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   4.98E-1 ;
+    <http://shaclshapes.org/support>      "249"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:double ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/height> .
+
+<http://shaclshapes.org/labelAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   8.12E-1 ;
+    <http://shaclshapes.org/support>      "406"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> rdf:langString ;
+    <http://www.w3.org/ns/shacl#path>     rdfs:label .
+
+<http://shaclshapes.org/layoutAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/layout> .
+
+<http://shaclshapes.org/lengthAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   6.2E-1 ;
+    <http://shaclshapes.org/support>      "310"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:double ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/length> .
+
+<http://shaclshapes.org/manufactoryAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/manufactory> .
+
+<http://shaclshapes.org/manufacturerAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://shaclshapes.org/confidence>   4E-3 ;
+                                          <http://shaclshapes.org/support>      "2"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/FormulaOneTeam> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2E-3 ;
+                                          <http://shaclshapes.org/support>      "1"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/FormulaOneRacer> ; ]
+                                        [ <http://shaclshapes.org/confidence>   4.2E-2 ;
+                                          <http://shaclshapes.org/support>      "21"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Company> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/manufacturer> .
+
+<http://shaclshapes.org/modelEndYearAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   1.12E-1 ;
+    <http://shaclshapes.org/support>      "56"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:gYear ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/modelEndYear> .
+
+<http://shaclshapes.org/modelStartYearAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   1.4E-1 ;
+    <http://shaclshapes.org/support>      "70"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:gYear ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/modelStartYear> .
+
+<http://shaclshapes.org/nameAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   9.96E-1 ;
+    <http://shaclshapes.org/support>      "498"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> rdf:langString ;
+    <http://www.w3.org/ns/shacl#path>     <http://xmlns.com/foaf/0.1/name> .
+
+<http://shaclshapes.org/numberOfDoorsAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   8.6E-2 ;
+    <http://shaclshapes.org/support>      "43"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:positiveInteger ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/numberOfDoors> .
+
+<http://shaclshapes.org/predecessorAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   2.1E-1 ;
+    <http://shaclshapes.org/support>      "105"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ;
+    <http://www.w3.org/ns/shacl#node>     <http://shaclshapes.org/AutomobileShape> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/predecessor> .
+
+<http://shaclshapes.org/productionEndYearAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   7.9E-1 ;
+    <http://shaclshapes.org/support>      "395"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:gYear ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/productionEndYear> .
+
+<http://shaclshapes.org/productionStartDateAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   2E-3 ;
+    <http://shaclshapes.org/support>      "1"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:date ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/productionStartDate> .
+
+<http://shaclshapes.org/productionStartYearAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   9.2E-1 ;
+    <http://shaclshapes.org/support>      "460"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:gYear ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/productionStartYear> .
+
+<http://shaclshapes.org/rangeAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   8E-3 ;
+    <http://shaclshapes.org/support>      "4"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:positiveInteger ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/range> .
+
+<http://shaclshapes.org/relatedMeanOfTransportationAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   1.9E-1 ;
+    <http://shaclshapes.org/support>      "95"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ;
+    <http://www.w3.org/ns/shacl#node>     <http://shaclshapes.org/AutomobileShape> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/relatedMeanOfTransportation> .
+
+<http://shaclshapes.org/salesAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://shaclshapes.org/confidence>   2.4E-2 ;
+                                          <http://shaclshapes.org/support>      "12"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Activity> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2.4E-2 ;
+                                          <http://shaclshapes.org/support>      "12"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Sales> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2.4E-2 ;
+                                          <http://shaclshapes.org/support>      "12"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.ontologydesignpatterns.org/ont/d0.owl#Activity> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2.4E-2 ;
+                                          <http://shaclshapes.org/support>      "12"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q1914636> ; ]
+                                        [ <http://shaclshapes.org/confidence>   2.4E-2 ;
+                                          <http://shaclshapes.org/support>      "12"^^xsd:int ;
+                                          <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q194189> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/sales> .
+
+<http://shaclshapes.org/sameAsAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> owl:sameAs .
+
+<http://shaclshapes.org/seeAlsoAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   4E-3 ;
+    <http://shaclshapes.org/support>      "2"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ;
+    <http://www.w3.org/ns/shacl#node>     <http://shaclshapes.org/AutomobileShape> ;
+    <http://www.w3.org/ns/shacl#path>     rdfs:seeAlso .
+
+<http://shaclshapes.org/soundRecordingAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   6E-3 ;
+    <http://shaclshapes.org/support>      "3"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Sound> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/soundRecording> .
+
+<http://shaclshapes.org/successorAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   2.26E-1 ;
+    <http://shaclshapes.org/support>      "113"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ;
+    <http://www.w3.org/ns/shacl#node>     <http://shaclshapes.org/AutomobileShape> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/successor> .
+
+<http://shaclshapes.org/transmissionAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   5.88E-1 ;
+    <http://shaclshapes.org/support>      "294"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:string ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/transmission> .
+
+<http://shaclshapes.org/typeAutomobileShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/ontology/type> .
+
+<http://shaclshapes.org/variantOfAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   1.78E-1 ;
+    <http://shaclshapes.org/support>      "89"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+    <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Automobile> ;
+    <http://www.w3.org/ns/shacl#node>     <http://shaclshapes.org/AutomobileShape> ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/variantOf> .
+
+<http://shaclshapes.org/weightAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   3.78E-1 ;
+    <http://shaclshapes.org/support>      "189"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:double ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/weight> .
+
+<http://shaclshapes.org/wheelbaseAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   5.86E-1 ;
+    <http://shaclshapes.org/support>      "293"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:double ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/wheelbase> .
+
+<http://shaclshapes.org/widthAutomobileShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://shaclshapes.org/confidence>   5.72E-1 ;
+    <http://shaclshapes.org/support>      "286"^^xsd:int ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> xsd:double ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/ontology/width> .
+
+

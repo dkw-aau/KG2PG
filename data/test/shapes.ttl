@@ -1,0 +1,29 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix ex:    <http://x.y/> .
+@prefix shape: <http://shaclshapes.org/> .
+
+shape:PersonShape
+    rdf:type       sh:NodeShape ;
+    sh:property    shape:namePersonShapeProperty ;
+    sh:property    shape:dobPersonShapeProperty ;
+    sh:targetClass ex:Person .
+
+shape:namePersonShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:path     ex:name .
+
+shape:dobPersonShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:maxCount 3 ;
+    sh:or       ( [ sh:NodeKind sh:Literal ;
+                    sh:datatype xsd:string ; ] [ sh:NodeKind sh:Literal ;
+                                                 sh:datatype xsd:date ; ] [ sh:NodeKind sh:Literal ;
+                                                                            sh:datatype xsd:gYear ; ] ) ;
+    sh:path     ex:dob .

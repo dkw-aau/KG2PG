@@ -77,15 +77,15 @@ public class Utils {
         //System.out.println("Total Parsing Time " + secondsTotal + " sec , " + minutesTotal + " min");
     }
     
-//    public static void logTime(String method, long seconds, long minutes) {
-//        secondsTotal += seconds;
-//        minutesTotal += minutes;
-//        //Header: "Dataset,Method,Second,Minute,SecondTotal,MinuteTotal,MaxCard,DatasetPath"
-//        String line = ConfigManager.getProperty("dataset_name") + "," + method + "," + seconds + "," + minutes + "," + secondsTotal + "," + minutesTotal + "," + Main.extractMaxCardConstraints + "," + Main.datasetPath;
-//        log(line);
-//        System.out.println("Time Elapsed Time " + method + " " + seconds + " sec , " + minutes + " min");
-//        System.out.println("Total Parsing Time " + secondsTotal + " sec , " + minutesTotal + " min");
-//    }
+    public static void logTime(String method, long seconds, long minutes) {
+        secondsTotal += seconds;
+        minutesTotal += minutes;
+        //Header: "Dataset,Method,Second,Minute,SecondTotal,MinuteTotal,MaxCard,DatasetPath"
+        String line = ConfigManager.getProperty("dataset_name") + "," + method + "," + seconds + "," + minutes + "," + secondsTotal + "," + minutesTotal + "," + "," + Main.datasetPath;
+        log(line);
+        System.out.println("Time Elapsed Time " + method + " " + seconds + " sec , " + minutes + " min");
+        System.out.println("Total Parsing Time " + secondsTotal + " sec , " + minutesTotal + " min");
+    }
     
     public static void logSamplingStats(String samplingType, int samplingPercentage, int samplingMinThreshold, int samplingMaxThreshold, int entityDataMapContainerSize) {
         String log = samplingType + "," + samplingPercentage + "," + samplingMinThreshold + "," + samplingMaxThreshold + "," + entityDataMapContainerSize;

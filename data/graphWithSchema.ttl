@@ -1,0 +1,203 @@
+@prefix ex:  <http://x.y/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex:  <http://x.y/> .
+
+# Classes
+ex:Student a rdfs:Class .
+ex:UnderGraduateStudent a rdfs:Class .
+ex:GraduateStudent a rdfs:Class .
+ex:Person a rdfs:Class .
+ex:Professor a rdfs:Class .
+ex:Faculty a rdfs:Class .
+ex:Course a rdfs:Class .
+ex:UnderGradCourse a rdfs:Class .
+ex:GraduateCourse a rdfs:Class .
+ex:Department a rdfs:Class .
+ex:University a rdfs:Class .
+ex:Address a rdfs:Class .
+ex:Country a rdfs:Class .
+
+# Properties
+ex:advisedBy a rdf:Property ;
+             rdfs:domain ex:Student ;
+             rdfs:range ex:Professor .
+
+ex:name a rdf:Property ;
+        rdfs:domain ex:Person ;
+        rdfs:range xsd:string .
+
+ex:dob a rdf:Property ;
+       rdfs:domain ex:Person ;
+       rdfs:range xsd:date .
+
+ex:studiesAt a rdf:Property ;
+             rdfs:domain ex:Student ;
+             rdfs:range ex:University .
+
+ex:takesCourse a rdf:Property ;
+               rdfs:domain ex:Student ;
+               rdfs:range ex:Course .
+
+ex:docDegreeFrom a rdf:Property ;
+                 rdfs:domain ex:Professor ;
+                 rdfs:range ex:University .
+
+ex:teacherOf a rdf:Property ;
+             rdfs:domain ex:Professor ;
+             rdfs:range ex:Course .
+
+ex:worksFor a rdf:Property ;
+            rdfs:domain ex:Professor ;
+            rdfs:range ex:Department .
+
+ex:offeredBy a rdf:Property ;
+             rdfs:domain ex:Course ;
+             rdfs:range ex:Department .
+
+ex:subOrgOf a rdf:Property ;
+            rdfs:domain ex:Department ;
+            rdfs:range ex:University .
+
+ex:address a rdf:Property ;
+           rdfs:domain ex:University, ex:Address ;
+           rdfs:range xsd:string .
+
+ex:country a rdf:Property ;
+           rdfs:domain ex:University, ex:Country ;
+           rdfs:range xsd:string .
+
+ex:isoCode a rdf:Property ;
+           rdfs:domain ex:Country ;
+           rdfs:range xsd:string .
+
+ex:street a rdf:Property ;
+          rdfs:domain ex:Address ;
+          rdfs:range xsd:string .
+
+ex:city a rdf:Property ;
+        rdfs:domain ex:Address ;
+        rdfs:range xsd:string .
+
+ex:state a rdf:Property ;
+         rdfs:domain ex:Address ;
+         rdfs:range xsd:string .
+
+ex:zip a rdf:Property ;
+       rdfs:domain ex:Address ;
+       rdfs:range xsd:string .
+
+ex:name rdfs:subPropertyOf ex:name ;
+        rdfs:domain ex:Course ;
+        rdfs:range xsd:string .
+
+ex:name rdfs:subPropertyOf ex:name ;
+        rdfs:domain ex:Department ;
+        rdfs:range xsd:string .
+
+ex:name rdfs:subPropertyOf ex:name ;
+        rdfs:domain ex:University ;
+        rdfs:range xsd:string .
+
+ex:name rdfs:subPropertyOf ex:name ;
+        rdfs:domain ex:Person ;
+        rdfs:range xsd:string .
+
+ex:name rdfs:subPropertyOf ex:name ;
+        rdfs:domain ex:Faculty ;
+        rdfs:range xsd:string .
+
+ex:name rdfs:subPropertyOf ex:name ;
+        rdfs:domain ex:Professor ;
+        rdfs:range xsd:string .
+
+
+# Students
+
+ex:Bob
+    a              ex:Student, ex:UnderGraduateStudent, ex:Person ;
+    ex:advisedBy   ex:alice ;
+    ex:name        "Bob" ;
+    ex:dob         "1995-01-01"^^xsd:date ;
+    ex:studiesAt   ex:MIT ;
+    ex:takesCourse ex:CompSci202 ;
+    ex:takesCourse "Web Engineering" .
+
+ex:John
+    a              ex:Student, ex:GraduateStudent, ex:Person ;
+    ex:advisedBy   ex:Marry ;
+    ex:name        "John" ;
+    ex:dob         "1994"^^xsd:gYear ;
+    ex:dob         "05-05" ;
+    ex:studiesAt   ex:MIT ;
+    ex:takesCourse ex:CompSci202, ex:Math101 .
+
+# Faculty
+
+ex:Marry
+    a                ex:Professor, ex:Faculty, ex:Person ;
+    ex:docDegreeFrom ex:Stanford ;
+    ex:name          "Marry Donaldson" ;
+    ex:teacherOf     ex:Math101 ;
+    ex:worksFor      ex:MathDept .
+
+
+ex:alice
+    a                ex:Professor, ex:Faculty, ex:Person ;
+    ex:docDegreeFrom ex:MIT ;
+    ex:name          "Alice Smith" ;
+    ex:teacherOf     ex:CompSci202 ;
+    ex:worksFor      ex:CompSciDept .
+
+
+# Courses
+ex:Math101
+    a            ex:Course, ex:GraduateCourse ;
+    ex:name      "Math 101" ;
+    ex:offeredBy ex:MathDept .
+
+ex:CompSci202
+    a            ex:Course, ex:UnderGradCourse ;
+    ex:name      "Computer Science 202" ;
+    ex:offeredBy ex:CompSciDept .
+
+
+# Departments
+
+ex:MathDept
+    a           ex:Department ;
+    ex:name     "Department of Mathematics" ;
+    ex:subOrgOf ex:MIT .
+
+ex:CompSciDept
+    a           ex:Department ;
+    ex:name     "Department of Computer Science" ;
+    ex:subOrgOf ex:MIT .
+
+
+# Universities
+ex:Stanford
+    a          ex:University ;
+    ex:name    "Stanford University" ;
+    ex:address "450 Serra Mall, Stanford, CA 94305" ;
+    ex:country "USA" .
+
+ex:MIT
+    a          ex:University ;
+    ex:name    "Massachusetts Institute of Technology" ;
+    ex:address ex:MitsAddress .
+
+
+ex:MitsAddress
+    a          ex:Address ;
+    ex:street  "77 Massachusetts Avenue" ;
+    ex:city    "Cambridge" ;
+    ex:state   "MA" ;
+    ex:zip     "02139" ;
+    ex:country ex:UsaCountry .
+
+ex:UsaCountry
+    a          ex:Country ;
+    ex:isoCode "US" ;
+    ex:name    "United States of America" .
