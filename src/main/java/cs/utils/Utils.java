@@ -48,7 +48,7 @@ public class Utils {
     
     public static void log(String log) {
         try {
-            FileWriter fileWriter = new FileWriter(Constants.QUERYING_LOGS, true);
+            FileWriter fileWriter = new FileWriter(Constants.RUNTIME_LOGS, true);
             PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println(log);
             printWriter.close();

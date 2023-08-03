@@ -22,6 +22,11 @@ public class Constants {
     public static String QUERYING_LOGS = ConfigManager.getProperty("output_file_path") + ConfigManager.getProperty("dataset_name") + "_QUERYING_LOGS.csv";
 
     public static String PG_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_QUERIES.cypher";
+
+    public static String PG_NODE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_NODE_QUERIES.cypher";
+    public static String PG_KV_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_KV_QUERIES.cypher";
+    public static String PG_EDGE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_EDGE_QUERIES.cypher";
+
     public static String PG_SCHEMA_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA_QUERIES.cypher";
 
 

@@ -212,14 +212,20 @@ public class DataTranslatorFileBased {
         StopWatch watch = new StopWatch();
         watch.start();
         try {
-            FileWriter fileWriter = new FileWriter(Constants.PG_QUERY_FILE_PATH);
+            FileWriter fileWriter = new FileWriter(Constants.PG_NODE_QUERY_FILE_PATH);
             PrintWriter printWriter = new PrintWriter(fileWriter);
             createNodeQueries.forEach(printWriter::println);
-            printWriter.println("\n\n");
-            createKeyValuesQueries.forEach(printWriter::println);
-            printWriter.println("\n\n");
-            createEdgeQueries.forEach(printWriter::println);
             printWriter.close();
+
+            FileWriter fileWriter2 = new FileWriter(Constants.PG_KV_QUERY_FILE_PATH);
+            PrintWriter printWriter2 = new PrintWriter(fileWriter2);
+            createKeyValuesQueries.forEach(printWriter2::println);
+            printWriter2.close();
+
+            FileWriter fileWriter3 = new FileWriter(Constants.PG_EDGE_QUERY_FILE_PATH);
+            PrintWriter printWriter3 = new PrintWriter(fileWriter3);
+            createEdgeQueries.forEach(printWriter3::println);
+            printWriter3.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
