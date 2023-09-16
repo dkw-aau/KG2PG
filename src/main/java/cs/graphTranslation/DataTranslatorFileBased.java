@@ -63,8 +63,8 @@ public class DataTranslatorFileBased {
         entityExtraction(); // extract entities and store in entityDataHashMap
         entitiesToPgNodes(); // iterate over extracted entities and convert them to PG-Nodes
         propertiesToPgKeysAndEdges();
-        //executeQueriesOverNeo4j();
         writeQueriesToFile();
+        executeQueriesOverNeo4j();
         System.out.println("STATS: \n\t" + "No. of Classes: " + classEntityCount.size());
     }
 
@@ -104,22 +104,35 @@ public class DataTranslatorFileBased {
     }
 
     /**
-     * Entities to PG Nodes conversion
+     *
      */
     private void entitiesToPgNodes() {
         StopWatch watch = new StopWatch();
         watch.start();
         createNodeQueries = new ArrayList<>();
-        entityDataHashMap.forEach(((node, entityData) -> {
-            //System.out.println(node + " : " + entityData.getClassTypes());
-            StringBuilder sb = new StringBuilder();
-            sb.append("CREATE (");
-            entityData.getClassTypes().forEach(classID -> {
+        int counter = 0;
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<Node, EntityData> entry : entityDataHashMap.entrySet()) {
+            Node node = entry.getKey();
+            EntityData entityData = entry.getValue();
+            sb.append("(");
+            for (Integer classID : entityData.getClassTypes()) {
                 sb.append(":").append(resourceEncoder.decodeAsResource(classID).getLocalName());
-            });
+            }
             sb.append(" { iri : \"").append(node.getLabel()).append("\"})");
-            createNodeQueries.add(sb.toString());
-        }));
+            counter++;
+            if (counter % 1000 == 0) { //batch size 1000
+                sb.append(";");
+                createNodeQueries.add("CREATE \n" + sb);
+                sb = new StringBuilder(); // Reset the StringBuilder for the next batch
+            } else {
+                sb.append(", ");
+            }
+        }
+        if (!sb.isEmpty()) { // If there are remaining nodes not forming a complete batch, add them here
+            sb.delete(sb.length() - 2, sb.length());
+            createNodeQueries.add("CREATE \n" + sb + ";");
+        }
         watch.stop();
         Utils.logTime("entitiesToPgNodes()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
@@ -160,9 +173,10 @@ public class DataTranslatorFileBased {
                         } else if (isLiteralProperty) {
                             //PgEdge.getEdgeById(propertyKey).getDataType()
                             String key = propAsResource.getLocalName();
-                            String keyValue = nodes[2].toString();
-                            String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, %s), s.iri = COALESCE(s.iri, \"%s\");", entityIri, key, key, keyValue, propAsResource.getURI());
-                            createKeyValuesQueries.add(query);
+                            String keyValue = nodes[2].getLabel();
+                            //String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, \"%s\"), s.iri = COALESCE(s.iri, \"%s\");", entityIri, key, key, keyValue, propAsResource.getURI());
+                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + keyValue;
+                            createKeyValuesQueries.add(entityIriPropertyIriValue);
                         } else {
                             String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
                             // Create an edge between the entity and the object node using the property as edge label
@@ -219,6 +233,7 @@ public class DataTranslatorFileBased {
 
             FileWriter fileWriter2 = new FileWriter(Constants.PG_KV_QUERY_FILE_PATH);
             PrintWriter printWriter2 = new PrintWriter(fileWriter2);
+            printWriter2.println("IRI|PROPERTY|VALUE");
             createKeyValuesQueries.forEach(printWriter2::println);
             printWriter2.close();
 
@@ -236,9 +251,9 @@ public class DataTranslatorFileBased {
     private void executeQueriesOverNeo4j() {
         Neo4jGraph neo4jGraph = new Neo4jGraph();
         neo4jGraph.deleteAllFromNeo4j();
-        neo4jGraph.executeMultipleCypherQueries(createNodeQueries);
-        neo4jGraph.executeMultipleCypherQueries(createKeyValuesQueries);
-        neo4jGraph.executeMultipleCypherQueries(createEdgeQueries);
+        //neo4jGraph.executeMultipleCypherQueries(createNodeQueries);
+        //neo4jGraph.executeMultipleCypherQueries(createKeyValuesQueries);
+        //neo4jGraph.executeMultipleCypherQueries(createEdgeQueries);
         neo4jGraph.close();
     }
 
