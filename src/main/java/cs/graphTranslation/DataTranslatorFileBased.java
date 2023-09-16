@@ -121,7 +121,7 @@ public class DataTranslatorFileBased {
             }
             sb.append(" { iri : \"").append(node.getLabel()).append("\"})");
             counter++;
-            if (counter % 1000 == 0) { //batch size 1000
+            if (counter % 3000 == 0) { //batch size 1000
                 sb.append(";");
                 createNodeQueries.add("CREATE \n" + sb);
                 sb = new StringBuilder(); // Reset the StringBuilder for the next batch
@@ -250,7 +250,9 @@ public class DataTranslatorFileBased {
 
     private void executeQueriesOverNeo4j() {
         Neo4jGraph neo4jGraph = new Neo4jGraph();
+        System.out.println("Deleting all nodes from Neo4j");
         neo4jGraph.deleteAllFromNeo4j();
+        System.out.println("Executing createNodeQueries() over Neo4j");
         neo4jGraph.executeMultipleCypherQueries(createNodeQueries);
         //neo4jGraph.executeMultipleCypherQueries(createKeyValuesQueries);
         //neo4jGraph.executeMultipleCypherQueries(createEdgeQueries);

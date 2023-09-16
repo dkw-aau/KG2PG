@@ -1,8 +1,11 @@
 package cs.utils.neo;
 
+import cs.utils.Utils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.driver.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -29,19 +32,28 @@ public class Neo4jGraph {
 
     public void executeMultipleCypherQueries(List<String> cypherQueries) {
         try (Session session = driver.session()) {
+            StopWatch watch = new StopWatch();
+            watch.start();
             session.writeTransaction(tx -> {
                 cypherQueries.forEach(tx::run);
                 return null;
             });
+            watch.stop();
+            Utils.logTime("executeMultipleCypherQueries()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         }
     }
 
     public void deleteAllFromNeo4j() {
         try (Session session = driver.session()) {
+            StopWatch watch = new StopWatch();
+            watch.start();
             session.writeTransaction(tx -> {
                 tx.run("MATCH (n) DETACH DELETE n");
                 return null;
             });
+            watch.stop();
+            Utils.logTime("deleteAllFromNeo4j()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+
         }
     }
 
