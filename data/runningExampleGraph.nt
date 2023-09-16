@@ -1,4 +1,5 @@
 <http://x.y/Stanford> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/University> .
+<http://x.y/Stanford> <http://www.w3.org/2000/01/rdf-schema#label> "STANFORD UNIVERSITY USA"@en.
 <http://x.y/MIT> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/University> .
 <http://x.y/Math101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Course> .
 <http://x.y/Math101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/GraduateCourse> .
