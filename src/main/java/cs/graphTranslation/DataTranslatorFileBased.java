@@ -251,7 +251,7 @@ public class DataTranslatorFileBased {
     private void executeQueriesOverNeo4j() {
         Neo4jGraph neo4jGraph = new Neo4jGraph();
         neo4jGraph.deleteAllFromNeo4j();
-        //neo4jGraph.executeMultipleCypherQueries(createNodeQueries);
+        neo4jGraph.executeMultipleCypherQueries(createNodeQueries);
         //neo4jGraph.executeMultipleCypherQueries(createKeyValuesQueries);
         //neo4jGraph.executeMultipleCypherQueries(createEdgeQueries);
         neo4jGraph.close();
