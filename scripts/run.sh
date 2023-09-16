@@ -2,14 +2,14 @@
 cd ..
 
 ### Build Docker Image
-image=KG2PG:dockerImage
+image=kg2pg:dockerImage
 docker build . -t $image
 
 ### Clear Cache
 echo "Clearing cache"
 sync; echo 1 > /proc/sys/vm/drop_caches
 
-container=KG2PG_container_dbpedia
+container=kg2pg_container_dbpedia
 
 echo "About to run docker container: ${container}"
 
