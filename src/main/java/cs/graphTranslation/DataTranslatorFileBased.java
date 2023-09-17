@@ -121,7 +121,7 @@ public class DataTranslatorFileBased {
             }
             sb.append(" { iri : \"").append(node.getLabel()).append("\"})");
             counter++;
-            if (counter % 3000 == 0) { //batch size 1000
+            if (counter % 10000 == 0) { //batch size 1000
                 sb.append(";");
                 createNodeQueries.add("CREATE \n" + sb);
                 sb = new StringBuilder(); // Reset the StringBuilder for the next batch
@@ -175,7 +175,7 @@ public class DataTranslatorFileBased {
                             String key = propAsResource.getLocalName();
                             String keyValue = nodes[2].getLabel();
                             //String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, \"%s\"), s.iri = COALESCE(s.iri, \"%s\");", entityIri, key, key, keyValue, propAsResource.getURI());
-                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + keyValue;
+                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + propAsResource.getLocalName() + "|" + keyValue;
                             createKeyValuesQueries.add(entityIriPropertyIriValue);
                         } else {
                             String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
@@ -233,7 +233,7 @@ public class DataTranslatorFileBased {
 
             FileWriter fileWriter2 = new FileWriter(Constants.PG_KV_QUERY_FILE_PATH);
             PrintWriter printWriter2 = new PrintWriter(fileWriter2);
-            printWriter2.println("IRI|PROPERTY|VALUE");
+            printWriter2.println("iri|property|propertyLocalName|value");
             createKeyValuesQueries.forEach(printWriter2::println);
             printWriter2.close();
 
