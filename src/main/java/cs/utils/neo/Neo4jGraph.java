@@ -3,6 +3,8 @@ package cs.utils.neo;
 import cs.utils.Utils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.driver.*;
+import org.neo4j.driver.exceptions.ClientException;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.List;
@@ -39,12 +41,16 @@ public class Neo4jGraph {
                     try (Session session = driver.session()) {
                         try (Transaction transaction = session.beginTransaction()) {
                             for (String query : batch) {
-                                transaction.run(query);
+                                try {
+                                    transaction.run(query);
+                                } catch (ClientException e) {
+                                    System.err.println("ICQ: " + query);
+                                }
                             }
                             transaction.commit();
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                       System.err.println(e.getMessage());
                     }
                 });
             }
@@ -59,6 +65,7 @@ public class Neo4jGraph {
         watch.stop();
         Utils.logTime("batchQueries()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
+
     public void batchQueriesSimple(List<String> queries, int commitSize) {
         StopWatch watch = new StopWatch();
         watch.start();

@@ -207,7 +207,17 @@ public class DataTranslatorFileBased {
                             createKeyValuesQueries.add(query);
                         } else {
                             //String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
-                            String objectNodeQuery = String.format("CREATE (:%s { identifier : \"%d\",  value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), idCounter.get(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
+                            String value = nodes[2].toString();
+                            if (((Literal) nodes[2]).getDatatype() != null) {
+                                value = "\"" + nodes[2].getLabel() + "\"";
+                            }
+                            Resource r = extractDataType(nodes[2]);
+                            String objectNodeQuery = String.format("CREATE (:%s { identifier : \"%d\",  value : %s , iri : \"\" , dataType : \"%s\"  });",
+                                    r.getLocalName(),
+                                    idCounter.get(),
+                                    value,
+                                    r.getURI());
+                            // Create a node for the object value
                             // Create an edge between the entity and the object node using the property as edge label
                             //String query = String.format("MATCH (s {iri: \"%s\"}), (u {value: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, nodes[2].getLabel(), propAsResource.getLocalName());
                             String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
@@ -230,7 +240,7 @@ public class DataTranslatorFileBased {
     }
 
     private void convertQueriesToBatchQueries(List<String> createEmptyIriNodeQueries) {
-        if(commitSize > createEmptyIriNodeQueries.size()){
+        if (commitSize > createEmptyIriNodeQueries.size()) {
             commitSize = createEmptyIriNodeQueries.size();
         }
         StringBuilder sb = new StringBuilder();
