@@ -64,7 +64,7 @@ public class DataTranslatorFileBased {
         entitiesToPgNodes(); // iterate over extracted entities and convert them to PG-Nodes
         propertiesToPgKeysAndEdges();
         writeQueriesToFile();
-        executeQueriesOverNeo4j();
+        //executeQueriesOverNeo4j();
         System.out.println("STATS: \n\t" + "No. of Classes: " + classEntityCount.size());
     }
 
@@ -175,7 +175,7 @@ public class DataTranslatorFileBased {
                             String key = propAsResource.getLocalName();
                             String keyValue = nodes[2].getLabel();
                             //String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, \"%s\"), s.iri = COALESCE(s.iri, \"%s\");", entityIri, key, key, keyValue, propAsResource.getURI());
-                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + propAsResource.getLocalName() + "|" + keyValue;
+                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + propAsResource.getLocalName() + "|" + keyValue.replaceAll("\"", "\"\"");
                             createKeyValuesQueries.add(entityIriPropertyIriValue);
                         } else {
                             String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
