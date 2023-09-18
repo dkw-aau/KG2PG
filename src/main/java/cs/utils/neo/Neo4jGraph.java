@@ -12,8 +12,8 @@ import static org.neo4j.driver.Values.parameters;
 
 public class Neo4jGraph {
     //http://a256-gc1-17.srv.aau.dk:7474/browser/
-    String SERVER_ROOT_URI = "bolt://10.92.0.34:7687";
-    //String SERVER_ROOT_URI = "bolt://a256-gc1-17.srv.aau.dk:7687";
+    //String SERVER_ROOT_URI = "bolt://10.92.0.34:7687";
+    String SERVER_ROOT_URI = "bolt://a256-gc1-17.srv.aau.dk:7687";
     String username = "neo4j";
     String password = "12345678";
     private final Driver driver;
