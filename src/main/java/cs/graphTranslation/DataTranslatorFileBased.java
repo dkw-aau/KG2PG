@@ -31,7 +31,7 @@ public class DataTranslatorFileBased {
     Integer expNoOfInstances;
     ResourceEncoder resourceEncoder;
     String typePredicate;
-    int commitSize = 10000;
+    int commitSize = 25000;
 
     // In the following the size of each data structure
     // N = number of distinct nodes in the graph

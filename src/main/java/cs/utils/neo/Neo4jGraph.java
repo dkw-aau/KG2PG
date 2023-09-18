@@ -21,7 +21,7 @@ public class Neo4jGraph {
 
     public Neo4jGraph() {
         this.driver = GraphDatabase.driver(SERVER_ROOT_URI, AuthTokens.basic(username, password));
-        this.maxThreads = 20;
+        this.maxThreads = 32;
     }
 
     public void batchQueries(List<String> queries, int commitSize) {
