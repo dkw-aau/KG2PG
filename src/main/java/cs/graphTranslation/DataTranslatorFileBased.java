@@ -208,8 +208,10 @@ public class DataTranslatorFileBased {
                         } else {
                             //String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
                             String value = nodes[2].toString();
-                            if (((Literal) nodes[2]).getDatatype() != null) {
-                                value = "\"" + nodes[2].getLabel() + "\"";
+                            if (nodes[2] instanceof Literal) {
+                                if (((Literal) nodes[2]).getDatatype() != null) {
+                                    value = "\"" + nodes[2].getLabel() + "\"";
+                                }
                             }
                             Resource r = extractDataType(nodes[2]);
                             String objectNodeQuery = String.format("CREATE (:%s { identifier : \"%d\",  value : %s , iri : \"\" , dataType : \"%s\"  });",
