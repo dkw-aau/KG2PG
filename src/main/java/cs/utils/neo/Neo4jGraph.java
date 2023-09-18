@@ -30,7 +30,7 @@ public class Neo4jGraph {
 
         ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
 
-        try (Driver driver = this.driver) {
+        try (Driver driver = GraphDatabase.driver(SERVER_ROOT_URI, AuthTokens.basic(username, password))) {
             for (int i = 0; i < queries.size(); i += commitSize) {
                 int endIndex = Math.min(i + commitSize, queries.size());
                 List<String> batch = queries.subList(i, endIndex);

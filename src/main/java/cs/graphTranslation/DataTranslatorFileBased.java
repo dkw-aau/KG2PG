@@ -31,7 +31,7 @@ public class DataTranslatorFileBased {
     Integer expNoOfInstances;
     ResourceEncoder resourceEncoder;
     String typePredicate;
-    int commitSize = 25000;
+    int commitSize = 10000;
 
     // In the following the size of each data structure
     // N = number of distinct nodes in the graph
@@ -312,11 +312,11 @@ public class DataTranslatorFileBased {
     private void executeQueriesOverNeo4j() {
         Neo4jGraph neo4jGraph = new Neo4jGraph();
 
-        System.out.println("Deleting all nodes from Neo4j");
-        neo4jGraph.deleteAllFromNeo4j();
+        //System.out.println("Deleting all nodes from Neo4j");
+        //neo4jGraph.deleteAllFromNeo4j();
 
-        System.out.println("\nExecuting createNodeQueries() over Neo4j");
-        neo4jGraph.batchQueries(createNodeQueries, commitSize);
+        //System.out.println("\nExecuting createNodeQueries() over Neo4j");
+        //neo4jGraph.batchQueries(createNodeQueries, commitSize);
 
         System.out.println("\nExecuting createEmptyIriNodeQueries() over Neo4j");
         neo4jGraph.batchQueries(createEmptyIriNodeQueries, commitSize);
