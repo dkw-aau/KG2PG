@@ -9,6 +9,7 @@ import cs.utils.neo.Neo4jGraph;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.glassfish.jersey.message.internal.LanguageTag;
 import org.semanticweb.yars.nx.Literal;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
@@ -173,9 +174,12 @@ public class DataTranslatorFileBased {
                         } else if (isLiteralProperty) {
                             //PgEdge.getEdgeById(propertyKey).getDataType()
                             String key = propAsResource.getLocalName();
-                            String keyValue = nodes[2].getLabel();
+                            String keyValue = nodes[2].toString();
+                            if (((Literal) nodes[2]).getLanguageTag() != null) {
+                                keyValue = keyValue.replaceAll("@" + ((Literal) nodes[2]).getLanguageTag(), "");
+                            }
                             //String query = String.format("MATCH (s {iri: \"%s\"}) SET s.%s = COALESCE(s.%s, \"%s\"), s.iri = COALESCE(s.iri, \"%s\");", entityIri, key, key, keyValue, propAsResource.getURI());
-                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + propAsResource.getLocalName() + "|" + keyValue.replaceAll("\"", "\"\"");
+                            String entityIriPropertyIriValue = entityIri + "|" + propAsResource.getURI() + "|" + key + "|" + keyValue;
                             createKeyValuesQueries.add(entityIriPropertyIriValue);
                         } else {
                             String objectNodeQuery = String.format("CREATE (:%s { value : \"%s\" , iri : \"\" , dataType : \"%s\"  });", extractDataType(nodes[2]).getLocalName(), nodes[2].getLabel(), extractDataType(nodes[2]).getURI()); // Create a node for the object value
