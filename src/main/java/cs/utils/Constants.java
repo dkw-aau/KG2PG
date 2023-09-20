@@ -24,7 +24,9 @@ public class Constants {
     public static String PG_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_QUERIES.cypher";
 
     public static String PG_NODE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_NODE_QUERIES.cypher";
-    public static String PG_EMPTY_IRI_NODE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_EMPTY_IRI_NODE_QUERIES.cypher";
+    public static String PG_NODE_INDEXES_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_NODE_INDEXES_FILE_PATH.cypher";
+
+    public static String PG_EMPTY_IRI_NODE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_EMPTY_IRI_NODE_QUERIES.csv";
     public static String PG_KV_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_KV_QUERIES.cypher";
     public static String PG_EDGE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_EDGE_QUERIES.cypher";
 
@@ -32,5 +34,8 @@ public class Constants {
 
 
     public static String PG_SCHEMA_SYNTAX_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA.txt";
-    
+
+    public static String PG_NODES_WD_PROP = ConfigManager.getProperty("output_file_path")  + "PG_NODES_WD_PROP.csv";
+    public static String PG_NODES_LITERALS = ConfigManager.getProperty("output_file_path")  + "PG_NODES_LITERALS.csv";
+    public static String PG_RELATIONS = ConfigManager.getProperty("output_file_path")  + "PG_RELATIONS.csv";
 }

@@ -9,18 +9,28 @@ import java.util.*;
  */
 public class EntityData {
     Set<Integer> classTypes; // O(T) number of types of this node
-    public Map<Integer, PropertyData> propertyConstraintsMap; // Map from PropertyID -> PropertyData which consists of property's object types and count
+    Map<String, String> keyValue;
+    //public Map<Integer, PropertyData> propertyConstraintsMap; // Map from PropertyID -> PropertyData which consists of property's object types and count
     
     public EntityData() {
         this.classTypes = new HashSet<>();
-        this.propertyConstraintsMap = new HashMap<>();
+        this.keyValue = new HashMap<>();
+        //this.propertyConstraintsMap = new HashMap<>();
     }
     
     public Set<Integer> getClassTypes() {
         return classTypes;
     }
-    
-    // Called in StatsComputer.compute() method to compute support and confidence
+
+    public Map<String, String> getKeyValue() {
+        return keyValue;
+    }
+
+    public void setKeyValue(Map<String, String> keyValue) {
+        this.keyValue = keyValue;
+    }
+
+    /*    // Called in StatsComputer.compute() method to compute support and confidence
     public Collection<Tuple2<Integer, Integer>> getPropertyConstraints() {
         List<Tuple2<Integer, Integer>> propertyConstraints = new ArrayList<>(this.propertyConstraintsMap.size() * 5 / 3);
         for (Map.Entry<Integer, PropertyData> pds : this.propertyConstraintsMap.entrySet()) {
@@ -51,7 +61,7 @@ public class EntityData {
             this.propertyConstraintsMap.put(propertyID, pd);
         }
         pd.count += 1;
-    }
+    }*/
     
     /**
      * PropertyData Class

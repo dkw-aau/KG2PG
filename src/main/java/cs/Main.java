@@ -1,7 +1,7 @@
 package cs;
 
 import cs.commons.ResourceEncoder;
-import cs.graphTranslation.DataTranslatorFileBased;
+import cs.graphTranslation.DataTransFileToCsv;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.ConfigManager;
 import cs.utils.Constants;
@@ -30,7 +30,7 @@ public class Main {
         SchemaTranslator schemaTranslator = new SchemaTranslator(resourceEncoder);
 
         //Graph Data Translation
-        DataTranslatorFileBased dtFb = new DataTranslatorFileBased(datasetPath, numberOfClasses, numberOfInstances, Constants.RDF_TYPE, resourceEncoder, schemaTranslator);
+        DataTransFileToCsv dtFb = new DataTransFileToCsv(datasetPath, numberOfClasses, numberOfInstances, Constants.RDF_TYPE, resourceEncoder, schemaTranslator);
         dtFb.run();
     }
 
