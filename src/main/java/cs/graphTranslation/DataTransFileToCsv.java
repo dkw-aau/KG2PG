@@ -35,10 +35,9 @@ public class DataTransFileToCsv {
     // T = number of distinct types
     // P = number of distinct predicates
 
-    Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information //FIXME: entityDataHashMap can be simplified as in this transformation we only need to store class types
+    Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information 
     Map<Integer, Integer> classEntityCount; // Size == T
-
-    Set<String> propertySet;
+    Set<String> propertySet; // Size == P
 
     public DataTransFileToCsv(String filePath, int expNoOfClasses, int expNoOfInstances, String typePredicate, ResourceEncoder resourceEncoder, SchemaTranslator schemaTranslator) {
         this.rdfFilePath = filePath;
@@ -99,7 +98,6 @@ public class DataTransFileToCsv {
     /**
      * ============================================= 2nd Pass on file: Entity's data (properties, etc) extraction and PG (key, values) or Edges creation ========================================
      */
-
 
     private void propertiesToPgKeysAndEdges() {
         StopWatch watch = new StopWatch();
@@ -189,7 +187,12 @@ public class DataTransFileToCsv {
     }
 
 
+    /**
+     * ============================================= Writing entity data to CSV File ========================================
+     */
+
     private void entityDataToCsv() {
+        System.out.println("Transforming entity data to CSV.");
         StopWatch watch = new StopWatch();
         watch.start();
         try (FileWriter writer = new FileWriter(Constants.PG_NODES_WD_PROP)) {
@@ -232,6 +235,10 @@ public class DataTransFileToCsv {
         watch.stop();
         Utils.logTime("entityDataToCsv()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
+
+    /**
+     * ============================================= Helper Methods ========================================
+     */
 
     private static Resource extractDataType(Node node) {
         Resource literalDataType = ResourceFactory.createResource("http://www.w3.org/2001/XMLSchema#string");
