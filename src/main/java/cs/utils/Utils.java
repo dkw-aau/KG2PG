@@ -18,26 +18,26 @@ import java.time.format.DateTimeFormatter;
  * This class contains some random utility functions required throughout the project
  */
 public class Utils {
-    
+
     private static long secondsTotal;
     private static long minutesTotal;
-    
+
     public static void getCurrentTimeStamp() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         System.out.println(dtf.format(now));
         dtf.format(now);
     }
-    
+
     public static boolean isValidIRI(String iri) {
         return iri.indexOf(':') > 0;
     }
-    
+
     public static IRI toIri(String value) {
         ValueFactory factory = SimpleValueFactory.getInstance();
         return factory.createIRI(value);
     }
-    
+
     public static Node IriToNode(String Iri) {
         Resource subjRes = new Resource("<" + Iri + ">", true); // true means you are supplying proper N-Triples RDF terms that do not need to be processed
         Resource predRes = new Resource("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>", true);
@@ -45,7 +45,7 @@ public class Utils {
         Node[] triple = new Node[]{subjRes, predRes, bn}; // yields <http://example.org/123> <http://example.org/123> _:bnodeId
         return triple[0];
     }
-    
+
     public static void log(String log) {
         try {
             FileWriter fileWriter = new FileWriter(Constants.RUNTIME_LOGS, true);
@@ -56,7 +56,7 @@ public class Utils {
             e.printStackTrace();
         }
     }
-    
+
     public static void writeLineToFile(String line, String fileAddress) {
         try {
             FileWriter fileWriter = new FileWriter(fileAddress, true);
@@ -67,16 +67,17 @@ public class Utils {
             e.printStackTrace();
         }
     }
+
     public static void logQueryingStats(String method, long seconds, long minutes) {
         secondsTotal += seconds;
         minutesTotal += minutes;
         //Header: "Dataset,Method,Second,Minute,SecondTotal,MinuteTotal,MaxCard,DatasetPath"
-        String line =  method + "," + seconds + "," + minutes ;
+        String line = method + "," + seconds + "," + minutes;
         log(line);
         //System.out.println("Time Elapsed Time " + method + " " + seconds + " sec , " + minutes + " min");
         //System.out.println("Total Parsing Time " + secondsTotal + " sec , " + minutesTotal + " min");
     }
-    
+
     public static void logTime(String method, long seconds, long minutes) {
         secondsTotal += seconds;
         minutesTotal += minutes;
@@ -86,7 +87,7 @@ public class Utils {
         System.out.println("Time Elapsed Time " + method + " " + seconds + " sec , " + minutes + " min");
         System.out.println("Total Parsing Time " + secondsTotal + " sec , " + minutesTotal + " min");
     }
-    
+
     public static void logSamplingStats(String samplingType, int samplingPercentage, int samplingMinThreshold, int samplingMaxThreshold, int entityDataMapContainerSize) {
         String log = samplingType + "," + samplingPercentage + "," + samplingMinThreshold + "," + samplingMaxThreshold + "," + entityDataMapContainerSize;
         System.out.println(log);
@@ -99,7 +100,7 @@ public class Utils {
             e.printStackTrace();
         }
     }
-    
+
     public static void simpleTest() {
         ValueFactory factory = SimpleValueFactory.getInstance();
         String iri = "http://www.wikidata.org/entity/Q829554";
@@ -110,7 +111,7 @@ public class Utils {
             System.out.println("False");
         }
     }
-    
+
     public static int logWithBase2(int x) {
         return (int) (Math.log(x) / Math.log(2) + 1e-10);
     }

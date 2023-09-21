@@ -67,8 +67,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.topbraid/shacl
     implementation group: 'org.topbraid', name: 'shacl', version: '1.4.2'
-
-
 }
 
 

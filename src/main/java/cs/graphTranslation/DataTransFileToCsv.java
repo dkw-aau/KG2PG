@@ -35,7 +35,7 @@ public class DataTransFileToCsv {
     // T = number of distinct types
     // P = number of distinct predicates
 
-    Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information 
+    Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information
     Map<Integer, Integer> classEntityCount; // Size == T
     Set<String> propertySet; // Size == P
 
@@ -117,7 +117,7 @@ public class DataTransFileToCsv {
                 try {
                     // parsing <s,p,o> of triple from each line as node[0], node[1], and node[2]
                     Node[] nodes = NxParser.parseNodes(line);
-                    if (!nodes[1].toString().equals(typePredicate)) {
+                    if (!nodes[1].toString().equals(typePredicate) && entityDataHashMap.containsKey(nodes[0])) {
                         Node entityNode = nodes[0];
                         String entityIri = entityNode.getLabel();
                         Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
@@ -155,20 +155,31 @@ public class DataTransFileToCsv {
                                 dataTypeLocalName = "IRI";
                                 dataType = "IRI";
                             }
-                            value = value.replace("\\", "\"");
+                            char[] bytes = value.toCharArray();
+
+                            for (int i = 0; i < bytes.length; i++) {
+                                /*if (value.charAt(i) == 92 && i + 1 != bytes.length && bytes[i + 1] != 110)
+                                    bytes[i] = 34;*/
+                                if (value.charAt(i) == 92 && (i + 1 != bytes.length) && (bytes[i + 1] == 34) && (i + 1 != bytes.length) && (bytes[i - 1] != 92))
+                                    bytes[i] = 34;
+                            }
+
+                            value = new String(bytes);
                             if (isLiteralProperty) {
                                 if (entityDataHashMap.get(entityNode) != null) {
                                     entityDataHashMap.get(entityNode).getKeyValue().put(propLocalName, value);
                                     propertySet.add(propLocalName);
                                 }
                             } else {
-                                String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
-                                pgLiteralNodesPrintWriter.println(lineForLiteral);
-                                //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
-                                //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
-                                String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propLocalName;
-                                pgRelsPrintWriter.println(lineForNodeToIdNodeRel);
-                                idCounter.getAndIncrement();
+                                //if (entityDataHashMap.containsKey(nodes[0])) {
+                                    String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
+                                    pgLiteralNodesPrintWriter.println(lineForLiteral);
+                                    //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
+                                    //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
+                                    String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propLocalName;
+                                    pgRelsPrintWriter.println(lineForNodeToIdNodeRel);
+                                    idCounter.getAndIncrement();
+                                //}
                             }
                         }
                     }
