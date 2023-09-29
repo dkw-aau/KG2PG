@@ -2,8 +2,7 @@ package cs.graphTranslation;
 
 import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
-import cs.utils.Constants;
-import cs.utils.Utils;
+import cs.utils.*;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
@@ -103,8 +102,10 @@ public class DataTransFileToCsv {
         StopWatch watch = new StopWatch();
         watch.start();
         propertySet = new HashSet<>();
+        TypesMapper typesMapper = new TypesMapper();
+        typesMapper.initTypesForCypher();
         PrintWriter pgLiteralNodesPrintWriter = createPrintWriter(Constants.PG_NODES_LITERALS);
-        pgLiteralNodesPrintWriter.println("id:ID|object_value|object_type|object_iri|:LABEL");
+        pgLiteralNodesPrintWriter.println("id:ID|object_value|object_type|type|object_iri|:LABEL");
 
         PrintWriter pgRelsPrintWriter = createPrintWriter(Constants.PG_RELATIONS);
         pgRelsPrintWriter.println(":START_ID|property|:END_ID|:TYPE");
@@ -158,8 +159,7 @@ public class DataTransFileToCsv {
                             char[] bytes = value.toCharArray();
 
                             for (int i = 0; i < bytes.length; i++) {
-                                /*if (value.charAt(i) == 92 && i + 1 != bytes.length && bytes[i + 1] != 110)
-                                    bytes[i] = 34;*/
+                                /*if (value.charAt(i) == 92 && i + 1 != bytes.length && bytes[i + 1] != 110) bytes[i] = 34;*/
                                 if (value.charAt(i) == 92 && (i + 1 != bytes.length) && (bytes[i + 1] == 34) && (i + 1 != bytes.length) && (bytes[i - 1] != 92))
                                     bytes[i] = 34;
                             }
@@ -172,13 +172,16 @@ public class DataTransFileToCsv {
                                 }
                             } else {
                                 //if (entityDataHashMap.containsKey(nodes[0])) {
-                                    String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
-                                    pgLiteralNodesPrintWriter.println(lineForLiteral);
-                                    //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
-                                    //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
-                                    String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propLocalName;
-                                    pgRelsPrintWriter.println(lineForNodeToIdNodeRel);
-                                    idCounter.getAndIncrement();
+                                //String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
+                                String cypherType = typesMapper.getMap().get(dataType);
+                                String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + cypherType + "|" + entityIri + "|" + dataTypeLocalName;
+
+                                pgLiteralNodesPrintWriter.println(lineForLiteral);
+                                //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
+                                //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
+                                String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propLocalName;
+                                pgRelsPrintWriter.println(lineForNodeToIdNodeRel);
+                                idCounter.getAndIncrement();
                                 //}
                             }
                         }
