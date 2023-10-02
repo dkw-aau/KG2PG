@@ -258,7 +258,7 @@ public class DataTransFileToCsv {
     // Helper method to generate CSV files per group of entities
     private void genCsvPerGroup(@NotNull ConcurrentHashMap<Set<String>, Set<Node>> groupedEntities) {
         // Define the output directory where CSV files will be saved
-        String outputDirectory = ConfigManager.getProperty("output_file_path");
+        String outputDirectory = ConfigManager.getProperty("output_file_path") + "pg_nodes/";
         // Counter to generate incrementing numbers for file names
         AtomicInteger fileCounter = new AtomicInteger(1);
 
