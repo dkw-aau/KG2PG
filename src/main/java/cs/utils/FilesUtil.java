@@ -129,14 +129,12 @@ public class FilesUtil {
              CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT)) {
 
             // Write CSV headers (optional)
-            csvPrinter.printRecord("Namespace", "Prefix");
+            csvPrinter.printRecord("NAMESPACE", "PREFIX");
 
             // Write the namespaceMap to the CSV file
             for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
                 csvPrinter.printRecord(entry.getKey(), entry.getValue());
             }
-
-            System.out.println("CSV file '" + fileName + "' has been created.");
         } catch (IOException e) {
             e.printStackTrace();
         }

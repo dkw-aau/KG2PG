@@ -55,7 +55,7 @@ public class SchemaTranslator {
         Shapes shapes = null;
         try {
             Model shapesModel = Reader.readFileToModel(ConfigManager.getProperty("shapes_path"), "TURTLE");
-            Main.logger.info(String.valueOf(shapesModel.size()));
+            Main.logger.info("Size of ShapesModel: " + String.valueOf(shapesModel.size()));
             shapes = Shapes.parse(shapesModel);
         } catch (ShaclParseException e) {
             Main.logger.error("Error parsing SHACL shapes: " + e.getMessage());
