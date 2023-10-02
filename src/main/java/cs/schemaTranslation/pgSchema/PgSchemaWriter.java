@@ -95,15 +95,26 @@ public class PgSchemaWriter {
                 pgEdgeTypes.add(edgeType);
                 if (!skipFlag) {
                     String edgeCard = "";
-                    char is = sourceNodeAsResource.getLocalName().toLowerCase().charAt(0); //initial for source node
-                    char it = targetNodeAsResource.getLocalName().toLowerCase().charAt(0); // initial for target node
-                    if (edgeCardinality.getFirst().equals(-1)) {
-                        edgeCard = "FOR (%s: %s) COUNT %d..%d OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), 0, edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
-                    } else if (edgeCardinality.getSecond().equals(-1))
-                        edgeCard = "FOR (%s: %s) COUNT %d.. OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
-                    else
-                        edgeCard = "FOR (%s: %s) COUNT %d..%s OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
-                    pgEdgeCardinality.add(edgeCard);
+                    //char is = sourceNodeAsResource.getLocalName().toLowerCase().charAt(0); //initial for source node
+                    //char it = targetNodeAsResource.getLocalName().toLowerCase().charAt(0); // initial for target node
+                    char it, is;
+                    String isLocalName = sourceNodeAsResource.getLocalName();
+                    String itLocalName = targetNodeAsResource.getLocalName();
+                    if (itLocalName != null && !itLocalName.isEmpty() && isLocalName != null && !isLocalName.isEmpty()) {
+                        is = isLocalName.toLowerCase().charAt(0);
+                        it = itLocalName.toLowerCase().charAt(0);
+                        if (edgeCardinality.getFirst().equals(-1)) {
+                            edgeCard = "FOR (%s: %s) COUNT %d..%d OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), 0, edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
+                        } else if (edgeCardinality.getSecond().equals(-1))
+                            edgeCard = "FOR (%s: %s) COUNT %d.. OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
+                        else
+                            edgeCard = "FOR (%s: %s) COUNT %d..%s OF %s WITHIN (%s)-[:%s]->(%s: %s)".formatted(is, sourceNodeAsResource.getLocalName(), edgeCardinality.getFirst(), edgeCardinality.getSecond(), it, is, edgeAsResource.getLocalName(), it, targetNodeAsResource.getLocalName());
+
+                        pgEdgeCardinality.add(edgeCard);
+                    } else {
+                        // Handle the case where localName is null or empty
+                        System.out.println("One of these is null: sourceNode: " + sourceNodeAsResource.getLocalName() + " targetNode: " + targetNodeAsResource.getLocalName());
+                    }
                 }
             } else {
                 List<String> targetNodeTypes = new ArrayList<>();
