@@ -272,7 +272,7 @@ public class DataTransFileToCsv {
                 String fileName = generateFileName(fileCounter);
                 // Create a CSV file for this property group
                 String csvFileName = outputDirectory + fileName;
-                Main.logger.info("Generating CSV file: " + csvFileName);
+                //Main.logger.info("Generating CSV file: " + csvFileName);
                 try (CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.DEFAULT.withDelimiter('|').withQuote(null))) {
                     // Write CSV header row
                     List<String> header = new ArrayList<>();
@@ -285,7 +285,7 @@ public class DataTransFileToCsv {
                     for (Node node : nodes) {
                         EntityData entityData = entityDataHashMap.get(node);
                         List<String> row = new ArrayList<>();
-                        row.add(node.toString());
+                        row.add(node.getLabel());
                         for (String propertyKey : propertyKeys) {
                             row.add(entityData.getKeyValue().get(propertyKey));
                         }
