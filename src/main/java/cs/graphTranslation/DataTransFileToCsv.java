@@ -42,6 +42,7 @@ public class DataTransFileToCsv {
     Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information
     Map<Integer, Integer> classEntityCount; // Size == T
     //Set<String> propertySet; // Size == P
+    Map<String, String> prefixMap;
 
     public DataTransFileToCsv(String filePath, int expNoOfClasses, int expNoOfInstances, String typePredicate, ResourceEncoder resourceEncoder, SchemaTranslator schemaTranslator) {
         this.rdfFilePath = filePath;
@@ -64,7 +65,9 @@ public class DataTransFileToCsv {
         propertiesToPgKeysAndEdges();
         Main.logger.info("Post Processing: Graph Data Translation - Writing entities data to CSV file.");
         groupingEntitiesByCommonProperties();
-        System.out.println("STATS: \n\t" + "No. of Classes: " + classEntityCount.size());
+        Main.logger.info("Post Processing: Graph Data Translation - Writing prefix map to file.");
+        FilesUtil.writeStringToStringMapToFile(prefixMap, Constants.PG_PREFIX_MAP);
+        Main.logger.info("STATS: " + "No. of Classes: " + classEntityCount.size());
     }
 
 
@@ -76,13 +79,19 @@ public class DataTransFileToCsv {
     private void entityExtraction() {
         StopWatch watch = new StopWatch();
         watch.start();
+        Set<String> nameSpaces = new HashSet<>();
         try {
             Files.lines(Path.of(rdfFilePath)).forEach(line -> {
                 try {
                     Node[] nodes = NxParser.parseNodes(line); // Get [S,P,O] as Node from triple
                     if (nodes[1].toString().equals(typePredicate)) { // Check if predicate is rdf:type or equivalent
                         // Track classes per entity
-                        int objID = resourceEncoder.encodeAsResource(nodes[2].getLabel());
+                        //int objID = resourceEncoder.encodeAsResource(nodes[2].getLabel());
+                        Resource objResource = ResourceFactory.createResource(nodes[2].getLabel());
+                        int objID = resourceEncoder.encodeAsResource(objResource.getURI());
+                        //extract name spaces and add into nameSpaces set
+                        if (objResource.isURIResource())
+                            nameSpaces.add(objResource.getNameSpace());
                         EntityData entityData = entityDataHashMap.get(nodes[0]);
                         if (entityData == null) {
                             entityData = new EntityData();
@@ -90,6 +99,11 @@ public class DataTransFileToCsv {
                         entityData.getClassTypes().add(objID);
                         entityDataHashMap.put(nodes[0], entityData);
                         classEntityCount.merge(objID, 1, Integer::sum);
+                    } else {
+                        //Extract namespace from property and add to nameSpaces set
+                        Resource propResource = ResourceFactory.createResource(nodes[1].getLabel());
+                        if (propResource.isURIResource())
+                            nameSpaces.add(propResource.getNameSpace());
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -98,6 +112,7 @@ public class DataTransFileToCsv {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        prefixMap = convertNameSpacesSetToPrefixMap(nameSpaces);
         watch.stop();
         Utils.logTime("entityExtraction() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
@@ -130,6 +145,7 @@ public class DataTransFileToCsv {
                         Node entityNode = nodes[0];
                         String entityIri = entityNode.getLabel();
                         Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
+                        String propPrefixedLocalName = prefixMap.get(propAsResource.getNameSpace()) + "_" + propAsResource.getLocalName();
                         int propertyKey = resourceEncoder.encodeAsResource(nodes[1].getLabel());
                         boolean isLiteralProperty = false;
                         //int objID = resourceEncoder.encodeAsResource(nodes[2].getLabel()); //Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
@@ -144,10 +160,10 @@ public class DataTransFileToCsv {
                             String objectIri = nodes[2].getLabel();
                             //String query = String.format("MATCH (s {iri: \"%s\"}), (u {iri: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s {iri : \"%s\"}]->(u);", entityIri, objectIri, propAsResource.getLocalName(), propAsResource.getURI());
                             //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
-                            String lineForNodeToNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + objectIri + "|" + propAsResource.getLocalName();
+                            String lineForNodeToNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + objectIri + "|" + propPrefixedLocalName;
                             pgRelsPrintWriter.println(lineForNodeToNodeRel);
                         } else {
-                            String propLocalName = propAsResource.getLocalName();
+                            //String propLocalName = propAsResource.getLocalName();
                             String value = nodes[2].toString();
                             Resource dataTypeResource = extractDataType(nodes[2]);
                             String dataType = dataTypeResource.getURI();
@@ -175,7 +191,7 @@ public class DataTransFileToCsv {
                             value = new String(bytes);
                             if (isLiteralProperty) {
                                 if (entityDataHashMap.get(entityNode) != null) {
-                                    entityDataHashMap.get(entityNode).getKeyValue().put(propLocalName, value);
+                                    entityDataHashMap.get(entityNode).getKeyValue().put(propPrefixedLocalName, value);
                                     //propertySet.add(propLocalName);
                                 }
                             } else {
@@ -187,7 +203,7 @@ public class DataTransFileToCsv {
                                 pgLiteralNodesPrintWriter.println(lineForLiteral);
                                 //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
                                 //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
-                                String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propLocalName;
+                                String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propPrefixedLocalName;
                                 pgRelsPrintWriter.println(lineForNodeToIdNodeRel);
                                 idCounter.getAndIncrement();
                                 //}
@@ -276,7 +292,10 @@ public class DataTransFileToCsv {
                         StringBuilder sb = new StringBuilder();
                         StringJoiner joiner = new StringJoiner(";");
                         entityData.getClassTypes().forEach(classID -> {
-                            joiner.add(resourceEncoder.decodeAsResource(classID).getLocalName());
+                            //joiner.add(resourceEncoder.decodeAsResource(classID).getLocalName());
+                            Resource type = resourceEncoder.decodeAsResource(classID);
+                            String prefixedTypeName = prefixMap.get(type.getNameSpace()) + "_" + type.getLocalName();
+                            joiner.add(prefixedTypeName);
                         });
                         sb.append(joiner);
                         row.add(sb.toString());
@@ -333,6 +352,20 @@ public class DataTransFileToCsv {
             throw new RuntimeException("Error creating PrintWriter for file: " + filePath, e);
         }
     }
+
+    private static Map<String, String> convertNameSpacesSetToPrefixMap(Set<String> nameSpaces) {
+        Map<String, String> namespaceMap = new HashMap<>();
+        int index = 0;
+
+        for (String namespace : nameSpaces) {
+            String prefix = "ns" + index;
+            namespaceMap.put(namespace, prefix);
+            index++;
+        }
+        return namespaceMap;
+    }
+
+
     // This way of writing sparse csv file using all properties is very
     // expensive and results in generation of very large csv file for large graphs
    /* private void entityDataToCsv() {

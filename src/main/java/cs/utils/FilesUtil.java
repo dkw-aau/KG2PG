@@ -4,12 +4,15 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class contains various methods used as a utility in the project to interact with files
@@ -119,6 +122,24 @@ public class FilesUtil {
     public static String getFileName(String path) {
         File file = new File(path);
         return FilenameUtils.removeExtension(file.getName());
+    }
+
+    public static void writeStringToStringMapToFile(Map<String, String> namespaceMap, String fileName) {
+        try (FileWriter fileWriter = new FileWriter(fileName);
+             CSVPrinter csvPrinter = new CSVPrinter(fileWriter, CSVFormat.DEFAULT)) {
+
+            // Write CSV headers (optional)
+            csvPrinter.printRecord("Namespace", "Prefix");
+
+            // Write the namespaceMap to the CSV file
+            for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
+                csvPrinter.printRecord(entry.getKey(), entry.getValue());
+            }
+
+            System.out.println("CSV file '" + fileName + "' has been created.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
 }
