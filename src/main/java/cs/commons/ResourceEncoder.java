@@ -28,6 +28,17 @@ public class ResourceEncoder {
         }
     }
 
+    public int encodeResource(Resource resource) {
+        if (reverseTable.containsKey(resource)) {
+            return reverseTable.get(resource);
+        } else {
+            this.counter++;
+            table.put(counter, resource);
+            reverseTable.put(resource, counter);
+            return counter;
+        }
+    }
+
     public Resource decodeAsResource(int val) {
         return this.table.get(val);
     }
