@@ -18,6 +18,7 @@ import org.apache.jena.shacl.engine.Target;
 import org.apache.jena.shacl.engine.constraint.*;
 import org.apache.jena.shacl.parser.Constraint;
 import org.apache.jena.shacl.parser.PropertyShape;
+import org.apache.jena.shacl.parser.ShaclParseException;
 import org.apache.jena.shacl.parser.Shape;
 
 import java.util.ArrayList;
@@ -34,9 +35,13 @@ public class SchemaTranslator {
     public SchemaTranslator(ResourceEncoder encoder) {
         resourceEncoder = encoder;
         pgSchema = new PgSchema();
+        Main.logger.info("SchemaTranslator initialized, reading SHACL shapes...");
         Shapes shapes = readShapes();
+        Main.logger.info("SHACL shapes read successfully, parsing SHACL shapes...");
         parseShapes(shapes);
+        Main.logger.info("SHACL shapes parsed successfully, post processing PG-Schema...");
         pgSchema.postProcessPgSchema();
+        Main.logger.info("PG-Schema post processed successfully, writing PG-Schema to file...");
         writePgSchema();
     }
 
@@ -47,9 +52,14 @@ public class SchemaTranslator {
     }
 
     private Shapes readShapes() {
-        Model shapesModel = Reader.readFileToModel(ConfigManager.getProperty("shapes_path"), "TURTLE");
-        Main.logger.info(String.valueOf(shapesModel.size()));
-        Shapes shapes = Shapes.parse(shapesModel);
+        Shapes shapes = null;
+        try {
+            Model shapesModel = Reader.readFileToModel(ConfigManager.getProperty("shapes_path"), "TURTLE");
+            Main.logger.info(String.valueOf(shapesModel.size()));
+            shapes = Shapes.parse(shapesModel);
+        } catch (ShaclParseException e) {
+            Main.logger.error("Error parsing SHACL shapes: " + e.getMessage());
+        }
         //extractShNodeFromShaclShapes(shapesModel);
         return shapes;
     }
