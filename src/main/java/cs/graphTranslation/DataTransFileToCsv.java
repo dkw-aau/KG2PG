@@ -1,11 +1,15 @@
 package cs.graphTranslation;
 
+import cs.Main;
 import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
+import org.jetbrains.annotations.NotNull;
 import org.semanticweb.yars.nx.Literal;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
@@ -17,6 +21,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,7 +41,7 @@ public class DataTransFileToCsv {
 
     Map<Node, EntityData> entityDataHashMap; // Size == N For every entity we save a number of summary information
     Map<Integer, Integer> classEntityCount; // Size == T
-    Set<String> propertySet; // Size == P
+    //Set<String> propertySet; // Size == P
 
     public DataTransFileToCsv(String filePath, int expNoOfClasses, int expNoOfInstances, String typePredicate, ResourceEncoder resourceEncoder, SchemaTranslator schemaTranslator) {
         this.rdfFilePath = filePath;
@@ -53,9 +58,12 @@ public class DataTransFileToCsv {
      * ============================================= Run Translator ========================================
      */
     public void run() {
+        Main.logger.info("Phase 1: Graph Data Translation - Extracting entities data from RDF file.");
         entityExtraction(); // extract entities and store in entityDataHashMap
+        Main.logger.info("Phase 2: Graph Data Translation - Extracting properties data for extracted entities from RDF file.");
         propertiesToPgKeysAndEdges();
-        entityDataToCsv();
+        Main.logger.info("Post Processing: Graph Data Translation - Writing entities data to CSV file.");
+        groupingEntitiesByCommonProperties();
         System.out.println("STATS: \n\t" + "No. of Classes: " + classEntityCount.size());
     }
 
@@ -101,7 +109,7 @@ public class DataTransFileToCsv {
     private void propertiesToPgKeysAndEdges() {
         StopWatch watch = new StopWatch();
         watch.start();
-        propertySet = new HashSet<>();
+        //propertySet = new HashSet<>();
         TypesMapper typesMapper = new TypesMapper();
         typesMapper.initTypesForCypher();
         PrintWriter pgLiteralNodesPrintWriter = createPrintWriter(Constants.PG_NODES_LITERALS);
@@ -168,7 +176,7 @@ public class DataTransFileToCsv {
                             if (isLiteralProperty) {
                                 if (entityDataHashMap.get(entityNode) != null) {
                                     entityDataHashMap.get(entityNode).getKeyValue().put(propLocalName, value);
-                                    propertySet.add(propLocalName);
+                                    //propertySet.add(propLocalName);
                                 }
                             } else {
                                 //if (entityDataHashMap.containsKey(nodes[0])) {
@@ -205,7 +213,129 @@ public class DataTransFileToCsv {
      * ============================================= Writing entity data to CSV File ========================================
      */
 
-    private void entityDataToCsv() {
+    private void groupingEntitiesByCommonProperties() {
+        Main.logger.info("Grouping entities by common properties.");
+        // Create a ConcurrentHashMap to store the grouping of property keys to nodes
+        ConcurrentHashMap<Set<String>, Set<Node>> groupedEntities = new ConcurrentHashMap<>();
+
+        entityDataHashMap.entrySet().parallelStream().forEach(entry -> {
+            Node node = entry.getKey();
+            EntityData entityData = entry.getValue();
+
+            Map<String, String> propKeyToValue = entityData.getKeyValue();
+
+            // Extract the property keys and store them in a set
+            Set<String> propertyKeys = propKeyToValue.keySet();
+
+            // Add the current node to the set of nodes with common property keys
+            groupedEntities.merge(propertyKeys, new HashSet<>(Collections.singleton(node)), (existingSet, newNodeSet) -> {
+                existingSet.addAll(newNodeSet);
+                return existingSet;
+            });
+        });
+        Main.logger.info("Created " + groupedEntities.size() + " groups of entities.");
+        //groupedEntities.forEach((propertyKeys, nodes) -> {System.out.println(propertyKeys + " -> " + nodes);});
+        Main.logger.info("Generating CSV files per group.");
+        genCsvPerGroup(groupedEntities);
+    }
+
+    // Helper method to generate CSV files per group of entities
+    private void genCsvPerGroup(@NotNull ConcurrentHashMap<Set<String>, Set<Node>> groupedEntities) {
+        // Define the output directory where CSV files will be saved
+        String outputDirectory = ConfigManager.getProperty("output_file_path");
+        // Counter to generate incrementing numbers for file names
+        AtomicInteger fileCounter = new AtomicInteger(1);
+
+        // Iterate through the groupedEntities and create CSV files
+        for (Map.Entry<Set<String>, Set<Node>> entry : groupedEntities.entrySet()) {
+            Set<String> propertyKeys = entry.getKey();
+            if (!propertyKeys.isEmpty()) {
+                Set<Node> nodes = entry.getValue();
+
+                // Generate the file name with an incrementing number
+                String fileName = generateFileName(fileCounter);
+                // Create a CSV file for this property group
+                String csvFileName = outputDirectory + fileName;
+                Main.logger.info("Generating CSV file: " + csvFileName);
+                try (CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(csvFileName), CSVFormat.DEFAULT.withDelimiter('|').withQuote(null))) {
+                    // Write CSV header row
+                    List<String> header = new ArrayList<>();
+                    header.add("iri:ID");
+                    header.addAll(propertyKeys);
+                    header.add(":LABEL");
+                    csvPrinter.printRecord(header);
+
+                    // Write data rows
+                    for (Node node : nodes) {
+                        EntityData entityData = entityDataHashMap.get(node);
+                        List<String> row = new ArrayList<>();
+                        row.add(node.toString());
+                        for (String propertyKey : propertyKeys) {
+                            row.add(entityData.getKeyValue().get(propertyKey));
+                        }
+                        StringBuilder sb = new StringBuilder();
+                        StringJoiner joiner = new StringJoiner(";");
+                        entityData.getClassTypes().forEach(classID -> {
+                            joiner.add(resourceEncoder.decodeAsResource(classID).getLocalName());
+                        });
+                        sb.append(joiner);
+                        row.add(sb.toString());
+                        csvPrinter.printRecord(row);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+
+    // Helper method to generate file names with an incrementing number
+    private static String generateFileName(AtomicInteger fileCounter) {
+        int counter = fileCounter.getAndIncrement();
+        return "PG_NODES_WD_PROP_" + counter + ".csv";
+    }
+
+    /**
+     * ============================================= Helper Methods ========================================
+     */
+
+    private static Resource extractDataType(Node node) {
+        Resource literalDataType = ResourceFactory.createResource("http://www.w3.org/2001/XMLSchema#string");
+
+        try {
+            if (node instanceof Literal) {
+                Literal objAsLiteral = (Literal) node;
+                if (objAsLiteral.getDatatype() != null) {
+                    literalDataType = ResourceFactory.createResource(objAsLiteral.getDatatype().getLabel());
+                }
+            } else {
+                // Handle the case when the node is not a Literal
+                //System.err.println("Error: Node is not a Literal");
+                return literalDataType;
+            }
+        } catch (NullPointerException e) {
+            // Handle NullPointerException here
+            System.err.println("Error: Node is null or does not have a datatype");
+            e.printStackTrace();
+            return literalDataType;
+        }
+
+        return literalDataType;
+    }
+
+    private static PrintWriter createPrintWriter(String filePath) {
+        try {
+            FileWriter fileWriter = new FileWriter(filePath);
+            return new PrintWriter(fileWriter);
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating PrintWriter for file: " + filePath, e);
+        }
+    }
+    // This way of writing sparse csv file using all properties is very
+    // expensive and results in generation of very large csv file for large graphs
+   /* private void entityDataToCsv() {
         System.out.println("Transforming entity data to CSV.");
         StopWatch watch = new StopWatch();
         watch.start();
@@ -248,44 +378,7 @@ public class DataTransFileToCsv {
         }
         watch.stop();
         Utils.logTime("entityDataToCsv()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
-    }
-
-    /**
-     * ============================================= Helper Methods ========================================
-     */
-
-    private static Resource extractDataType(Node node) {
-        Resource literalDataType = ResourceFactory.createResource("http://www.w3.org/2001/XMLSchema#string");
-
-        try {
-            if (node instanceof Literal) {
-                Literal objAsLiteral = (Literal) node;
-                if (objAsLiteral.getDatatype() != null) {
-                    literalDataType = ResourceFactory.createResource(objAsLiteral.getDatatype().getLabel());
-                }
-            } else {
-                // Handle the case when the node is not a Literal
-                //System.err.println("Error: Node is not a Literal");
-                return literalDataType;
-            }
-        } catch (NullPointerException e) {
-            // Handle NullPointerException here
-            System.err.println("Error: Node is null or does not have a datatype");
-            e.printStackTrace();
-            return literalDataType;
-        }
-
-        return literalDataType;
-    }
-
-    private static PrintWriter createPrintWriter(String filePath) {
-        try {
-            FileWriter fileWriter = new FileWriter(filePath);
-            return new PrintWriter(fileWriter);
-        } catch (IOException e) {
-            throw new RuntimeException("Error creating PrintWriter for file: " + filePath, e);
-        }
-    }
+    }*/
 
 }
 
