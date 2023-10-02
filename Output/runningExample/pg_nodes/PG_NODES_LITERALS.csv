@@ -1,0 +1,13 @@
+id:ID|object_value|object_type|type|object_iri|:LABEL
+0|"\\"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/UsaCountry|string
+1|"po\ns"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/UsaCountry|string
+2|"*C. polyandra ""sensu Miq., nonRoxb."""|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/MIT|string
+3|"This is a ""quote"" inside the description."|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/Math101|string
+4|"STANFORD UNIVERSITY USA"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/Stanford|string
+5|"Massachusetts Institute of Technology"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/MIT|string
+6|http://dbpedia.org/resource/Steins|IRI|STRING|http://x.y/MIT|IRI
+7|"Web Engineering"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/Bob|string
+8|1995-01-01|http://www.w3.org/2001/XMLSchema#date|DATE|http://x.y/Bob|date
+9|1994|http://www.w3.org/2001/XMLSchema#gYear|INT|http://x.y/John|gYear
+10|"05-05"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/John|string
+11|"450 Serra Mall, Stanford, CA 94305"|http://www.w3.org/2001/XMLSchema#string|STRING|http://x.y/Stanford|string

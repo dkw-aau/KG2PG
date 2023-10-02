@@ -1,0 +1,4 @@
+NAMESPACE,PREFIX
+http://dbpedia.org/ontology/,ns0
+http://www.w3.org/2000/01/rdf-schema#,ns1
+http://x.y/,ns2

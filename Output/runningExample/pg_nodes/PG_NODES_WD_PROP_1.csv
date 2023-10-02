@@ -1,0 +1,9 @@
+iri:ID|ns2_name|:LABEL
+http://x.y/Math101|"Math 101"|ns2_GraduateCourse;ns2_Course
+http://x.y/CompSci202|"Computer Science 202"|ns2_Course;ns2_UnderGradCourse
+http://x.y/Bob|"Bob"|ns2_UnderGraduateStudent;ns2_Person;ns2_Student
+http://x.y/Marry|"Marry Donaldson"|ns2_Person;ns2_Professor;ns2_Faculty
+http://x.y/MIT|"Massachusetts Institute of Technology"|ns2_University
+http://x.y/alice|"Alice Smith"|ns2_Person;ns2_Lecturer;ns2_Professor;ns2_Faculty
+http://x.y/MathDept|"Department of Mathematics"|ns2_Department
+http://x.y/CompSciDept|"Department of Computer Science"|ns2_Department
