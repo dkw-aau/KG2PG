@@ -26,9 +26,9 @@ public class EntityData {
         return keyValue;
     }
 
-    public void setKeyValue(Map<String, String> keyValue) {
-        this.keyValue = keyValue;
-    }
+//    public void setKeyValue(Map<String, String> keyValue) {
+//        this.keyValue = keyValue;
+//    }
 
     /*    // Called in StatsComputer.compute() method to compute support and confidence
     public Collection<Tuple2<Integer, Integer>> getPropertyConstraints() {
@@ -66,8 +66,8 @@ public class EntityData {
     /**
      * PropertyData Class
      */
-    public static class PropertyData {
-        Set<Integer> objTypes = new HashSet<>(5); // these are object types
-        public int count = 0; // number of times I've seen this property for this node
-    }
+//    public static class PropertyData {
+//        Set<Integer> objTypes = new HashSet<>(5); // these are object types
+//        public int count = 0; // number of times I've seen this property for this node
+//    }
 }
