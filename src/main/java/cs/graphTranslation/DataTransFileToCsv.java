@@ -133,8 +133,9 @@ public class DataTransFileToCsv {
         PrintWriter pgRelsPrintWriter = createPrintWriter(Constants.PG_RELATIONS);
         pgRelsPrintWriter.println(":START_ID|property|:END_ID|:TYPE");
 
-        AtomicInteger idCounter = new AtomicInteger();
         try {
+            AtomicInteger idCounter = new AtomicInteger();
+            idCounter.set(0);
             //Set<Integer> pgEdgeSet = schemaTranslator.getPgSchema().getPgEdges();
             HashMap<Integer, Boolean> pgEdgeLiteralBooleanMap = schemaTranslator.getPgSchema().getPgEdgeBooleanMap();
             Files.lines(Path.of(rdfFilePath)).forEach(line -> {
@@ -159,7 +160,7 @@ public class DataTransFileToCsv {
                         if (entityDataHashMap.containsKey(nodes[2])) { //create an edge between the entity and the object node using the property as edge label, Add the object value as edge to the node with a match to a specific node (which should exist already)
                             String objectIri = nodes[2].getLabel();
                             //String query = String.format("MATCH (s {iri: \"%s\"}), (u {iri: \"%s\"}) \nWITH s, u\nCREATE (s)-[:%s {iri : \"%s\"}]->(u);", entityIri, objectIri, propAsResource.getLocalName(), propAsResource.getURI());
-                            //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
+                            //Build a csv line with first column as entityIri, 2nd column as property iri, third column as objectIri, forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
                             String lineForNodeToNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + objectIri + "|" + propPrefixedLocalName;
                             pgRelsPrintWriter.println(lineForNodeToNodeRel);
                         } else {
@@ -195,18 +196,16 @@ public class DataTransFileToCsv {
                                     //propertySet.add(propLocalName);
                                 }
                             } else {
-                                //if (entityDataHashMap.containsKey(nodes[0])) {
-                                //String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
+                                //String lineForLiteral = id + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
+                                int id = idCounter.getAndIncrement();
                                 String cypherType = typesMapper.getMap().get(dataType);
-                                String lineForLiteral = idCounter.get() + "|" + value + "|" + dataType + "|" + cypherType + "|" + entityIri + "|" + dataTypeLocalName;
+                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + entityIri + "|" + dataTypeLocalName;
 
                                 pgLiteralNodesPrintWriter.println(lineForLiteral);
-                                //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, idCounter.get(), propAsResource.getLocalName());
-                                //Build a csv line with first column as entityIri, 2nd column as property iri, third column as idCounter.get(), forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
-                                String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + idCounter.get() + "|" + propPrefixedLocalName;
+                                //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, id, propAsResource.getLocalName());
+                                //Build a csv line with first column as entityIri, 2nd column as property iri, third column as id, forth column as property local name. Example: //:START_ID,property,:END_ID,:TYPE
+                                String lineForNodeToIdNodeRel = entityIri + "|" + propAsResource.getURI() + "|" + id + "|" + propPrefixedLocalName;
                                 pgRelsPrintWriter.println(lineForNodeToIdNodeRel);
-                                idCounter.getAndIncrement();
-                                //}
                             }
                         }
                     }
@@ -250,7 +249,6 @@ public class DataTransFileToCsv {
             });
         });
         Main.logger.info("Created " + groupedEntities.size() + " groups of entities.");
-        //groupedEntities.forEach((propertyKeys, nodes) -> {System.out.println(propertyKeys + " -> " + nodes);});
         Main.logger.info("Generating CSV files per group.");
         genCsvPerGroup(groupedEntities);
     }
@@ -314,6 +312,29 @@ public class DataTransFileToCsv {
     private static String generateFileName(AtomicInteger fileCounter) {
         int counter = fileCounter.getAndIncrement();
         return "PG_NODES_WD_PROP_" + counter + ".csv";
+    }
+
+    public static void writeGroupsStatsToCsv(ConcurrentHashMap<Set<String>, Set<Node>> groupedEntities) {
+        try (FileWriter writer = new FileWriter(ConfigManager.getProperty("output_file_path") + "PropsWithCountOfValues.csv")) {
+            writer.append("Props|CountValues");
+            writer.append("\n");
+
+            // Iterate through the sorted ConcurrentHashMap and write data to CSV
+            for (Map.Entry<Set<String>, Set<Node>> entry : groupedEntities.entrySet()) {
+                Set<String> keySet = entry.getKey();
+                Set<Node> valueSet = entry.getValue();
+                int keySize = keySet.size();
+                int valueSize = valueSet.size();
+                writer.append(String.valueOf(keySet));
+                writer.append("|");
+                writer.append(String.valueOf(valueSize));
+                writer.append("\n");
+            }
+
+            System.out.println("CSV file has been written successfully!");
+        } catch (IOException e) {
+            System.err.println("Error writing CSV file: " + e.getMessage());
+        }
     }
 
     /**
