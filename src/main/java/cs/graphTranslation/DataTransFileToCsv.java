@@ -435,7 +435,12 @@ public class DataTransFileToCsv {
                         String value = mapEntry.getValue();
 
                         // Set the property without escaping double quotes
-                        propertiesObject.putRawValue(key, new RawValue(value));
+                        if (value.contains("\"")) {
+                            propertiesObject.putRawValue(key, new RawValue(value));
+                        } else {
+                            propertiesObject.put(key, value);
+                        }
+
                     }
                     jsonObject.set("properties", propertiesObject); // Set the "properties" object
 
