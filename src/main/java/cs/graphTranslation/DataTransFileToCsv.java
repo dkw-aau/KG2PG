@@ -426,7 +426,7 @@ public class DataTransFileToCsv {
                     ObjectNode jsonObject = objectMapper.createObjectNode();
 
                     // Set the ID using node.getLabel()
-                    jsonObject.put("id", node.getLabel());
+                    jsonObject.put("iri", node.getLabel());
 
                     // Create a "properties" object and add properties from entityData.getKeyValue()
                     ObjectNode propertiesObject = objectMapper.createObjectNode();
