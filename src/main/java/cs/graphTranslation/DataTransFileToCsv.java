@@ -251,6 +251,8 @@ public class DataTransFileToCsv {
         Main.logger.info("Created " + groupedEntities.size() + " groups of entities.");
         Main.logger.info("Generating CSV files per group.");
         genCsvPerGroup(groupedEntities);
+        Main.logger.info("Generating STATS CSV for groups.");
+        writeGroupsStatsToCsv(groupedEntities);
     }
 
     // Helper method to generate CSV files per group of entities
@@ -265,9 +267,8 @@ public class DataTransFileToCsv {
             Set<String> propertyKeys = entry.getKey();
             if (!propertyKeys.isEmpty()) {
                 Set<Node> nodes = entry.getValue();
-
                 // Generate the file name with an incrementing number
-                String fileName = generateFileName(fileCounter);
+                String fileName = generateFileName(fileCounter, entry.getKey().size(), entry.getValue().size());
                 // Create a CSV file for this property group
                 String csvFileName = outputDirectory + fileName;
                 //Main.logger.info("Generating CSV file: " + csvFileName);
@@ -309,13 +310,13 @@ public class DataTransFileToCsv {
 
 
     // Helper method to generate file names with an incrementing number
-    private static String generateFileName(AtomicInteger fileCounter) {
+    private static String generateFileName(AtomicInteger fileCounter, int propSize, int valueSize) {
         int counter = fileCounter.getAndIncrement();
-        return "PG_NODES_WD_PROP_" + counter + ".csv";
+        return "PG_NODES_WD_PROP_" + counter + "_" + propSize + "_" + valueSize + ".csv";
     }
 
     public static void writeGroupsStatsToCsv(ConcurrentHashMap<Set<String>, Set<Node>> groupedEntities) {
-        try (FileWriter writer = new FileWriter(ConfigManager.getProperty("output_file_path") + "PropsWithCountOfValues.csv")) {
+        try (FileWriter writer = new FileWriter(ConfigManager.getProperty("output_file_path") + "propGroupsStats.csv")) {
             writer.append("Props|CountValues");
             writer.append("\n");
 
@@ -325,7 +326,9 @@ public class DataTransFileToCsv {
                 Set<Node> valueSet = entry.getValue();
                 int keySize = keySet.size();
                 int valueSize = valueSet.size();
-                writer.append(String.valueOf(keySet));
+                writer.append(keySet.toString());
+                writer.append("|");
+                writer.append(String.valueOf(keySize));
                 writer.append("|");
                 writer.append(String.valueOf(valueSize));
                 writer.append("\n");
