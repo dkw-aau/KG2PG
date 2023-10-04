@@ -1,5 +1,8 @@
 package cs.graphTranslation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.RawValue;
 import cs.Main;
 import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
@@ -15,6 +18,7 @@ import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
 import org.semanticweb.yars.nx.parser.ParseException;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,7 +68,8 @@ public class DataTransFileToCsv {
         Main.logger.info("Phase 2: Graph Data Translation - Extracting properties data for extracted entities from RDF file.");
         propertiesToPgKeysAndEdges();
         Main.logger.info("Post Processing: Graph Data Translation - Writing entities data to CSV file.");
-        groupingEntitiesByCommonProperties();
+        entityDataToCsvAndJson();
+        //groupingEntitiesByCommonProperties();
         Main.logger.info("Post Processing: Graph Data Translation - Writing prefix map to file.");
         FilesUtil.writeStringToStringMapToFile(prefixMap, Constants.PG_PREFIX_MAP);
         Main.logger.info("STATS: " + "No. of Classes: " + classEntityCount.size());
@@ -390,8 +395,71 @@ public class DataTransFileToCsv {
     }
 
 
-    // This way of writing sparse csv file using all properties is very
-    // expensive and results in generation of very large csv file for large graphs
+    private void entityDataToCsvAndJson() {
+        System.out.println("Transforming entity data to CSV.");
+        StopWatch watch = new StopWatch();
+        watch.start();
+        ObjectMapper objectMapper = new ObjectMapper();
+        try (FileWriter csvWriter = new FileWriter(Constants.PG_NODES_WD_LABELS)) {
+            try (PrintWriter jsonWriter = new PrintWriter(new BufferedWriter(new FileWriter(Constants.PG_NODES_PROPS_JSON)))) {
+                csvWriter.append("iri:ID|:LABEL\n");
+                jsonWriter.write("["); // Insert '[' at the beginning of the file
+                // Iterate over entityDataHashMap and write data to the CSV file
+                for (Iterator<Map.Entry<Node, EntityData>> iterator = entityDataHashMap.entrySet().iterator(); iterator.hasNext(); ) {
+                    Map.Entry<Node, EntityData> entry = iterator.next();
+                    Node node = entry.getKey();
+                    EntityData entityData = entry.getValue();
+                    // Write the Node value in the first column
+                    csvWriter.append(node.getLabel());
+                    csvWriter.append("|");
+
+                    StringBuilder sb = new StringBuilder();
+                    StringJoiner joiner = new StringJoiner(";");
+                    entityData.getClassTypes().forEach(classID -> {
+                        joiner.add(resourceEncoder.decodeAsResource(classID).getLocalName());
+                    });
+                    sb.append(joiner);
+                    csvWriter.append(sb);
+                    csvWriter.append("\n");
+
+                    // Create a JSON object for each entry
+                    ObjectNode jsonObject = objectMapper.createObjectNode();
+
+                    // Set the ID using node.getLabel()
+                    jsonObject.put("id", node.getLabel());
+
+                    // Create a "properties" object and add properties from entityData.getKeyValue()
+                    ObjectNode propertiesObject = objectMapper.createObjectNode();
+                    for (Map.Entry<String, String> mapEntry : entityData.getKeyValue().entrySet()) {
+                        String key = mapEntry.getKey();
+                        String value = mapEntry.getValue();
+
+                        // Set the property without escaping double quotes
+                        propertiesObject.putRawValue(key, new RawValue(value));
+                    }
+                    jsonObject.set("properties", propertiesObject); // Set the "properties" object
+
+                    // Serialize the JSON object to a string and write it to the output file
+                    jsonWriter.println(jsonObject.toString());
+                    // Add a comma if it's not the last line
+                    if (iterator.hasNext()) {
+                        jsonWriter.write(",");
+                    }
+                }
+                jsonWriter.write("]"); // Insert ']' at the end of the file
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        watch.stop();
+        Utils.logTime("entityDataToCsv()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+    }
+
+// This way of writing sparse csv file using all properties is very
+// expensive and results in generation of very large csv file for large graphs
    /* private void entityDataToCsv() {
         System.out.println("Transforming entity data to CSV.");
         StopWatch watch = new StopWatch();

@@ -35,8 +35,9 @@ public class Constants {
 
     public static String PG_SCHEMA_SYNTAX_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA.txt";
 
-    public static String PG_NODES_WD_PROP = ConfigManager.getProperty("output_file_path")  + "PG_NODES_WD_PROP.csv";
+    public static String PG_NODES_WD_LABELS = ConfigManager.getProperty("output_file_path")  + "PG_NODES_WD_LABELS.csv";
     public static String PG_NODES_LITERALS = ConfigManager.getProperty("output_file_path")  + "PG_NODES_LITERALS.csv";
-    public static String PG_RELATIONS = ConfigManager.getProperty("output_file_path") + "pg_relationships/" + "PG_RELATIONS.csv";
+    public static String PG_RELATIONS = ConfigManager.getProperty("output_file_path") + "PG_RELATIONS.csv";
     public static String PG_PREFIX_MAP = ConfigManager.getProperty("output_file_path")  + "PG_PREFIX_MAP.csv";
+    public static String PG_NODES_PROPS_JSON = ConfigManager.getProperty("output_file_path")  + "PG_NODES_PROPS_JSON.json";
 }
