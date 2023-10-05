@@ -1,5 +1,7 @@
 package cs.graphTranslation;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.RawValue;
@@ -204,7 +206,7 @@ public class DataTransFileToCsv {
                                 //String lineForLiteral = id + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
                                 int id = idCounter.getAndIncrement();
                                 String cypherType = typesMapper.getMap().get(dataType);
-                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + entityIri + "|" + dataTypeLocalName;
+                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + entityIri + "|" + dataTypeLocalName + ";Node;KG2PG";
 
                                 pgLiteralNodesPrintWriter.println(lineForLiteral);
                                 //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, id, propAsResource.getLocalName());
@@ -399,7 +401,7 @@ public class DataTransFileToCsv {
         System.out.println("Transforming entity data to CSV.");
         StopWatch watch = new StopWatch();
         watch.start();
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         try (FileWriter csvWriter = new FileWriter(Constants.PG_NODES_WD_LABELS)) {
             try (PrintWriter jsonWriter = new PrintWriter(new BufferedWriter(new FileWriter(Constants.PG_NODES_PROPS_JSON)))) {
                 csvWriter.append("iri:ID|:LABEL\n");
@@ -418,6 +420,7 @@ public class DataTransFileToCsv {
                     entityData.getClassTypes().forEach(classID -> {
                         joiner.add(resourceEncoder.decodeAsResource(classID).getLocalName());
                     });
+                    joiner.add("Node");
                     sb.append(joiner);
                     csvWriter.append(sb);
                     csvWriter.append("\n");
@@ -433,22 +436,18 @@ public class DataTransFileToCsv {
                     for (Map.Entry<String, String> mapEntry : entityData.getKeyValue().entrySet()) {
                         String key = mapEntry.getKey();
                         String value = mapEntry.getValue();
-
-                        // Set the property without escaping double quotes
-                        if (value.contains("\"")) {
-                            propertiesObject.putRawValue(key, new RawValue(value));
-                        } else {
-                            propertiesObject.put(key, value);
-                        }
-
+                        propertiesObject.put(key, value);
                     }
-                    jsonObject.set("properties", propertiesObject); // Set the "properties" object
+                    if (isValid(propertiesObject.toString(), objectMapper))
+                        jsonObject.set("properties", propertiesObject); // Set the "properties" object
+                    else Main.logger.warn("************* Invalid properties JSON object: " + propertiesObject);
 
-                    // Serialize the JSON object to a string and write it to the output file
-                    jsonWriter.println(jsonObject.toString());
-                    // Add a comma if it's not the last line
-                    if (iterator.hasNext()) {
-                        jsonWriter.write(",");
+                    if (isValid(jsonObject.toString(), objectMapper)) {
+                        jsonWriter.println(jsonObject);// Serialize the JSON object to a string and write it to the output file
+                        // Add a comma if it's not the last line
+                        if (iterator.hasNext()) jsonWriter.write(",");
+                    } else {
+                        Main.logger.info("************* Invalid complete JSON object: " + jsonObject);
                     }
                 }
                 jsonWriter.write("]"); // Insert ']' at the end of the file
@@ -460,7 +459,16 @@ public class DataTransFileToCsv {
             e.printStackTrace();
         }
         watch.stop();
-        Utils.logTime("entityDataToCsv()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+        Utils.logTime("entityDataToCsvAndJson()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+    }
+
+    public boolean isValid(String json, ObjectMapper mapper) {
+        try {
+            mapper.readTree(json);
+        } catch (JacksonException e) {
+            return false;
+        }
+        return true;
     }
 
 // This way of writing sparse csv file using all properties is very
