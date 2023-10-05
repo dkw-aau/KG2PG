@@ -1,0 +1,13 @@
+iri:ID|:LABEL
+http://x.y/Marry|Person;Professor;Faculty;Node
+http://x.y/Bob|UnderGraduateStudent;Person;Student;Node
+http://x.y/MIT|University;Node
+http://x.y/CompSciDept|Department;Node
+http://x.y/CompSci202|Course;UnderGradCourse;Node
+http://x.y/Math101|GraduateCourse;Course;Node
+http://x.y/UsaCountry|Country;Node
+http://x.y/alice|Person;Lecturer;Professor;Faculty;Node
+http://x.y/Stanford|University;Node
+http://x.y/MitsAddress|Address;Node
+http://x.y/John|Person;GraduateStudent;Student;Node
+http://x.y/MathDept|Department;Node
