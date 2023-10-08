@@ -135,7 +135,7 @@ public class DataTransFileToCsv {
         TypesMapper typesMapper = new TypesMapper();
         typesMapper.initTypesForCypher();
         PrintWriter pgLiteralNodesPrintWriter = createPrintWriter(Constants.PG_NODES_LITERALS);
-        pgLiteralNodesPrintWriter.println("id:ID|object_value|object_type|type|object_iri|:LABEL");
+        pgLiteralNodesPrintWriter.println("id:ID|object_value|object_type|type|:LABEL");
 
         PrintWriter pgRelsPrintWriter = createPrintWriter(Constants.PG_RELATIONS);
         pgRelsPrintWriter.println(":START_ID|property|:END_ID|:TYPE");
@@ -206,7 +206,8 @@ public class DataTransFileToCsv {
                                 //String lineForLiteral = id + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
                                 int id = idCounter.getAndIncrement();
                                 String cypherType = typesMapper.getMap().get(dataType);
-                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + entityIri + "|" + dataTypeLocalName + ";Node;KG2PG";
+                                //id:ID|object_value|object_type|type|object_iri|:LABEL
+                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + dataTypeLocalName + ";Node";
 
                                 pgLiteralNodesPrintWriter.println(lineForLiteral);
                                 //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, id, propAsResource.getLocalName());
@@ -418,7 +419,9 @@ public class DataTransFileToCsv {
                     StringBuilder sb = new StringBuilder();
                     StringJoiner joiner = new StringJoiner(";");
                     entityData.getClassTypes().forEach(classID -> {
-                        joiner.add(resourceEncoder.decodeAsResource(classID).getLocalName());
+                        Resource typeResource = resourceEncoder.decodeAsResource(classID);
+                        String prefixedType = prefixMap.get(typeResource.getNameSpace()) + "_" + typeResource.getLocalName();
+                        joiner.add(prefixedType);
                     });
                     joiner.add("Node");
                     sb.append(joiner);
