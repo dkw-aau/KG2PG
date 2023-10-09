@@ -206,8 +206,9 @@ public class DataTransFileToCsv {
                                 //String lineForLiteral = id + "|" + value + "|" + dataType + "|" + entityIri + "|" + dataTypeLocalName;
                                 int id = idCounter.getAndIncrement();
                                 String cypherType = typesMapper.getMap().get(dataType);
+                                if (cypherType == null) cypherType = "STRING";
                                 //id:ID|object_value|object_type|type|object_iri|:LABEL
-                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + dataTypeLocalName + ";Node";
+                                String lineForLiteral = id + "|" + value + "|" + dataType + "|" + cypherType + "|" + dataTypeLocalName + ";LitNode";
 
                                 pgLiteralNodesPrintWriter.println(lineForLiteral);
                                 //String query = String.format("MATCH (s {iri: \"%s\"}), (u {identifier: \"%d\"}) \nWITH s, u\nCREATE (s)-[:%s]->(u);", entityIri, id, propAsResource.getLocalName());
