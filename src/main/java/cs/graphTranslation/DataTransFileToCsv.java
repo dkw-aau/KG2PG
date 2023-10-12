@@ -455,7 +455,7 @@ public class DataTransFileToCsv {
                         }
                         if (isValid(propertiesObject.toString(), objectMapper))
                             jsonObject.set("properties", propertiesObject); // Set the "properties" object
-                        else Main.logger.warn("************* Invalid properties JSON object: " + propertiesObject);
+                        else Main.logger.warn("Invalid properties JSON object: " + propertiesObject);
 
                         if (isValid(jsonObject.toString(), objectMapper)) {
                             if (!isFirstEntry) {
@@ -466,30 +466,35 @@ public class DataTransFileToCsv {
                                 isFirstEntry = false;
                             }
                         } else {
-                            Main.logger.warn("************* Invalid complete JSON object: " + jsonObject);
+                            Main.logger.warn("Invalid complete JSON object: " + jsonObject);
                         }
                     }
                 }
-                if (!prefixMap.isEmpty()) {
-                    jsonWriter.write(",");
-                    ObjectNode prefixMapObject = objectMapper.createObjectNode();
-                    prefixMapObject.put("iri", "http://relweb.cs.aau.dk/kg2pg/prefixes");
-                    ObjectNode prefixesNode = convertPrefixMapToJson(prefixMap);
-                    if (isValid(prefixesNode.toString(), objectMapper))
-                        prefixMapObject.set("properties", prefixesNode);
-                    jsonWriter.println(prefixMapObject);
-                }
-                jsonWriter.write("]"); // After the loop, close the JSON array
 
+                prefixesToJson(jsonWriter, objectMapper);
+
+                jsonWriter.write("]"); // After the loop, close the JSON array
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            csvWriter.append("http://relweb.cs.aau.dk/kg2pg/prefixes|Node;Prefixes\n"); // Add node for prefixes with specific label
         } catch (IOException e) {
             e.printStackTrace();
         }
         watch.stop();
         Utils.logTime("entityDataToCsvAndJson()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+    }
+
+    private void prefixesToJson(PrintWriter jsonWriter, ObjectMapper objectMapper) {
+        if (!prefixMap.isEmpty()) {
+            jsonWriter.write(",");
+            ObjectNode prefixMapObject = objectMapper.createObjectNode();
+            prefixMapObject.put("iri", "http://relweb.cs.aau.dk/kg2pg/prefixes");
+            ObjectNode prefixesNode = convertPrefixMapToJson(prefixMap);
+            if (isValid(prefixesNode.toString(), objectMapper))
+                prefixMapObject.set("properties", prefixesNode);
+            jsonWriter.println(prefixMapObject);
+        }
     }
 
     public boolean isValid(String json, ObjectMapper mapper) {

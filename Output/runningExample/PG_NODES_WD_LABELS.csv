@@ -11,3 +11,4 @@ http://x.y/Stanford|ns2_University;Node
 http://x.y/MitsAddress|ns2_Address;Node
 http://x.y/John|ns2_Person;ns2_GraduateStudent;ns2_Student;Node
 http://x.y/MathDept|ns2_Department;Node
+http://relweb.cs.aau.dk/kg2pg/prefixes|Node;Prefixes
