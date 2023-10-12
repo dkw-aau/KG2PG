@@ -8,6 +8,7 @@ http://x.y/MIT|http://www.w3.org/2000/01/rdf-schema#label|5|ns1_label
 http://x.y/MIT|http://www.w3.org/2000/01/rdf-schema#seeAlso|6|ns1_seeAlso
 http://x.y/Bob|http://x.y/takesCourse|http://x.y/CompSci202|ns2_takesCourse
 http://x.y/Bob|http://x.y/takesCourse|7|ns2_takesCourse
+http://x.y/Bob|http://x.y/takesCourse|8|ns2_takesCourse
 http://x.y/John|http://x.y/takesCourse|http://x.y/Math101|ns2_takesCourse
 http://x.y/John|http://x.y/takesCourse|http://x.y/CompSci202|ns2_takesCourse
 http://x.y/Bob|http://x.y/advisedBy|http://x.y/alice|ns2_advisedBy
@@ -20,12 +21,12 @@ http://x.y/alice|http://x.y/docDegreeFrom|http://x.y/MIT|ns2_docDegreeFrom
 http://x.y/Marry|http://x.y/docDegreeFrom|http://x.y/Stanford|ns2_docDegreeFrom
 http://x.y/alice|http://x.y/teacherOf|http://x.y/CompSci202|ns2_teacherOf
 http://x.y/Marry|http://x.y/teacherOf|http://x.y/Math101|ns2_teacherOf
-http://x.y/Bob|http://x.y/dob|8|ns2_dob
-http://x.y/John|http://x.y/dob|9|ns2_dob
+http://x.y/Bob|http://x.y/dob|9|ns2_dob
 http://x.y/John|http://x.y/dob|10|ns2_dob
+http://x.y/John|http://dbpedia.org/ontology/revenue|11|ns0_revenue
 http://x.y/MathDept|http://x.y/subOrgOf|http://x.y/MIT|ns2_subOrgOf
 http://x.y/CompSciDept|http://x.y/subOrgOf|http://x.y/MIT|ns2_subOrgOf
-http://x.y/Stanford|http://x.y/address|11|ns2_address
+http://x.y/Stanford|http://x.y/address|12|ns2_address
 http://x.y/MIT|http://x.y/address|http://x.y/MitsAddress|ns2_address
 http://x.y/MitsAddress|http://x.y/country|http://x.y/UsaCountry|ns2_country
 http://x.y/Math101|http://x.y/offeredBy|http://x.y/MathDept|ns2_offeredBy

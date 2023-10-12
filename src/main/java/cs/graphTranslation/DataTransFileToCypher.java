@@ -7,6 +7,7 @@ import cs.schemaTranslation.pgSchema.PgEdge;
 import cs.utils.Constants;
 import cs.utils.Utils;
 import cs.utils.neo.Neo4jGraph;
+import kotlin.Pair;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
@@ -20,10 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class DataTransFileToCypher {
@@ -135,7 +133,7 @@ public class DataTransFileToCypher {
         createEdgeQueries = new ArrayList<>();
         try {
             //Set<Integer> pgEdgeSet = schemaTranslator.getPgSchema().getPgEdges();
-            HashMap<Integer, Boolean> pgEdgeLiteralBooleanMap = schemaTranslator.getPgSchema().getPgEdgeBooleanMap();
+            Map<Pair<Integer, Integer>, Boolean> pgNodeEdgeBooleanMap = schemaTranslator.getPgSchema().getPgNodeEdgeBooleanMap();
             Files.lines(Path.of(rdfFilePath)).forEach(line -> {
                 try {
                     // parsing <s,p,o> of triple from each line as node[0], node[1], and node[2]
@@ -148,9 +146,16 @@ public class DataTransFileToCypher {
                         boolean isLiteralProperty = false;
                         //int objID = resourceEncoder.encodeAsResource(nodes[2].getLabel()); //Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
 
-                        //1: Check if the property is a literal
-                        if (pgEdgeLiteralBooleanMap.containsKey(propertyKey)) {
-                            isLiteralProperty = pgEdgeLiteralBooleanMap.get(propertyKey);
+                        Set<Boolean> booleanSet = new HashSet<>();
+                        entityDataHashMap.get(entityNode).getClassTypes().forEach(classID -> {
+                            Pair<Integer, Integer> nodeEdgePair = new Pair<>(classID, propertyKey);
+                            if (pgNodeEdgeBooleanMap.containsKey(nodeEdgePair)) {
+                                booleanSet.add(pgNodeEdgeBooleanMap.get(nodeEdgePair));
+                            }
+                        });
+
+                        if (booleanSet.size() == 1) {
+                            isLiteralProperty = booleanSet.iterator().next();
                         }
 
                         //2: Check if the object node exists in the entityDataHashMap

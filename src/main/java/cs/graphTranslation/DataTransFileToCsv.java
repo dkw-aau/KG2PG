@@ -3,12 +3,14 @@ package cs.graphTranslation;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 import cs.Main;
 import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.*;
+import kotlin.Pair;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.time.StopWatch;
@@ -143,8 +145,7 @@ public class DataTransFileToCsv {
         try {
             AtomicInteger idCounter = new AtomicInteger();
             idCounter.set(0);
-            //Set<Integer> pgEdgeSet = schemaTranslator.getPgSchema().getPgEdges();
-            HashMap<Integer, Boolean> pgEdgeLiteralBooleanMap = schemaTranslator.getPgSchema().getPgEdgeBooleanMap();
+            Map<Pair<Integer, Integer>, Boolean> pgNodeEdgeBooleanMap = schemaTranslator.getPgSchema().getPgNodeEdgeBooleanMap();
             Files.lines(Path.of(rdfFilePath)).forEach(line -> {
                 try {
                     // parsing <s,p,o> of triple from each line as node[0], node[1], and node[2]
@@ -156,11 +157,17 @@ public class DataTransFileToCsv {
                         String propPrefixedLocalName = prefixMap.get(propAsResource.getNameSpace()) + "_" + propAsResource.getLocalName();
                         int propertyKey = resourceEncoder.encodeAsResource(nodes[1].getLabel());
                         boolean isLiteralProperty = false;
-                        //int objID = resourceEncoder.encodeAsResource(nodes[2].getLabel()); //Set<Integer> entityTypes = entityDataHashMap.get(entityNode).getClassTypes();
 
-                        //1: Check if the property is a literal
-                        if (pgEdgeLiteralBooleanMap.containsKey(propertyKey)) {
-                            isLiteralProperty = pgEdgeLiteralBooleanMap.get(propertyKey);
+                        Set<Boolean> booleanSet = new HashSet<>();
+                        entityDataHashMap.get(entityNode).getClassTypes().forEach(classID -> {
+                            Pair<Integer, Integer> nodeEdgePair = new Pair<>(classID, propertyKey);
+                            if (pgNodeEdgeBooleanMap.containsKey(nodeEdgePair)) {
+                                booleanSet.add(pgNodeEdgeBooleanMap.get(nodeEdgePair));
+                            }
+                        });
+
+                        if (booleanSet.size() == 1) {
+                            isLiteralProperty = booleanSet.iterator().next();
                         }
 
                         //2: Check if the object node exists in the entityDataHashMap
@@ -408,11 +415,13 @@ public class DataTransFileToCsv {
             try (PrintWriter jsonWriter = new PrintWriter(new BufferedWriter(new FileWriter(Constants.PG_NODES_PROPS_JSON)))) {
                 csvWriter.append("iri:ID|:LABEL\n");
                 jsonWriter.write("["); // Insert '[' at the beginning of the file
-                // Iterate over entityDataHashMap and write data to the CSV file
-                for (Iterator<Map.Entry<Node, EntityData>> iterator = entityDataHashMap.entrySet().iterator(); iterator.hasNext(); ) {
+                Iterator<Map.Entry<Node, EntityData>> iterator = entityDataHashMap.entrySet().iterator();
+                boolean isFirstEntry = true;
+                while (iterator.hasNext()) {
                     Map.Entry<Node, EntityData> entry = iterator.next();
                     Node node = entry.getKey();
                     EntityData entityData = entry.getValue();
+
                     // Write the Node value in the first column
                     csvWriter.append(node.getLabel());
                     csvWriter.append("|");
@@ -429,32 +438,49 @@ public class DataTransFileToCsv {
                     csvWriter.append(sb);
                     csvWriter.append("\n");
 
-                    // Create a JSON object for each entry
-                    ObjectNode jsonObject = objectMapper.createObjectNode();
+                    // Check if entityData.getKeyValue() is not empty
+                    if (!entityData.getKeyValue().isEmpty()) {
+                        // Create a JSON object for each entry
+                        ObjectNode jsonObject = objectMapper.createObjectNode();
 
-                    // Set the ID using node.getLabel()
-                    jsonObject.put("iri", node.getLabel());
+                        // Set the ID using node.getLabel()
+                        jsonObject.put("iri", node.getLabel());
 
-                    // Create a "properties" object and add properties from entityData.getKeyValue()
-                    ObjectNode propertiesObject = objectMapper.createObjectNode();
-                    for (Map.Entry<String, String> mapEntry : entityData.getKeyValue().entrySet()) {
-                        String key = mapEntry.getKey();
-                        String value = mapEntry.getValue();
-                        propertiesObject.put(key, value);
-                    }
-                    if (isValid(propertiesObject.toString(), objectMapper))
-                        jsonObject.set("properties", propertiesObject); // Set the "properties" object
-                    else Main.logger.warn("************* Invalid properties JSON object: " + propertiesObject);
+                        // Create a "properties" object and add properties from entityData.getKeyValue()
+                        ObjectNode propertiesObject = objectMapper.createObjectNode();
+                        for (Map.Entry<String, String> mapEntry : entityData.getKeyValue().entrySet()) {
+                            String key = mapEntry.getKey();
+                            String value = mapEntry.getValue();
+                            propertiesObject.put(key, value);
+                        }
+                        if (isValid(propertiesObject.toString(), objectMapper))
+                            jsonObject.set("properties", propertiesObject); // Set the "properties" object
+                        else Main.logger.warn("************* Invalid properties JSON object: " + propertiesObject);
 
-                    if (isValid(jsonObject.toString(), objectMapper)) {
-                        jsonWriter.println(jsonObject);// Serialize the JSON object to a string and write it to the output file
-                        // Add a comma if it's not the last line
-                        if (iterator.hasNext()) jsonWriter.write(",");
-                    } else {
-                        Main.logger.info("************* Invalid complete JSON object: " + jsonObject);
+                        if (isValid(jsonObject.toString(), objectMapper)) {
+                            if (!isFirstEntry) {
+                                jsonWriter.write(",");
+                            }
+                            jsonWriter.println(jsonObject);// Serialize the JSON object to a string and write it to the output file
+                            if (isFirstEntry) {
+                                isFirstEntry = false;
+                            }
+                        } else {
+                            Main.logger.warn("************* Invalid complete JSON object: " + jsonObject);
+                        }
                     }
                 }
-                jsonWriter.write("]"); // Insert ']' at the end of the file
+                if (!prefixMap.isEmpty()) {
+                    jsonWriter.write(",");
+                    ObjectNode prefixMapObject = objectMapper.createObjectNode();
+                    prefixMapObject.put("iri", "http://relweb.cs.aau.dk/kg2pg/prefixes");
+                    ObjectNode prefixesNode = convertPrefixMapToJson(prefixMap);
+                    if (isValid(prefixesNode.toString(), objectMapper))
+                        prefixMapObject.set("properties", prefixesNode);
+                    jsonWriter.println(prefixMapObject);
+                }
+                jsonWriter.write("]"); // After the loop, close the JSON array
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -473,6 +499,15 @@ public class DataTransFileToCsv {
             return false;
         }
         return true;
+    }
+
+    public static ObjectNode convertPrefixMapToJson(Map<String, String> prefixMap) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode resultObject = objectMapper.createObjectNode();
+        for (Map.Entry<String, String> entry : prefixMap.entrySet()) {
+            resultObject.put(entry.getValue(), entry.getKey());
+        }
+        return resultObject;
     }
 
 // This way of writing sparse csv file using all properties is very

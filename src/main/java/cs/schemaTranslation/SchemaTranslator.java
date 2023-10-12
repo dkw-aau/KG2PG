@@ -39,9 +39,7 @@ public class SchemaTranslator {
         Shapes shapes = readShapes();
         Main.logger.info("SHACL shapes read successfully, parsing SHACL shapes...");
         parseShapes(shapes);
-        Main.logger.info("SHACL shapes parsed successfully, post processing PG-Schema...");
-        pgSchema.postProcessPgSchema();
-        Main.logger.info("PG-Schema post processed successfully, writing PG-Schema to file...");
+        Main.logger.info("SHACL shapes parsed successfully, writing PG-Schema to file...");
         writePgSchema();
     }
 
@@ -115,7 +113,9 @@ public class SchemaTranslator {
                 case "DatatypeConstraint" -> { //    sh:NodeKind sh:Literal ;     sh:datatype xsd:string or any other primitive data type
                     Node dataTypeConstraint = ((DatatypeConstraint) constraint).getDatatype();
                     pgEdge.setDataType(dataTypeConstraint.getLocalName());
-                    pgEdge.setLiteral(true);
+                    // Use id of pgNode and pgEdge and create a pair to store the boolean value of  pgNodeEdgeBooleanMap in PGSchema
+                    Pair<Integer, Integer> nodeEdgePair = new Pair<>(pgNode.getId(), pgEdge.getId());
+                    pgSchema.getPgNodeEdgeBooleanMap().put(nodeEdgePair, true);
                 }
 
                 // Multi Type Constraints: Homogenous (literals or IRIs) or Heterogeneous (literals and IRIs)

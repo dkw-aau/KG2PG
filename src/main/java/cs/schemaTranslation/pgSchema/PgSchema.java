@@ -10,12 +10,14 @@ public class PgSchema {
     Map<Integer, List<Integer>> nodesToEdges; // nodeId -> edgeIds
     Map<Pair<Integer, Integer>, Set<Integer>> nodeEdgeTarget; // <nodeId, edgeId> -> targetNodeIds
     Map<Pair<Integer, Integer>, Pair<Integer, Integer>> nodeEdgeCardinality; // <nodeId, edgeId> -> <minCount, maxCount>
-    Map<Integer, Boolean> pgEdgeBooleanMap; // edgeId -> isLiteral
+    Map<Pair<Integer, Integer>, Boolean> pgNodeEdgeBooleanMap; // <nodeId, edgeId> -> isLiteral -- this does not fail when there are multiple edges with different ids
+
 
     public PgSchema() {
         nodesToEdges = new HashMap<>();
         nodeEdgeTarget = new HashMap<>();
         nodeEdgeCardinality = new HashMap<>();
+        pgNodeEdgeBooleanMap = new HashMap<>();
     }
 
     public void addNode(PgNode pgNode) {
@@ -44,19 +46,8 @@ public class PgSchema {
         return nodeEdgeTarget;
     }
 
-    public void postProcessPgSchema() {
-        Set<Integer> pgEdges = new HashSet<Integer>();
-        for (List<Integer> set : nodesToEdges.values()) {
-            pgEdges.addAll(set);
-        }
-        pgEdgeBooleanMap = new HashMap<>();
-        for (Integer edgeId : pgEdges) {
-            pgEdgeBooleanMap.put(edgeId, PgEdge.getEdgeById(edgeId).isLiteral());
-        }
-    }
-
-    public HashMap<Integer, Boolean> getPgEdgeBooleanMap() {
-        return (HashMap<Integer, Boolean>) pgEdgeBooleanMap;
+    public Map<Pair<Integer, Integer>, Boolean> getPgNodeEdgeBooleanMap() {
+        return pgNodeEdgeBooleanMap;
     }
 
     public Map<Pair<Integer, Integer>, Pair<Integer, Integer>> getNodeEdgeCardinalityMap() {
