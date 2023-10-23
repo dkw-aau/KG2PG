@@ -151,7 +151,8 @@ public class DataTransFileToCsv {
                 try {
                     // parsing <s,p,o> of triple from each line as node[0], node[1], and node[2]
                     Node[] nodes = NxParser.parseNodes(line);
-                    if (!nodes[1].toString().equals(typePredicate)) {
+                    if (!nodes[1].toString().equals(typePredicate) && entityDataHashMap.containsKey(nodes[0])) {
+                        //if (!nodes[1].toString().equals(typePredicate)) {
                         Node entityNode = nodes[0];
                         String entityIri = entityNode.getLabel();
                         Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
@@ -159,24 +160,24 @@ public class DataTransFileToCsv {
                         int propertyKey = resourceEncoder.encodeAsResource(nodes[1].getLabel());
                         boolean isLiteralProperty = false;
 
-                        if (entityDataHashMap.containsKey(entityNode)) {
-                            Set<Boolean> booleanSet = new HashSet<>();
-                            entityDataHashMap.get(entityNode).getClassTypes().forEach(classID -> {
-                                Pair<Integer, Integer> nodeEdgePair = new Pair<>(classID, propertyKey);
-                                if (pgNodeEdgeBooleanMap.containsKey(nodeEdgePair)) {
-                                    booleanSet.add(pgNodeEdgeBooleanMap.get(nodeEdgePair));
-                                }
-                            });
-
-                            if (booleanSet.size() == 1) {
-                                isLiteralProperty = booleanSet.iterator().next();
+                        //if (entityDataHashMap.containsKey(entityNode)) {
+                        Set<Boolean> booleanSet = new HashSet<>();
+                        entityDataHashMap.get(entityNode).getClassTypes().forEach(classID -> {
+                            Pair<Integer, Integer> nodeEdgePair = new Pair<>(classID, propertyKey);
+                            if (pgNodeEdgeBooleanMap.containsKey(nodeEdgePair)) {
+                                booleanSet.add(pgNodeEdgeBooleanMap.get(nodeEdgePair));
                             }
-                        } else {
+                        });
+
+                        if (booleanSet.size() == 1) {
+                            isLiteralProperty = booleanSet.iterator().next();
+                        }
+                        /*} else {
                             // As the entity node is not in the entityDataHashMap, that means this entity does not have any type (defined in the file). So, we add this entity into the entityDataHashMap with a default type of "Thing". Then its properties are handled smoothly
                             EntityData entityData = new EntityData();
                             entityData.getClassTypes().add(resourceEncoder.encodeAsResource("http://www.w3.org/2002/07/owl#Thing"));
                             entityDataHashMap.put(entityNode, entityData);
-                        }
+                        }*/
 
                         //2: Check if the object node exists in the entityDataHashMap
                         if (entityDataHashMap.containsKey(nodes[2])) { //create an edge between the entity and the object node using the property as edge label, Add the object value as edge to the node with a match to a specific node (which should exist already)
