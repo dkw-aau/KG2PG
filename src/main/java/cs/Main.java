@@ -6,6 +6,8 @@ import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.ConfigManager;
 import cs.utils.Constants;
 import cs.utils.FilesUtil;
+import cs.utils.graphdb.S3PGBenchKG;
+import cs.utils.neo.S3PGBench;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -25,6 +27,19 @@ public class Main {
         logger.setLevel(Level.INFO);
         readConfig();
 
+        //Benchmark Query Runtime Analysis on KG over GraphDB
+        //new S3PGBenchKG().executeQueries();
+
+        //Benchmark Query Runtime Analysis on PGs transformed by different approaches
+        /*S3PGBench s3PGBench = new S3PGBench();
+        s3PGBench.benchNeoSemQueries();
+        s3PGBench.benchS3pgQueries();
+        s3PGBench.benchRdf2pgQueries();*/
+
+        s3pgTransformation();
+    }
+
+    private static void s3pgTransformation() {
         ResourceEncoder resourceEncoder = new ResourceEncoder();
 
         SchemaTranslator schemaTranslator = new SchemaTranslator(resourceEncoder);

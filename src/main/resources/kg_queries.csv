@@ -1,0 +1,31 @@
+Index|Query
+Q1|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Person> . ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?propValue . }
+Q2|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Organization> . ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?propValue . }
+Q3|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Movie> . ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?propValue . }
+Q4|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/MusicAlbum> . ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?propValue . }
+Q5|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Person> . ?entity <http://dbpedia.org/property/fatherName> ?propValue . }
+Q6|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Writer> . ?entity <http://dbpedia.org/property/birthDate> ?propValue. FILTER (DATATYPE(?propValue) = <http://www.w3.org/2001/XMLSchema#date>) }
+Q7|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Writer> . ?entity <http://dbpedia.org/property/birthDate> ?propValue. FILTER (DATATYPE(?propValue) = <http://www.w3.org/2001/XMLSchema#date> && ?propValue > '1955-01-01'^^<http://www.w3.org/2001/XMLSchema#date>) }
+Q8|SELECT distinct ?entity ?propValue where { ?entity a <http://dbpedia.org/ontology/Film> . ?entity <http://dbpedia.org/property/premiere> ?propValue. FILTER (DATATYPE(?propValue) = <http://www.w3.org/2001/XMLSchema#date>) }
+Q9|SELECT distinct ?entity ?propValue where { ?entity a <http://dbpedia.org/ontology/Airline> . ?entity <http://dbpedia.org/property/assets> ?propValue. FILTER (DATATYPE(?propValue) = <http://www.w3.org/2001/XMLSchema#integer>) }
+Q10|SELECT distinct ?entity ?propValue where { ?entity a <http://dbpedia.org/ontology/Weapon> . ?entity <http://dbpedia.org/property/accuracy> ?propValue. FILTER (DATATYPE(?propValue) = <http://dbpedia.org/datatype/second>) }
+Q11|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Person> ; <http://dbpedia.org/ontology/careerStation> ?propValue . }
+Q12|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Person> ; <http://dbpedia.org/ontology/militaryService> ?propValue . }
+Q13|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Person> ; <http://dbpedia.org/ontology/termPeriod> ?propValue . }
+Q14|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Movie> ; <http://dbpedia.org/property/company> ?propValue . }
+Q15|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Place> ; <http://dbpedia.org/ontology/associatedBand> ?propValue . }
+Q16|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/MusicAlbum> ; <http://dbpedia.org/property/writer> ?propValue . }
+Q17|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/MusicAlbum> ; <http://dbpedia.org/property/producer> ?propValue . }
+Q18|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Movie> ; <http://dbpedia.org/property/writer> ?propValue . }
+Q19|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Place> ; <http://dbpedia.org/property/age> ?propValue . }
+Q20|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/School> ; <http://dbpedia.org/property/address> ?propValue . }
+Q21|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Hotel> ; <http://dbpedia.org/property/address> ?propValue . }
+Q22|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/ShoppingCenter> ; <http://dbpedia.org/property/address> ?propValue . }
+Q23|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://schema.org/Airport> ; <http://dbpedia.org/property/address> ?propValue . }
+Q24|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Station> ; <http://dbpedia.org/property/address> ?propValue . }
+Q25|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Hospital> ; <http://dbpedia.org/property/address> ?propValue . }
+Q26|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Station> ; <http://dbpedia.org/property/code> ?propValue . }
+Q27|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/President> ; <http://dbpedia.org/property/birthDate> ?propValue . }
+Q28|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Politician> ; <http://dbpedia.org/property/birthDate> ?propValue . }
+Q29|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Politician> ; <http://dbpedia.org/property/candidate> ?propValue . }
+Q30|SELECT distinct ?entity ?propValue WHERE { ?entity a <http://dbpedia.org/ontology/Governor> ; <http://dbpedia.org/property/candidate> ?propValue . }
