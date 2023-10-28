@@ -1,0 +1,14 @@
+iri:ID|:LABEL
+http://x.y/Marry|ns3_Person;ns3_Professor;ns3_Faculty;Node
+http://x.y/Bob|ns3_UnderGraduateStudent;ns3_Person;ns3_Student;Node
+http://x.y/MIT|ns3_University;Node
+http://x.y/CompSciDept|ns3_Department;Node
+http://x.y/CompSci202|ns3_Course;ns3_UnderGradCourse;Node
+http://x.y/Math101|ns3_GraduateCourse;ns3_Course;Node
+http://x.y/UsaCountry|ns3_Country;Node
+http://x.y/alice|ns3_Person;ns3_Lecturer;ns3_Professor;ns3_Faculty;Node
+http://x.y/Stanford|ns3_University;Node
+http://x.y/MitsAddress|ns3_Address;Node
+http://x.y/John|ns3_Person;ns3_GraduateStudent;ns3_Student;Node
+http://x.y/MathDept|ns3_Department;Node
+http://relweb.cs.aau.dk/kg2pg/prefixes|Node;Prefixes

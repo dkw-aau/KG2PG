@@ -1,0 +1,62 @@
+<http://x.y/Stanford> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/University> .
+<http://x.y/MIT> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/University> .
+<http://x.y/Math101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Course> .
+<http://x.y/Math101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/GraduateCourse> .
+<http://x.y/CompSci202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Course> .
+<http://x.y/CompSci202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/UnderGradCourse> .
+<http://x.y/MathDept> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Department> .
+<http://x.y/CompSciDept> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Department> .
+<http://x.y/Bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Student> .
+<http://x.y/Bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/UnderGraduateStudent> .
+<http://x.y/Bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Person> .
+<http://x.y/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Lecturer> .
+<http://x.y/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Professor> .
+<http://x.y/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Person> .
+<http://x.y/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Faculty> .
+<http://x.y/Marry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Professor> .
+<http://x.y/Marry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Person> .
+<http://x.y/Marry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Faculty> .
+<http://x.y/MitsAddress> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Address> .
+<http://x.y/UsaCountry> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://x.y/Country> .
+<http://x.y/Student> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://x.y/Person> .
+<http://x.y/MitsAddress> <http://x.y/city> "\"Chuck Versus the Intersect\"" .
+<http://x.y/UsaCountry> <http://www.w3.org/2000/01/rdf-schema#label> "po\ns"@en .
+<http://x.y/MIT> <http://dbpedia.org/ontology/synonym> "*C. polyandra \"sensu Miq., nonRoxb.\"" .
+<http://x.y/Math101> <http://www.w3.org/2000/01/rdf-schema#label> "This is a \"quote\" inside the description."@en.
+<http://x.y/Stanford> <http://x.y/name> "Stanford University" .
+<http://x.y/Stanford> <http://www.w3.org/2000/01/rdf-schema#label> "STANFORD UNIVERSITY USA"@en.
+<http://x.y/MIT> <http://x.y/name> "Massachusetts Institute of Technology" .
+<http://x.y/MIT> <http://www.w3.org/2000/01/rdf-schema#label> "Massachusetts Institute of Technology"@en.
+<http://x.y/MIT> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <http://dbpedia.org/resource/Steins> .
+<http://x.y/Math101> <http://x.y/name> "Math 101" .
+<http://x.y/CompSci202> <http://x.y/name> "Computer Science 202" .
+<http://x.y/MathDept> <http://x.y/name> "Department of Mathematics" .
+<http://x.y/CompSciDept> <http://x.y/name> "Department of Computer Science" .
+<http://x.y/Bob> <http://x.y/name> "Bob" .
+<http://x.y/alice> <http://x.y/name> "Alice Smith" .
+<http://x.y/Marry> <http://x.y/name> "Marry Donaldson" .
+<http://x.y/UsaCountry> <http://x.y/name> "United States of America" .
+<http://x.y/Bob> <http://x.y/takesCourse> <http://x.y/CompSci202> .
+<http://x.y/Bob> <http://x.y/takesCourse> "12"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://x.y/Bob> <http://x.y/takesCourse> "Web Engineering" .
+<http://x.y/Bob> <http://x.y/advisedBy> <http://x.y/alice> .
+<http://x.y/Bob> <http://x.y/studiesAt> <http://x.y/MIT> .
+<http://x.y/alice> <http://x.y/worksFor> <http://x.y/CompSciDept> .
+<http://x.y/Marry> <http://x.y/worksFor> <http://x.y/MathDept> .
+<http://x.y/alice> <http://x.y/docDegreeFrom> <http://x.y/MIT> .
+<http://x.y/Marry> <http://x.y/docDegreeFrom> <http://x.y/Stanford> .
+<http://x.y/alice> <http://x.y/teacherOf> <http://x.y/CompSci202> .
+<http://x.y/Marry> <http://x.y/teacherOf> <http://x.y/Math101> .
+<http://x.y/Bob> <http://x.y/dob> "1995-01-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://x.y/MathDept> <http://x.y/subOrgOf> <http://x.y/MIT> .
+<http://x.y/CompSciDept> <http://x.y/subOrgOf> <http://x.y/MIT> .
+<http://x.y/Stanford> <http://x.y/address> "450 Serra Mall, Stanford, CA 94305" .
+<http://x.y/MIT> <http://x.y/address> <http://x.y/MitsAddress> .
+<http://x.y/Stanford> <http://x.y/country> "USA" .
+<http://x.y/MitsAddress> <http://x.y/country> <http://x.y/UsaCountry> .
+<http://x.y/MitsAddress> <http://x.y/street> "77 Massachusetts Avenue" .
+<http://x.y/MitsAddress> <http://x.y/state> "MA" .
+<http://x.y/MitsAddress> <http://x.y/zip> "02139-12" .
+<http://x.y/UsaCountry> <http://x.y/isoCode> "US" .
+<http://x.y/Math101> <http://x.y/offeredBy> <http://x.y/MathDept> .
+<http://x.y/CompSci202> <http://x.y/offeredBy> <http://x.y/CompSciDept> .
