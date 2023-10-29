@@ -5,6 +5,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.ClientException;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.List;
@@ -124,6 +125,32 @@ public class Neo4jGraph {
             watch.stop();
             Utils.logTime("deleteAllFromNeo4j()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
 
+        }
+    }
+
+    public boolean nodeExistsWithIri(String iriValue) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (n) WHERE n.iri = $iriValue RETURN COUNT(n) > 0 AS exists";
+            return session.readTransaction(tx -> {
+                try {
+                    var result = tx.run(query, Map.of("iriValue", iriValue));
+                    return result.single().get("exists").asBoolean();
+                } catch (ClientException e) {
+                    // Handle any exceptions here
+                    e.printStackTrace();
+                    return false;
+                }
+            });
+        }
+    }
+
+    public void createNodeWithIri(String iriValue) {
+        try (Session session = driver.session()) {
+            String query = "CREATE (n:Node {iri: $iriValue})";
+            session.writeTransaction(tx -> {
+                tx.run(query,  Map.of("iriValue", iriValue));
+                return null;
+            });
         }
     }
 
