@@ -31,7 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+/**
+ * This class is used to translate RDF data into CSV files for the Property Graph (PG) database.
+ * Here, NPM stands for Non-Parsimonious Model. This means, we create nodes and edges only, no key value properties, this is to accommodate monotonicity.
+ */
 public class DataTransFileToCsvNpm {
     String rdfFilePath;
     Integer expectedNumberOfClasses;

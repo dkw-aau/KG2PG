@@ -3,9 +3,7 @@ package cs.graphTranslation;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.RawValue;
 import cs.Main;
 import cs.commons.ResourceEncoder;
 import cs.schemaTranslation.SchemaTranslator;
@@ -33,6 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This class is responsible for translating RDF data into CSV files for the Property Graph.
+ * This is based on Parsimonious Model. Meaning that, whenever possible, properties data can also be stored as key values.
+ */
 
 public class DataTransFileToCsv {
     String rdfFilePath;
