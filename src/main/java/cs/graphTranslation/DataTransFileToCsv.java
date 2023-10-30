@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class is responsible for translating RDF data into CSV files for the Property Graph.
- * This is based on Parsimonious Model. Meaning that, whenever possible, properties data can also be stored as key values.
+ * This is based on Parsimonious Model. Meaning that, whenever possible, properties data is stored as key values.
  */
 
 public class DataTransFileToCsv {

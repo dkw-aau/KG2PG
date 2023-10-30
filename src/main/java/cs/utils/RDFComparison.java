@@ -15,20 +15,14 @@ public class RDFComparison {
         // Compare the models and print the differences
         Model differenceAvsB = modelA.difference(modelB);
         Model differenceBvsA = modelB.difference(modelA);
-        //size of differences
-        System.out.println("modelA.difference(modelB): " + differenceAvsB.size());
-        differenceAvsB.write(System.out, "N-TRIPLES");
 
-        System.out.println("modelB.difference(modelA): " + differenceBvsA.size());
-        differenceBvsA.write(System.out, "N-TRIPLES");
-
-
-        System.out.println("-------------");
-
-        // Create models to store added, deleted, and updated triples in file B
+        // Create models to store added, deleted, and updated triples in file B and A
         Model addedTriplesB = ModelFactory.createDefaultModel();
         Model deletedTriplesB = ModelFactory.createDefaultModel();
         Model updatedTriplesB = ModelFactory.createDefaultModel();
+        //Model addedTriplesA = ModelFactory.createDefaultModel();
+        //Model deletedTriplesA = ModelFactory.createDefaultModel();
+        Model updatedTriplesA = ModelFactory.createDefaultModel();
 
         // Iterate through differenceBvsA to find added, deleted, and updated triples in file B
         StmtIterator iterBvsA = differenceBvsA.listStatements();
@@ -60,15 +54,51 @@ public class RDFComparison {
             }
         }
 
-        // Print or process added, deleted, and updated triples in file B
-        System.out.println("Added Triples in File B:");
+        // Iterate through differenceAvsB to find added, deleted, and updated triples in file A
+        StmtIterator iterAvsA = differenceAvsB.listStatements();
+        while (iterAvsA.hasNext()) {
+            Statement stmtAvsA = iterAvsA.nextStatement();
+            Statement stmtBvsA = differenceBvsA.getProperty(stmtAvsA.getSubject(), stmtAvsA.getPredicate());
+
+            if (stmtBvsA == null) {
+                // Triple in differenceAvsB but not in differenceBvsA (added in file A)
+                //addedTriplesA.add(stmtAvsA);
+            } else {
+                // Triple in both differenceAvsB and differenceBvsA (possibly updated in file A)
+                if (!stmtBvsA.getObject().equals(stmtAvsA.getObject())) {
+                    // Object values are different, indicating an update
+                    updatedTriplesA.add(stmtAvsA);
+                }
+            }
+        }
+
+        // Iterate through differenceBvsA to find deleted triples in file A
+//        StmtIterator iterBvsAforA = differenceBvsA.listStatements();
+//        while (iterBvsAforA.hasNext()) {
+//            Statement stmtBvsAforA = iterBvsAforA.nextStatement();
+//            Statement stmtAvsB = differenceAvsB.getProperty(stmtBvsAforA.getSubject(), stmtBvsAforA.getPredicate());
+//
+//            if (stmtAvsB == null) {
+//                // Triple in differenceBvsA but not in differenceAvsB (deleted in file A)
+//                deletedTriplesA.add(stmtBvsAforA);
+//            }
+//        }
+
+        // Print or process added, deleted, and updated triples in files A and B
+       // System.out.println("Added Triples in File A:");
+        //addedTriplesA.write(System.out, "N-TRIPLES");
+        //System.out.println("Deleted Triples in File A:");
+        //deletedTriplesA.write(System.out, "N-TRIPLES");
+
+
+        System.out.println("Added Triples in File B");
         addedTriplesB.write(System.out, "N-TRIPLES");
-        System.out.println("Deleted Triples in File B:");
+        System.out.println("Deleted Triples in File B wrt A");
         deletedTriplesB.write(System.out, "N-TRIPLES");
-        System.out.println("Updated Triples in File B with New Values:");
+        System.out.println("Updated Triples in File B wrt A with New Values:");
         updatedTriplesB.write(System.out, "N-TRIPLES");
+
+        System.out.println("Updated Triples in File B wrt A with Old Values:");
+        updatedTriplesA.write(System.out, "N-TRIPLES");
     }
 }
-
-
-

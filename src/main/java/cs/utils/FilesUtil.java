@@ -4,6 +4,7 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FilenameUtils;
@@ -11,6 +12,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +30,7 @@ public class FilesUtil {
             e.printStackTrace();
         }
     }
-    
+
     public static void writeToFileInAppendMode(String str, String fileNameAndPath) {
         try {
             FileWriter fileWriter = new FileWriter(new File(fileNameAndPath), true);
@@ -39,7 +41,7 @@ public class FilesUtil {
             e.printStackTrace();
         }
     }
-    
+
     public static List<String[]> readCsvAllDataOnceWithPipeSeparator(String fileAddress) {
         List<String[]> allData = null;
         try {
@@ -47,11 +49,11 @@ public class FilesUtil {
             // create csvParser object with
             // custom separator pipe
             CSVParser parser = new CSVParserBuilder().withSeparator('|').build();
-            
+
             // create csvReader object with
             // parameter file reader and parser
             CSVReader csvReader = new CSVReaderBuilder(filereader).withCSVParser(parser).build();
-            
+
             // Read all data at once
             allData = csvReader.readAll();
         } catch (Exception e) {
@@ -59,7 +61,7 @@ public class FilesUtil {
         }
         return allData;
     }
-    
+
     public static List<String[]> readCsvAllDataOnce(String fileAddress) {
         List<String[]> allData = null;
         try {
@@ -67,11 +69,11 @@ public class FilesUtil {
             // create csvParser object with
             // custom separator pipe
             CSVParser parser = new CSVParserBuilder().withSeparator(',').build();
-            
+
             // create csvReader object with
             // parameter file reader and parser
             CSVReader csvReader = new CSVReaderBuilder(filereader).withCSVParser(parser).build();
-            
+
             // Read all data at once
             allData = csvReader.readAll();
         } catch (Exception e) {
@@ -79,12 +81,12 @@ public class FilesUtil {
         }
         return allData;
     }
-    
+
     public static boolean deleteFile(String fileAddress) {
         File file = new File(fileAddress);
         return file.delete();
     }
-    
+
     public static String readQuery(String query) {
         String q = null;
         try {
@@ -95,7 +97,7 @@ public class FilesUtil {
         }
         return q;
     }
-    
+
     public static String readSHACLQuery(String query) {
         String q = null;
         try {
@@ -106,8 +108,8 @@ public class FilesUtil {
         }
         return q;
     }
-    
-    
+
+
     public static String readShaclStatsQuery(String query, String type) {
         String q = null;
         try {
@@ -139,5 +141,29 @@ public class FilesUtil {
             e.printStackTrace();
         }
     }
-    
+
+    public static Map<String, String> readCsvToMap(String csvFilePath) {
+        Map<String, String> prefixMap = new HashMap<>();
+
+        try (CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFilePath)).withSkipLines(1).build()) {
+            String[] line;
+            while (true) {
+                try {
+                    if ((line = csvReader.readNext()) == null) break;
+                    if (line.length >= 2) {
+                        String key = line[0];
+                        String value = line[1];
+                        prefixMap.put(key, value);
+                    }
+                } catch (CsvValidationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return prefixMap;
+    }
+
 }

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.ClientException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +26,128 @@ public class Neo4jGraph {
     public Neo4jGraph() {
         this.driver = GraphDatabase.driver(SERVER_ROOT_URI, AuthTokens.basic(username, password));
         this.maxThreads = 16;
+    }
+
+    public boolean nodeExistsWithIri(String iriValue) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (n) WHERE n.iri = $iriValue RETURN COUNT(n) > 0 AS exists";
+            return session.readTransaction(tx -> {
+                try {
+                    var result = tx.run(query, Map.of("iriValue", iriValue));
+                    return result.single().get("exists").asBoolean();
+                } catch (ClientException e) {
+                    // Handle any exceptions here
+                    e.printStackTrace();
+                    return false;
+                }
+            });
+        }
+    }
+
+    public void createNodeWithIri(String iriValue) {
+        try (Session session = driver.session()) {
+            String query = "CREATE (n:Node {iri: $iriValue})";
+            session.writeTransaction(tx -> {
+                tx.run(query, Map.of("iriValue", iriValue));
+                return null;
+            });
+        }
+    }
+
+    public void addLabelToNodeWithIri(String iriValue, String label) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (n {iri: $iriValue}) SET n:" + label;
+            session.writeTransaction(tx -> {
+                tx.run(query, Map.of("iriValue", iriValue));
+                return null;
+            });
+        }
+    }
+
+    public void createEdgeBetweenTwoNodes(String sourceIri, String targetIri, String edgeName, String propertyKey, String propertyValue) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (source {iri: $sourceIri}), (target {iri: $targetIri}) " +
+                    "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": $propertyValue}]->(target)";
+            session.writeTransaction(tx -> {
+                tx.run(query, Map.of("sourceIri", sourceIri, "targetIri", targetIri, "propertyValue", propertyValue));
+                return null;
+            });
+        }
+    }
+
+    public void createLiteralObjectNode(int id, String objectType, String objectValue, String type) {
+        try (Session session = driver.session()) {
+            String query = "CREATE (n:LitNode {id: $id, object_type: $objectType, object_value: $objectValue, type: $type})";
+            Map<String, Object> params = new HashMap<>();
+            params.put("id", id);
+            params.put("objectType", objectType);
+            params.put("objectValue", objectValue);
+            params.put("type", type);
+
+            session.writeTransaction(tx -> {
+                tx.run(query, params);
+                return null;
+            });
+        }
+    }
+
+    public void createEdgeBetweenAnIriAndLitNode(String sourceIri, int targetNodeId, String edgeName, String propertyKey, String propertyValue) {
+        try (Session session = driver.session()) {
+            String query = "MATCH (source {iri: $sourceIri}), (target {id: $targetId}) " +
+                    "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": $propertyValue}]->(target)";
+            session.writeTransaction(tx -> {
+                tx.run(query, Map.of("sourceIri", sourceIri, "targetId", targetNodeId, "propertyValue", propertyValue));
+                return null;
+            });
+        }
+    }
+
+
+    public long getTotalNodeCount() {
+        try (Session session = driver.session()) {
+            String query = "MATCH (n) RETURN count(n) AS totalNodes";
+            return session.readTransaction(tx -> {
+                Result result = tx.run(query);
+                return result.single().get("totalNodes").asLong();
+            });
+        }
+    }
+
+    public long getTotalLiteralNodeCount() {
+        try (Session session = driver.session()) {
+            String query = "MATCH (n:LitNode) RETURN count(n) AS totalNodes";
+            return session.readTransaction(tx -> {
+                Result result = tx.run(query);
+                return result.single().get("totalNodes").asLong();
+            });
+        }
+    }
+
+    public void executeMultipleCypherQueries(List<String> cypherQueries) {
+        try (Session session = driver.session()) {
+            StopWatch watch = new StopWatch();
+            watch.start();
+            session.writeTransaction(tx -> {
+                cypherQueries.forEach(tx::run);
+                return null;
+            });
+            watch.stop();
+            Utils.logTime("executeMultipleCypherQueries()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+        }
+    }
+
+    public void deleteAllFromNeo4j() {
+        try (Session session = driver.session()) {
+            StopWatch watch = new StopWatch();
+            watch.start();
+            session.writeTransaction(tx -> {
+                tx.run("MATCH (n) DETACH DELETE n");
+                return null;
+            });
+            watch.stop();
+            Utils.logTime("deleteAllFromNeo4j()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+
+        }
     }
 
     public void batchQueries(List<String> queries, int commitSize) {
@@ -51,7 +174,7 @@ public class Neo4jGraph {
                             transaction.commit();
                         }
                     } catch (Exception e) {
-                       System.err.println(e.getMessage());
+                        System.err.println(e.getMessage());
                     }
                 });
             }
@@ -101,61 +224,7 @@ public class Neo4jGraph {
         }
     }
 
-    public void executeMultipleCypherQueries(List<String> cypherQueries) {
-        try (Session session = driver.session()) {
-            StopWatch watch = new StopWatch();
-            watch.start();
-            session.writeTransaction(tx -> {
-                cypherQueries.forEach(tx::run);
-                return null;
-            });
-            watch.stop();
-            Utils.logTime("executeMultipleCypherQueries()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
-        }
-    }
-
-    public void deleteAllFromNeo4j() {
-        try (Session session = driver.session()) {
-            StopWatch watch = new StopWatch();
-            watch.start();
-            session.writeTransaction(tx -> {
-                tx.run("MATCH (n) DETACH DELETE n");
-                return null;
-            });
-            watch.stop();
-            Utils.logTime("deleteAllFromNeo4j()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
-
-        }
-    }
-
-    public boolean nodeExistsWithIri(String iriValue) {
-        try (Session session = driver.session()) {
-            String query = "MATCH (n) WHERE n.iri = $iriValue RETURN COUNT(n) > 0 AS exists";
-            return session.readTransaction(tx -> {
-                try {
-                    var result = tx.run(query, Map.of("iriValue", iriValue));
-                    return result.single().get("exists").asBoolean();
-                } catch (ClientException e) {
-                    // Handle any exceptions here
-                    e.printStackTrace();
-                    return false;
-                }
-            });
-        }
-    }
-
-    public void createNodeWithIri(String iriValue) {
-        try (Session session = driver.session()) {
-            String query = "CREATE (n:Node {iri: $iriValue})";
-            session.writeTransaction(tx -> {
-                tx.run(query,  Map.of("iriValue", iriValue));
-                return null;
-            });
-        }
-    }
-
     public void close() {
         driver.close();
     }
-
 }
