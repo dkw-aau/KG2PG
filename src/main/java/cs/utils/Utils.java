@@ -112,6 +112,27 @@ public class Utils {
         }
     }
 
+
+    public static boolean isNotWithinDoubleQuotes(String input) {
+        if (input.startsWith("\"") && input.endsWith("\"") && input.length() >= 2) {
+            // String is within double quotes
+            return false;
+        } else {
+            // String is not within double quotes
+            return true;
+        }
+    }
+
+    public static String removeDoubleQuotes(String input) {
+        if (input.startsWith("\"") && input.endsWith("\"") && input.length() >= 2) {
+            // Remove double quotes from the beginning and end
+            return input.substring(1, input.length() - 1);
+        } else {
+            // No double quotes to remove
+            return input;
+        }
+    }
+
     public static int logWithBase2(int x) {
         return (int) (Math.log(x) / Math.log(2) + 1e-10);
     }

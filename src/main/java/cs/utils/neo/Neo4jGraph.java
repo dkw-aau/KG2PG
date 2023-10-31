@@ -4,6 +4,7 @@ import cs.utils.Utils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.ClientException;
+import org.neo4j.driver.exceptions.Neo4jException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,119 +13,20 @@ import java.util.concurrent.Executors;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.neo4j.driver.Values.parameters;
-
 public class Neo4jGraph {
-    //http://a256-gc1-17.srv.aau.dk:7474/browser/
     String SERVER_ROOT_URI = "bolt://10.92.0.34:7687";
-    //String SERVER_ROOT_URI = "bolt://a256-gc1-17.srv.aau.dk:7687";
     String username = "neo4j";
     String password = "12345678";
+    String db = "examplev0";
     private final Driver driver;
-    private final int maxThreads; // Adjust the number of threads as needed
+
 
     public Neo4jGraph() {
         this.driver = GraphDatabase.driver(SERVER_ROOT_URI, AuthTokens.basic(username, password));
-        this.maxThreads = 16;
-    }
-
-    public boolean nodeExistsWithIri(String iriValue) {
-        try (Session session = driver.session()) {
-            String query = "MATCH (n) WHERE n.iri = $iriValue RETURN COUNT(n) > 0 AS exists";
-            return session.readTransaction(tx -> {
-                try {
-                    var result = tx.run(query, Map.of("iriValue", iriValue));
-                    return result.single().get("exists").asBoolean();
-                } catch (ClientException e) {
-                    // Handle any exceptions here
-                    e.printStackTrace();
-                    return false;
-                }
-            });
-        }
-    }
-
-    public void createNodeWithIri(String iriValue) {
-        try (Session session = driver.session()) {
-            String query = "CREATE (n:Node {iri: $iriValue})";
-            session.writeTransaction(tx -> {
-                tx.run(query, Map.of("iriValue", iriValue));
-                return null;
-            });
-        }
-    }
-
-    public void addLabelToNodeWithIri(String iriValue, String label) {
-        try (Session session = driver.session()) {
-            String query = "MATCH (n {iri: $iriValue}) SET n:" + label;
-            session.writeTransaction(tx -> {
-                tx.run(query, Map.of("iriValue", iriValue));
-                return null;
-            });
-        }
-    }
-
-    public void createEdgeBetweenTwoNodes(String sourceIri, String targetIri, String edgeName, String propertyKey, String propertyValue) {
-        try (Session session = driver.session()) {
-            String query = "MATCH (source {iri: $sourceIri}), (target {iri: $targetIri}) " +
-                    "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": $propertyValue}]->(target)";
-            session.writeTransaction(tx -> {
-                tx.run(query, Map.of("sourceIri", sourceIri, "targetIri", targetIri, "propertyValue", propertyValue));
-                return null;
-            });
-        }
-    }
-
-    public void createLiteralObjectNode(int id, String objectType, String objectValue, String type) {
-        try (Session session = driver.session()) {
-            String query = "CREATE (n:LitNode {id: $id, object_type: $objectType, object_value: $objectValue, type: $type})";
-            Map<String, Object> params = new HashMap<>();
-            params.put("id", id);
-            params.put("objectType", objectType);
-            params.put("objectValue", objectValue);
-            params.put("type", type);
-
-            session.writeTransaction(tx -> {
-                tx.run(query, params);
-                return null;
-            });
-        }
-    }
-
-    public void createEdgeBetweenAnIriAndLitNode(String sourceIri, int targetNodeId, String edgeName, String propertyKey, String propertyValue) {
-        try (Session session = driver.session()) {
-            String query = "MATCH (source {iri: $sourceIri}), (target {id: $targetId}) " +
-                    "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": $propertyValue}]->(target)";
-            session.writeTransaction(tx -> {
-                tx.run(query, Map.of("sourceIri", sourceIri, "targetId", targetNodeId, "propertyValue", propertyValue));
-                return null;
-            });
-        }
-    }
-
-
-    public long getTotalNodeCount() {
-        try (Session session = driver.session()) {
-            String query = "MATCH (n) RETURN count(n) AS totalNodes";
-            return session.readTransaction(tx -> {
-                Result result = tx.run(query);
-                return result.single().get("totalNodes").asLong();
-            });
-        }
-    }
-
-    public long getTotalLiteralNodeCount() {
-        try (Session session = driver.session()) {
-            String query = "MATCH (n:LitNode) RETURN count(n) AS totalNodes";
-            return session.readTransaction(tx -> {
-                Result result = tx.run(query);
-                return result.single().get("totalNodes").asLong();
-            });
-        }
     }
 
     public void executeMultipleCypherQueries(List<String> cypherQueries) {
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(db))) {
             StopWatch watch = new StopWatch();
             watch.start();
             session.writeTransaction(tx -> {
@@ -137,7 +39,7 @@ public class Neo4jGraph {
     }
 
     public void deleteAllFromNeo4j() {
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(db))) {
             StopWatch watch = new StopWatch();
             watch.start();
             session.writeTransaction(tx -> {
@@ -150,7 +52,7 @@ public class Neo4jGraph {
         }
     }
 
-    public void batchQueries(List<String> queries, int commitSize) {
+    public void batchQueries(List<String> queries, int commitSize, int maxThreads) {
         StopWatch watch = new StopWatch();
         watch.start();
 
@@ -162,7 +64,7 @@ public class Neo4jGraph {
                 List<String> batch = queries.subList(i, endIndex);
 
                 executor.submit(() -> {
-                    try (Session session = driver.session()) {
+                    try (Session session = driver.session(SessionConfig.forDatabase(db))) {
                         try (Transaction transaction = session.beginTransaction()) {
                             for (String query : batch) {
                                 try {
@@ -194,7 +96,7 @@ public class Neo4jGraph {
         StopWatch watch = new StopWatch();
         watch.start();
         try (Driver driver = this.driver) {
-            try (Session session = driver.session()) {
+            try (Session session = driver.session(SessionConfig.forDatabase(db))) {
                 // Execute queries in batches
                 for (int i = 0; i < queries.size(); i += commitSize) {
                     int endIndex = Math.min(i + commitSize, queries.size());
@@ -216,7 +118,7 @@ public class Neo4jGraph {
     }
 
     public void executeSingleCypherQuery(String cypherQuery) {
-        try (Session session = driver.session()) {
+        try (Session session = driver.session(SessionConfig.forDatabase(db))) {
             session.writeTransaction(tx -> {
                 tx.run(cypherQuery);
                 return null;

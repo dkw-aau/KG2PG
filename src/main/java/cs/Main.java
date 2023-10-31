@@ -1,7 +1,9 @@
 package cs;
 
 import cs.commons.ResourceEncoder;
-import cs.graphTranslation.DataTransFileToCsv;
+import cs.graphTranslation.pm.DataTransFileToCsv;
+import cs.graphTranslation.npm.DataTransFileToCsvNpm;
+import cs.graphTranslation.npm.DataTransUpdatesNpm;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.ConfigManager;
 import cs.utils.Constants;
@@ -21,32 +23,54 @@ public class Main {
     public static int numberOfInstances;
     public static boolean isWikiData;
     public static Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+    private static final ResourceEncoder resourceEncoder = new ResourceEncoder();
+    private static final boolean isParsimonious = false;
 
     public static void main(String[] args) {
         configPath = args[0];
         logger.setLevel(Level.INFO);
         readConfig();
-
-        //Benchmark Query Runtime Analysis on KG over GraphDB
-        //new S3PGBenchKG().executeQueries();
-
-        //Benchmark Query Runtime Analysis on PGs transformed by different approaches
-        /*S3PGBench s3PGBench = new S3PGBench();
-        s3PGBench.benchNeoSemQueries();
-        s3PGBench.benchS3pgQueries();
-        s3PGBench.benchRdf2pgQueries();*/
-
-        s3pgTransformation();
+        //runS3pg();
+        runS3pgMonotone();
     }
 
-    private static void s3pgTransformation() {
-        ResourceEncoder resourceEncoder = new ResourceEncoder();
+    private static void runS3pg() {
+        SchemaTranslator s3pgSchema = s3pgSchemaTransformation();
+        if (isParsimonious) {
+            s3pgParsimoniousGraphTransformation(s3pgSchema);
+        } else {
+            s3pgNonParsimoniousGraphTransformation(s3pgSchema);
+        }
+    }
 
-        SchemaTranslator schemaTranslator = new SchemaTranslator(resourceEncoder);
+    private static SchemaTranslator s3pgSchemaTransformation() {
+        return new SchemaTranslator(resourceEncoder);
+    }
 
-        //Graph Data Translation
+    private static void s3pgParsimoniousGraphTransformation(SchemaTranslator schemaTranslator) {
         DataTransFileToCsv dtFb = new DataTransFileToCsv(datasetPath, numberOfClasses, numberOfInstances, Constants.RDF_TYPE, resourceEncoder, schemaTranslator);
         dtFb.run();
+    }
+
+    private static void s3pgNonParsimoniousGraphTransformation(SchemaTranslator schemaTranslator) {
+        DataTransFileToCsvNpm dtNpm = new DataTransFileToCsvNpm(datasetPath, numberOfClasses, numberOfInstances, Constants.RDF_TYPE, resourceEncoder, schemaTranslator);
+        dtNpm.run();
+    }
+
+    private static void runS3pgMonotone() {
+        DataTransUpdatesNpm dtNpm = new DataTransUpdatesNpm();
+        dtNpm.run();
+    }
+
+    private static void runQueryBenchmark() {
+        //Benchmark Query Runtime Analysis on KG over GraphDB
+        new S3PGBenchKG().executeQueries();
+
+        //Benchmark Query Runtime Analysis on PGs transformed by different approaches
+        S3PGBench s3PGBench = new S3PGBench();
+        s3PGBench.benchNeoSemQueries();
+        s3PGBench.benchS3pgQueries();
+        s3PGBench.benchRdf2pgQueries();
     }
 
     private static void readConfig() {

@@ -1,9 +1,9 @@
-package cs.graphTranslation;
+package cs.graphTranslation.pm;
 
 
 import cs.commons.ResourceEncoder;
+import cs.commons.EntityData;
 import cs.schemaTranslation.SchemaTranslator;
-import cs.schemaTranslation.pgSchema.PgEdge;
 import cs.utils.Constants;
 import cs.utils.Utils;
 import cs.utils.neo.Neo4jGraph;

@@ -1,4 +1,4 @@
-package cs.graphTranslation;
+package cs.graphTranslation.npm;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cs.Main;
 import cs.commons.ResourceEncoder;
+import cs.commons.EntityData;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.*;
 import kotlin.Pair;

@@ -1,9 +1,10 @@
-package cs.graphTranslation;
+package cs.graphTranslation.npm;
 
 import cs.utils.Constants;
 import cs.utils.FilesUtil;
 import cs.utils.TypesMapper;
-import cs.utils.neo.Neo4jGraph;
+import cs.utils.Utils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.jetbrains.annotations.NotNull;
@@ -14,11 +15,11 @@ import org.semanticweb.yars.nx.parser.NxParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.*;
 
 public class DataTransUpdatesNpm {
     TypesMapper typesMapper = new TypesMapper();
-    Neo4jGraph neo4jGraph = new Neo4jGraph();
+    QueryUtilsNeo4j queryUtil = new QueryUtilsNeo4j();
     Map<String, String> prefixMap;
     long totalLitNodeCount = 0;
 
@@ -27,15 +28,17 @@ public class DataTransUpdatesNpm {
 
     public void run() {
         readPrefixMapForOriginalGraph("/Users/kashifrabbani/Documents/GitHub/KG2PG/Output/test-monotone/v0/PG_PREFIX_MAP.csv");
-        totalLitNodeCount = neo4jGraph.getTotalLiteralNodeCount();
-        handleAddedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/addedTriples.nt");
+        totalLitNodeCount = queryUtil.getTotalLiteralNodeCount();
+        //handleAddedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/addedTriples.nt");
+        //handleUpdatedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/updatedTriplesOld.nt", "/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/updatedTriplesNew.nt");
+        handleDeletedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/deletedTriples.nt");
     }
 
     private void readPrefixMapForOriginalGraph(String prefixMapCsvFileAddress) {
         prefixMap = FilesUtil.readCsvToMap(prefixMapCsvFileAddress);
     }
 
-    //create method to read rdf NT file which contains added triples
+    // Method to read rdf NT file which contains added triples
     public void handleAddedTriples(String filePath) {
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
@@ -64,38 +67,20 @@ public class DataTransUpdatesNpm {
                                 prefixMap.put(namespace, newPrefix);
                                 System.out.println("Adding Label for Node: (Added new Namespace prefix -> )" + entityNode.getLabel() + " " + prefixedLabel);
                             }
-                            neo4jGraph.addLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel);
+                            queryUtil.addLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel);
                         } else {
                             if (!isNodeExists(objectNode)) {
                                 createNode(objectNode);
                             }
                             System.out.println("Create Edge for IRI:" + entityNode.getLabel() + " " + predicateNode.getLabel() + " " + objectNode.getLabel());
                             String prefixedEdge = getPrefixedEdge(propAsResource);
-                            neo4jGraph.createEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel());
+                            queryUtil.createEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel());
                         }
                     } else {
-                        String value = objectNode.toString();
-                        Resource dataTypeResource = extractDataType(objectNode);
-                        String dataType = dataTypeResource.getURI();
-                        String dataTypeLocalName = dataTypeResource.getLocalName();
-                        if (objectNode instanceof Literal) {
-                            if (((Literal) objectNode).getDatatype() != null) {
-                                value = objectNode.getLabel();
-                            }
-                            if (((Literal) objectNode).getLanguageTag() != null) {
-                                value = value.replaceAll("@" + ((Literal) objectNode).getLanguageTag(), "");
-                            }
-                        } else if ((ResourceFactory.createResource(objectNode.toString())).isURIResource()) {
-                            value = objectNode.getLabel();
-                            dataTypeLocalName = "IRI";
-                            dataType = "IRI";
-                        }
-
-                        String cypherType = typesMapper.getMap().get(dataType);
-                        if (cypherType == null) cypherType = "STRING";
+                        ObjectParser object = parseObject(objectNode);
                         if (!predicateNode.toString().equals(Constants.RDF_TYPE)) {
                             String prefixedEdge = getPrefixedEdge(propAsResource);
-                            createEdgeForLiteralNode(entityNode, predicateNode, value, dataType, cypherType, dataTypeLocalName, prefixedEdge);
+                            createEdgeForLiteralNode(entityNode, predicateNode, object.value(), object.dataType(), object.cypherType(), object.dataTypeLocalName(), prefixedEdge);
                         }
                     }
 
@@ -109,7 +94,7 @@ public class DataTransUpdatesNpm {
     }
 
 
-    //create method to read rdf NT file which contains deleted triples
+    //Method to read rdf NT file which contains deleted triples
     public void handleDeletedTriples(String filePath) {
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
@@ -119,10 +104,12 @@ public class DataTransUpdatesNpm {
                     Node predicateNode = nodes[1];
                     Node objectNode = nodes[2];
                     Resource propAsResource = ResourceFactory.createResource(predicateNode.getLabel());
+                    String prefixedEdge = getPrefixedEdge(propAsResource);
                     if (isIri(objectNode)) {
-
+                        queryUtil.deleteRelationshipForIriNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, objectNode.getLabel());
                     } else {
-
+                        ObjectParser object = parseObject(objectNode);
+                        queryUtil.deleteRelationshipForLitNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, object.value);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -133,60 +120,91 @@ public class DataTransUpdatesNpm {
         }
     }
 
-    //TODO:: create method to read rdf NT file which contains updated triples
-    public void handleUpdatedTriples(String filePath) {
-        try {
-            Files.lines(Path.of(filePath)).forEach(line -> {
-                try {
-                    Node[] nodes = NxParser.parseNodes(line);
-                    Node entityNode = nodes[0];
-                    Node predicateNode = nodes[1];
-                    Node objectNode = nodes[2];
-                    Resource propAsResource = ResourceFactory.createResource(predicateNode.getLabel());
-                    if (isIri(objectNode)) {
-                        String prefixedEdge = getPrefixedEdge(propAsResource);
-                        //FIXME:: What to do?
-                        //neo4jGraph.createEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel());
-                    } else {
-                        // Update the object value and type
-                        String value = objectNode.toString();
-                        Resource dataTypeResource = extractDataType(objectNode);
-                        String dataType = dataTypeResource.getURI();
-                        String dataTypeLocalName = dataTypeResource.getLocalName();
-                        if (objectNode instanceof Literal) {
-                            if (((Literal) objectNode).getDatatype() != null) {
-                                value = objectNode.getLabel();
-                            }
-                            if (((Literal) objectNode).getLanguageTag() != null) {
-                                value = value.replaceAll("@" + ((Literal) objectNode).getLanguageTag(), "");
-                            }
-                        } else if ((ResourceFactory.createResource(objectNode.toString())).isURIResource()) {
-                            value = objectNode.getLabel();
-                            dataTypeLocalName = "IRI";
-                            dataType = "IRI";
-                        }
+    //Method to read rdf NT files ( A. updated triples with Old values, B. updated triples with New values)
+    public void handleUpdatedTriples(String filePathA, String filePathB) {
+        Map<Pair<Node, Node>, List<Node>> updatedTriples = processTripleFiles(filePathA, filePathB);
+        updatedTriples.forEach((key, objectValues) -> {
+            Node entityNode = key.getLeft();
+            Node predicateNode = key.getRight();
+            Resource propAsResource = ResourceFactory.createResource(predicateNode.getLabel());
+            String prefixedEdge = getPrefixedEdge(propAsResource);
+            if (isIri(objectValues.get(0))) {
+                //FIXME:: Not sure this case will ever occur as it will be counted in added triples.
+            } else {
+                ObjectParser object0 = parseObject(objectValues.get(0));
+                ObjectParser object1 = parseObject(objectValues.get(1));
 
-                        String cypherType = typesMapper.getMap().get(dataType);
-                        if (cypherType == null) cypherType = "STRING";
-
-                        if (!predicateNode.toString().equals(Constants.RDF_TYPE)) {
-                            String prefixedEdge = getPrefixedEdge(propAsResource);
-                            //FIXME:: What to do? Update the value and type of the literal node
-                            //createEdgeForLiteralNode(entityNode, predicateNode, value, dataType, cypherType, dataTypeLocalName, prefixedEdge);
-
-                        }
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                String oldVal = object0.value();
+                String newVal = object1.value();
+                if (Utils.isNotWithinDoubleQuotes(oldVal)) {
+                    oldVal = "\"" + oldVal + "\"";
                 }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+                if (Utils.isNotWithinDoubleQuotes(newVal)) {
+                    newVal = "\"" + newVal + "\"";
+                }
+                if (!predicateNode.toString().equals(Constants.RDF_TYPE)) {
+                    queryUtil.updateObjectValueForLitNode(entityNode.getLabel(), prefixedEdge, predicateNode.getLabel(), oldVal, newVal);
+                }
+            }
+        });
     }
+
 
     // ****************************** Helper Methods ******************************
+
+    @NotNull
+    private ObjectParser parseObject(Node objectNode) {
+        String value = objectNode.toString();
+        Resource dataTypeResource = extractDataType(objectNode);
+        String dataType = dataTypeResource.getURI();
+        String dataTypeLocalName = dataTypeResource.getLocalName();
+        if (objectNode instanceof Literal) {
+            if (((Literal) objectNode).getDatatype() != null) {
+                value = objectNode.getLabel();
+            }
+            if (((Literal) objectNode).getLanguageTag() != null) {
+                value = value.replaceAll("@" + ((Literal) objectNode).getLanguageTag(), "");
+            }
+        } else if ((ResourceFactory.createResource(objectNode.toString())).isURIResource()) {
+            value = objectNode.getLabel();
+            dataTypeLocalName = "IRI";
+            dataType = "IRI";
+        }
+        String cypherType = typesMapper.getMap().get(dataType);
+        if (cypherType == null) cypherType = "STRING";
+        return new ObjectParser(value, dataType, dataTypeLocalName, cypherType);
+    }
+
+    private record ObjectParser(String value, String dataType, String dataTypeLocalName, String cypherType) {
+    }
+
+    private Map<Pair<Node, Node>, List<Node>> processTripleFiles(String... filePaths) {
+        Map<Pair<Node, Node>, List<Node>> updatedTriples = new HashMap<>();
+
+        for (String filePath : filePaths) {
+            try {
+                Files.lines(Path.of(filePath)).forEach(line -> {
+                    try {
+                        Node[] nodes = NxParser.parseNodes(line);
+                        Node entityNode = nodes[0];
+                        Node predicateNode = nodes[1];
+                        Node objectNode = nodes[2];
+
+                        Pair<Node, Node> key = Pair.of(entityNode, predicateNode);
+                        updatedTriples.computeIfAbsent(key, k -> new ArrayList<>()).add(objectNode);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return updatedTriples;
+    }
+
+
     @NotNull
     private String getPrefixedEdge(Resource propAsResource) {
         String prefixedEdge;
@@ -201,7 +219,7 @@ public class DataTransUpdatesNpm {
     }
 
     private boolean isNodeExists(Node node) {
-        boolean exists = neo4jGraph.nodeExistsWithIri(node.getLabel());
+        boolean exists = queryUtil.nodeExistsWithIri(node.getLabel());
         System.out.println(node.getLabel() + " node exist? " + exists);
         return exists;
     }
@@ -209,14 +227,14 @@ public class DataTransUpdatesNpm {
     // Create method to create node in the PG using Cypher Query
     private void createNode(Node node) {
         System.out.println("Create Node for:" + node.getLabel());
-        neo4jGraph.createNodeWithIri(node.getLabel());
+        queryUtil.createNodeWithIri(node.getLabel());
     }
 
     private void createEdgeForLiteralNode(Node entityNode, Node predicateNode, String value, String dataType, String cypherType, String dataTypeLocalName, String prefixedEdge) {
         totalLitNodeCount++;
         int id = (int) totalLitNodeCount + 1;
-        neo4jGraph.createLiteralObjectNode(id, dataType, value, cypherType);
-        neo4jGraph.createEdgeBetweenAnIriAndLitNode(entityNode.getLabel(), id, prefixedEdge, "property", predicateNode.getLabel());
+        queryUtil.createLiteralObjectNode(id, dataType, value, cypherType);
+        queryUtil.createEdgeBetweenAnIriAndLitNode(entityNode.getLabel(), id, prefixedEdge, "property", predicateNode.getLabel());
     }
 
     private boolean isIri(Node node) {
