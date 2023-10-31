@@ -1,5 +1,6 @@
 package cs.graphTranslation.npm;
 
+import cs.Main;
 import cs.utils.ConfigManager;
 import cs.utils.Utils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -102,10 +103,8 @@ public class QueryUtilsNeo4j {
             String query = "MATCH (source:Node {iri: $sourceIri})-[rel:" + prefixedEdge + " {property: $property}]->(target:LitNode {object_value: " + targetObjectValue + "}) DELETE rel";
             session.writeTransaction(tx -> {
                 Result result = tx.run(query, Values.parameters("sourceIri", sourceIri, "property", property));
-                if (result.consume().counters().containsUpdates()) {
-                    System.out.println("Delete Relation (Lit) Query executed successfully.");
-                } else {
-                    System.out.println("Delete Relation (Lit) Query did not execute successfully.");
+                if (!result.consume().counters().containsUpdates()) {
+                    Main.logger.error("Delete Relation (Lit) Query NOT SUCCESSFUL: " + query);
                 }
                 return null;
             });
@@ -117,11 +116,8 @@ public class QueryUtilsNeo4j {
             String query = "MATCH (source:Node {iri: $sourceIri})-[rel:" + prefixedEdge + " {property: $property}]->(target:Node {iri: $targetIri}) DELETE rel";
             session.writeTransaction(tx -> {
                 Result result = tx.run(query, Values.parameters("sourceIri", sourceIri, "property", property, "targetIri", targetIri));
-                // Check if the query was executed successfully
-                if (result.consume().counters().containsUpdates()) {
-                    System.out.println("Delete Relation Query executed successfully.");
-                } else {
-                    System.out.println("Delete Relation Query did not execute successfully.");
+                if (!result.consume().counters().containsUpdates()) {
+                    Main.logger.error("Delete Relation Query did not execute successfully.");
                 }
                 return null;
             });
@@ -143,10 +139,8 @@ public class QueryUtilsNeo4j {
                     return tx.run(queryWithValues);
                 });
                 // Check if the query was executed successfully
-                if (result.consume().counters().containsUpdates()) {
-                    System.out.println("Query executed successfully.");
-                } else {
-                    System.out.println("Query did not execute successfully.");
+                if (!result.consume().counters().containsUpdates()) {
+                    Main.logger.error("Query NOT SUCCESSFUL :: updateObjectValueForLitNode()  " + queryWithValues);
                 }
             } catch (Neo4jException e) {
                 System.err.println("Neo4j Exception: " + e.getMessage());

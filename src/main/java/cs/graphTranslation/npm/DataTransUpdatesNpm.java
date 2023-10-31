@@ -1,9 +1,11 @@
 package cs.graphTranslation.npm;
 
+import cs.Main;
 import cs.utils.Constants;
 import cs.utils.FilesUtil;
 import cs.utils.TypesMapper;
 import cs.utils.Utils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class DataTransUpdatesNpm {
     TypesMapper typesMapper;
@@ -32,6 +35,9 @@ public class DataTransUpdatesNpm {
 
     // Method to read rdf NT file which contains added triples
     public void addData(String filePath) {
+        Main.logger.info("Adding data using file: " + filePath);
+        StopWatch watch = new StopWatch();
+        watch.start();
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -52,19 +58,19 @@ public class DataTransUpdatesNpm {
                             String prefixedLabel;
                             if (prefixMap.containsKey(namespace)) {
                                 prefixedLabel = prefixMap.get(namespace) + "_" + objectAsResource.getLocalName();
-                                System.out.println("Adding Label for Node: " + entityNode.getLabel() + " " + prefixedLabel);
+                                //System.out.println("Adding Label for Node: " + entityNode.getLabel() + " " + prefixedLabel);
                             } else {
                                 String newPrefix = "ns" + (prefixMap.size() + 1);
                                 prefixedLabel = newPrefix + "_" + objectAsResource.getLocalName();
                                 prefixMap.put(namespace, newPrefix);
-                                System.out.println("Adding Label for Node: (Added new Namespace prefix -> )" + entityNode.getLabel() + " " + prefixedLabel);
+                                //System.out.println("Adding Label for Node: (Added new Namespace prefix -> )" + entityNode.getLabel() + " " + prefixedLabel);
                             }
                             queryUtil.addLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel);
                         } else {
                             if (!isNodeExists(objectNode)) {
                                 createNode(objectNode);
                             }
-                            System.out.println("Create Edge for IRI:" + entityNode.getLabel() + " " + predicateNode.getLabel() + " " + objectNode.getLabel());
+                            //System.out.println("Create Edge for IRI:" + entityNode.getLabel() + " " + predicateNode.getLabel() + " " + objectNode.getLabel());
                             String prefixedEdge = getPrefixedEdge(propAsResource);
                             queryUtil.createEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel());
                         }
@@ -83,10 +89,15 @@ public class DataTransUpdatesNpm {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        watch.stop();
+        Utils.logTime("DataTransUpdatesNpm -- addData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
     //Method to read rdf NT file which contains deleted triples
     public void deleteData(String filePath) {
+        Main.logger.info("Deleting data using file: " + filePath);
+        StopWatch watch = new StopWatch();
+        watch.start();
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -109,10 +120,15 @@ public class DataTransUpdatesNpm {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        watch.stop();
+        Utils.logTime("DataTransUpdatesNpm -- deleteData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
     //Method to read rdf NT files ( A. updated triples with Old values, B. updated triples with New values)
     public void updateData(String filePathA, String filePathB) {
+        Main.logger.info("Updating data using files: " + filePathA + " and " + filePathB);
+        StopWatch watch = new StopWatch();
+        watch.start();
         Map<Pair<Node, Node>, List<Node>> updatedTriples = processTripleFiles(filePathA, filePathB);
         updatedTriples.forEach((key, objectValues) -> {
             Node entityNode = key.getLeft();
@@ -138,6 +154,8 @@ public class DataTransUpdatesNpm {
                 }
             }
         });
+        watch.stop();
+        Utils.logTime("DataTransUpdatesNpm -- updateData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
     }
 
 
@@ -211,7 +229,7 @@ public class DataTransUpdatesNpm {
 
     private boolean isNodeExists(Node node) {
         boolean exists = queryUtil.nodeExistsWithIri(node.getLabel());
-        System.out.println(node.getLabel() + " node exist? " + exists);
+        //System.out.println(node.getLabel() + " node exist? " + exists);
         return exists;
     }
 
