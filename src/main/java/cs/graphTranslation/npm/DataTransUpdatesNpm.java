@@ -18,28 +18,20 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class DataTransUpdatesNpm {
-    TypesMapper typesMapper = new TypesMapper();
-    QueryUtilsNeo4j queryUtil = new QueryUtilsNeo4j();
+    TypesMapper typesMapper;
+    QueryUtilsNeo4j queryUtil;
     Map<String, String> prefixMap;
     long totalLitNodeCount = 0;
 
-    public DataTransUpdatesNpm() {
-    }
-
-    public void run() {
-        readPrefixMapForOriginalGraph("/Users/kashifrabbani/Documents/GitHub/KG2PG/Output/test-monotone/v0/PG_PREFIX_MAP.csv");
-        totalLitNodeCount = queryUtil.getTotalLiteralNodeCount();
-        //handleAddedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/addedTriples.nt");
-        //handleUpdatedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/updatedTriplesOld.nt", "/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/updatedTriplesNew.nt");
-        handleDeletedTriples("/Users/kashifrabbani/Documents/GitHub/KG2PG/data/monotone/deletedTriples.nt");
-    }
-
-    private void readPrefixMapForOriginalGraph(String prefixMapCsvFileAddress) {
-        prefixMap = FilesUtil.readCsvToMap(prefixMapCsvFileAddress);
+    public DataTransUpdatesNpm(String prefixFilePath, String db, String url, String username, String password) {
+        this.queryUtil = new QueryUtilsNeo4j(db, url, username, password);
+        this.totalLitNodeCount = queryUtil.getTotalLiteralNodeCount();
+        this.prefixMap = FilesUtil.readCsvToMap(prefixFilePath);
+        this.typesMapper = new TypesMapper();
     }
 
     // Method to read rdf NT file which contains added triples
-    public void handleAddedTriples(String filePath) {
+    public void addData(String filePath) {
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -93,9 +85,8 @@ public class DataTransUpdatesNpm {
         }
     }
 
-
     //Method to read rdf NT file which contains deleted triples
-    public void handleDeletedTriples(String filePath) {
+    public void deleteData(String filePath) {
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -121,7 +112,7 @@ public class DataTransUpdatesNpm {
     }
 
     //Method to read rdf NT files ( A. updated triples with Old values, B. updated triples with New values)
-    public void handleUpdatedTriples(String filePathA, String filePathB) {
+    public void updateData(String filePathA, String filePathB) {
         Map<Pair<Node, Node>, List<Node>> updatedTriples = processTripleFiles(filePathA, filePathB);
         updatedTriples.forEach((key, objectValues) -> {
             Node entityNode = key.getLeft();

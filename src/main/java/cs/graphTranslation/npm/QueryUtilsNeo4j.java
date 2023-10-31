@@ -18,11 +18,9 @@ public class QueryUtilsNeo4j {
     private final Driver driver;
     private final String db;
 
-    public QueryUtilsNeo4j() {
-        this.db = ConfigManager.getProperty("neo4j_db");
-        this.driver = GraphDatabase.driver(
-                ConfigManager.getProperty("neo4j_URL"),
-                AuthTokens.basic(ConfigManager.getProperty("neo4j_username"), ConfigManager.getProperty("neo4j_password")));
+    public QueryUtilsNeo4j(String db, String url, String username, String password) {
+        this.db = db;
+        this.driver = GraphDatabase.driver(url, AuthTokens.basic(username, password));
     }
 
     public boolean nodeExistsWithIri(String iriValue) {
