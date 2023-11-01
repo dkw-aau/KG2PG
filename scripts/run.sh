@@ -13,7 +13,7 @@ container=kg2pg_find_diff
 
 echo "About to run docker container: ${container}"
 
-docker run -m 50GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx30g" --mount type=bind,source=/srv/data/iq26og/data/,target=/app/data --mount type=bind,source=/srv/data/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/dbpedia.properties
+docker run -m 150GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx130g" --mount type=bind,source=/srv/data/iq26og/data/,target=/app/data --mount type=bind,source=/srv/data/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/dbpedia.properties
 ### Logging memory consumption stats by docker container
 
 docker ps
