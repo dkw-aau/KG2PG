@@ -9,7 +9,7 @@ docker build . -t $image
 echo "Clearing cache"
 sync; echo 1 > /proc/sys/vm/drop_caches
 
-container=kg2pg_container_dbpedia
+container=kg2pg_find_diff
 
 echo "About to run docker container: ${container}"
 

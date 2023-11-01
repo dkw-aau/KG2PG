@@ -8,6 +8,7 @@ import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.ConfigManager;
 import cs.utils.Constants;
 import cs.utils.FilesUtil;
+import cs.utils.RDFComparison;
 import cs.utils.graphdb.S3PGBenchKG;
 import cs.utils.neo.S3PGBench;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,8 @@ public class Main {
         logger.setLevel(Level.INFO);
         readConfig();
         //runS3pg();
-        runS3pgMonotone();
+        //runS3pgMonotone();
+        findDifferencesBetweenTwoRdfModels();
     }
 
     private static void runS3pg() {
@@ -76,6 +78,10 @@ public class Main {
         s3PGBench.benchNeoSemQueries();
         s3PGBench.benchS3pgQueries();
         s3PGBench.benchRdf2pgQueries();
+    }
+
+    private static void findDifferencesBetweenTwoRdfModels(){
+       new RDFComparison(paramVal("dataset_file_v0"), paramVal("dataset_file_v1"));
     }
 
     private static void readConfig() {
