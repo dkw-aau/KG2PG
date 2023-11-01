@@ -35,12 +35,12 @@ public class RDFComparison {
         //Model modelB = FileManager.get().loadModel(file_v1, "N-TRIPLES");
 
         // Compare the models and print the differences
-        Model differenceAvsB = modelA.difference(modelB);
-        //Model differenceBvsA = modelB.difference(modelA);
+        //Model differenceAvsB = modelA.difference(modelB);
+        Model differenceBvsA = modelB.difference(modelA);
 
         try {
-            FileOutputStream diffAvsB = new FileOutputStream(ConfigManager.getProperty("output_file_path") + "diffAvsB.nt");
-            differenceAvsB.write(diffAvsB, "N-TRIPLES");
+            FileOutputStream diffAvsB = new FileOutputStream(ConfigManager.getProperty("output_file_path") + "diffBvsA.nt");
+            differenceBvsA.write(diffAvsB, "N-TRIPLES");
             diffAvsB.close();
         } catch (IOException e) {
             e.printStackTrace();
