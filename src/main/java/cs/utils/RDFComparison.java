@@ -1,8 +1,12 @@
 package cs.utils;
 
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.FileManager;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -13,10 +17,22 @@ public class RDFComparison {
     }
 
     public void findDiff(String file_v0, String file_v1) {
+        // Create a model for each file
+        Model modelA = ModelFactory.createDefaultModel();
+        Model modelB = ModelFactory.createDefaultModel();
+
+        // Use streaming to load the N-Triples files
+        try {
+            RDFDataMgr.read(modelA, new FileInputStream(file_v0), Lang.NTRIPLES);
+            RDFDataMgr.read(modelB, new FileInputStream(file_v1), Lang.NTRIPLES);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
 
         // Create two models for the RDF data
-        Model modelA = FileManager.get().loadModel(file_v0, "N-TRIPLES");
-        Model modelB = FileManager.get().loadModel(file_v1, "N-TRIPLES");
+        //Model modelA = FileManager.get().loadModel(file_v0, "N-TRIPLES");
+        //Model modelB = FileManager.get().loadModel(file_v1, "N-TRIPLES");
 
         // Compare the models and print the differences
         Model differenceAvsB = modelA.difference(modelB);

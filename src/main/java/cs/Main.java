@@ -1,9 +1,11 @@
 package cs;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import cs.commons.ResourceEncoder;
-import cs.graphTranslation.pm.DataTransFileToCsv;
 import cs.graphTranslation.npm.DataTransFileToCsvNpm;
 import cs.graphTranslation.npm.DataTransUpdatesNpm;
+import cs.graphTranslation.pm.DataTransFileToCsv;
 import cs.schemaTranslation.SchemaTranslator;
 import cs.utils.ConfigManager;
 import cs.utils.Constants;
@@ -12,8 +14,6 @@ import cs.utils.RDFComparison;
 import cs.utils.graphdb.S3PGBenchKG;
 import cs.utils.neo.S3PGBench;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 
 public class Main {
     public static String configPath;
