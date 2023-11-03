@@ -23,94 +23,90 @@ public class RDFComparison {
 
         // Use streaming to load the N-Triples files
         try {
+            System.out.println("Reading file A");
             RDFDataMgr.read(modelA, new FileInputStream(file_v0), Lang.NTRIPLES);
+            System.out.println("Reading file B");
             RDFDataMgr.read(modelB, new FileInputStream(file_v1), Lang.NTRIPLES);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
-
-        // Create two models for the RDF data
-        //Model modelA = FileManager.get().loadModel(file_v0, "N-TRIPLES");
-        //Model modelB = FileManager.get().loadModel(file_v1, "N-TRIPLES");
-
+        System.out.println("Comparing models .... ");
         // Compare the models and print the differences
-        //Model differenceAvsB = modelA.difference(modelB);
+        System.out.println("Executing:  Model differenceAvsB = modelA.difference(modelB);");
+        Model differenceAvsB = modelA.difference(modelB);
+        System.out.println("Executing:  Model differenceBvsA = modelB.difference(modelA);");
         Model differenceBvsA = modelB.difference(modelA);
 
+        System.out.println("Finished");
+
+
+        // Create models to store added, deleted, and updated triples in file B and A
+        Model addedTriplesB = ModelFactory.createDefaultModel();
+        Model deletedTriplesB = ModelFactory.createDefaultModel();
+        Model updatedTriplesB = ModelFactory.createDefaultModel();
+        Model updatedTriplesA = ModelFactory.createDefaultModel();
+
+        System.out.println("Executing:  StmtIterator iterBvsA = differenceBvsA.listStatements();");
+
+        // Iterate through differenceBvsA to find added, deleted, and updated triples in file B
+        StmtIterator iterBvsA = differenceBvsA.listStatements();
+        while (iterBvsA.hasNext()) {
+            Statement stmtBvsA = iterBvsA.nextStatement();
+            Statement stmtAvsB = differenceAvsB.getProperty(stmtBvsA.getSubject(), stmtBvsA.getPredicate());
+
+            if (stmtAvsB == null) {
+                // Triple in differenceBvsA but not in differenceAvsB (added in file B)
+                addedTriplesB.add(stmtBvsA);
+            } else {
+                // Triple in both differenceBvsA and differenceAvsB (possibly updated in file B)
+                if (!stmtAvsB.getObject().equals(stmtBvsA.getObject())) {
+                    // Object values are different, indicating an update
+                    updatedTriplesB.add(stmtBvsA);
+                    updatedTriplesA.add(stmtAvsB); // Store the updated triple from file A
+                }
+            }
+        }
+        System.out.println("Executing:  StmtIterator iterAvsB = differenceAvsB.listStatements();");
+        // Iterate through differenceAvsB to find deleted triples in file B
+        StmtIterator iterAvsB = differenceAvsB.listStatements();
+        while (iterAvsB.hasNext()) {
+            Statement stmtAvsB = iterAvsB.nextStatement();
+            Statement stmtBvsA = differenceBvsA.getProperty(stmtAvsB.getSubject(), stmtAvsB.getPredicate());
+
+            if (stmtBvsA == null) {
+                // Triple in differenceAvsB but not in differenceBvsA (deleted in file B)
+                deletedTriplesB.add(stmtAvsB);
+            }
+        }
+        System.out.println("Finished Iteration");
+        // Define output file paths for added, deleted, and updated triples in File B
+        String addedTriplesBPath = ConfigManager.getProperty("output_file_path") + "addedTriplesB.nt";
+        String deletedTriplesBPath = ConfigManager.getProperty("output_file_path") + "deletedTriplesB.nt";
+        String updatedTriplesBPath = ConfigManager.getProperty("output_file_path") + "updatedTriplesB.nt";
+        String updatedTriplesAPath = ConfigManager.getProperty("output_file_path") + "updatedTriplesA.nt";
+        System.out.println("Writing to files .... ");
+        // Write added, deleted, and updated triples to separate output files
         try {
-            FileOutputStream diffAvsB = new FileOutputStream(ConfigManager.getProperty("output_file_path") + "diffBvsA.nt");
-            differenceBvsA.write(diffAvsB, "N-TRIPLES");
-            diffAvsB.close();
+            FileOutputStream addedTriplesBFile = new FileOutputStream(addedTriplesBPath);
+            FileOutputStream deletedTriplesBFile = new FileOutputStream(deletedTriplesBPath);
+            FileOutputStream updatedTriplesBFile = new FileOutputStream(updatedTriplesBPath);
+            FileOutputStream updatedTriplesAFile = new FileOutputStream(updatedTriplesAPath);
+
+            addedTriplesB.write(addedTriplesBFile, "N-TRIPLES");
+            System.out.println("Added Triples in File B written to " + addedTriplesBPath);
+            deletedTriplesB.write(deletedTriplesBFile, "N-TRIPLES");
+            System.out.println("Deleted Triples in File B wrt A written to " + deletedTriplesBPath);
+            updatedTriplesB.write(updatedTriplesBFile, "N-TRIPLES");
+            System.out.println("Updated Triples in File B wrt A with New Values written to " + updatedTriplesBPath);
+            updatedTriplesA.write(updatedTriplesAFile, "N-TRIPLES");
+            System.out.println("Updated Triples in File B wrt A with Old Values written to " + updatedTriplesAPath);
+
+            addedTriplesBFile.close();
+            deletedTriplesBFile.close();
+            updatedTriplesBFile.close();
+            updatedTriplesAFile.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-//
-//        // Create models to store added, deleted, and updated triples in file B and A
-//        Model addedTriplesB = ModelFactory.createDefaultModel();
-//        Model deletedTriplesB = ModelFactory.createDefaultModel();
-//        Model updatedTriplesB = ModelFactory.createDefaultModel();
-//        Model updatedTriplesA = ModelFactory.createDefaultModel();
-//
-//        // Iterate through differenceBvsA to find added, deleted, and updated triples in file B
-//        StmtIterator iterBvsA = differenceBvsA.listStatements();
-//        while (iterBvsA.hasNext()) {
-//            Statement stmtBvsA = iterBvsA.nextStatement();
-//            Statement stmtAvsB = differenceAvsB.getProperty(stmtBvsA.getSubject(), stmtBvsA.getPredicate());
-//
-//            if (stmtAvsB == null) {
-//                // Triple in differenceBvsA but not in differenceAvsB (added in file B)
-//                addedTriplesB.add(stmtBvsA);
-//            } else {
-//                // Triple in both differenceBvsA and differenceAvsB (possibly updated in file B)
-//                if (!stmtAvsB.getObject().equals(stmtBvsA.getObject())) {
-//                    // Object values are different, indicating an update
-//                    updatedTriplesB.add(stmtBvsA);
-//                    updatedTriplesA.add(stmtAvsB); // Store the updated triple from file A
-//                }
-//            }
-//        }
-//
-//        // Iterate through differenceAvsB to find deleted triples in file B
-//        StmtIterator iterAvsB = differenceAvsB.listStatements();
-//        while (iterAvsB.hasNext()) {
-//            Statement stmtAvsB = iterAvsB.nextStatement();
-//            Statement stmtBvsA = differenceBvsA.getProperty(stmtAvsB.getSubject(), stmtAvsB.getPredicate());
-//
-//            if (stmtBvsA == null) {
-//                // Triple in differenceAvsB but not in differenceBvsA (deleted in file B)
-//                deletedTriplesB.add(stmtAvsB);
-//            }
-//        }
-//
-//        // Define output file paths for added, deleted, and updated triples in File B
-//        String addedTriplesBPath = ConfigManager.getProperty("output_file_path") + "addedTriplesB.nt";
-//        String deletedTriplesBPath = ConfigManager.getProperty("output_file_path") + "deletedTriplesB.nt";
-//        String updatedTriplesBPath = ConfigManager.getProperty("output_file_path") + "updatedTriplesB.nt";
-//        String updatedTriplesAPath = ConfigManager.getProperty("output_file_path") + "updatedTriplesA.nt";
-//
-//        // Write added, deleted, and updated triples to separate output files
-//        try {
-//            FileOutputStream addedTriplesBFile = new FileOutputStream(addedTriplesBPath);
-//            FileOutputStream deletedTriplesBFile = new FileOutputStream(deletedTriplesBPath);
-//            FileOutputStream updatedTriplesBFile = new FileOutputStream(updatedTriplesBPath);
-//            FileOutputStream updatedTriplesAFile = new FileOutputStream(updatedTriplesAPath);
-//
-//            addedTriplesB.write(addedTriplesBFile, "N-TRIPLES");
-//            System.out.println("Added Triples in File B written to " + addedTriplesBPath);
-//            deletedTriplesB.write(deletedTriplesBFile, "N-TRIPLES");
-//            System.out.println("Deleted Triples in File B wrt A written to " + deletedTriplesBPath);
-//            updatedTriplesB.write(updatedTriplesBFile, "N-TRIPLES");
-//            System.out.println("Updated Triples in File B wrt A with New Values written to " + updatedTriplesBPath);
-//            updatedTriplesA.write(updatedTriplesAFile, "N-TRIPLES");
-//            System.out.println("Updated Triples in File B wrt A with Old Values written to " + updatedTriplesAPath);
-//
-//            addedTriplesBFile.close();
-//            deletedTriplesBFile.close();
-//            updatedTriplesBFile.close();
-//            updatedTriplesAFile.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 }
