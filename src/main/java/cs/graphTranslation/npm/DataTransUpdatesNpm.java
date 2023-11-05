@@ -29,6 +29,7 @@ public class DataTransUpdatesNpm {
     public DataTransUpdatesNpm(String prefixFilePath, String db, String url, String username, String password) {
         this.queryUtil = new QueryUtilsNeo4j(db, url, username, password);
         this.totalLitNodeCount = queryUtil.getTotalLiteralNodeCount();
+        Main.logger.info("Total Literal Node Count: " + totalLitNodeCount);
         this.prefixMap = FilesUtil.readCsvToMap(prefixFilePath);
         this.typesMapper = new TypesMapper();
     }

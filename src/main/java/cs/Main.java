@@ -31,8 +31,8 @@ public class Main {
         configPath = args[0];
         logger.setLevel(Level.INFO);
         readConfig();
-        runS3pg();
-        //runS3pgMonotone();
+        //runS3pg();
+        runS3pgMonotone();
         //findDifferencesBetweenTwoRdfModels();
     }
 
