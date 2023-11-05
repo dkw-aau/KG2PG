@@ -13,7 +13,7 @@ container=kg2pg_dbp22marchMontone
 
 echo "About to run docker container: ${container}"
 
-docker run -m 100GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx64g" --mount type=bind,source=/srv/data/iq26og/data/,target=/app/data --mount type=bind,source=/srv/data/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/dbpedia.properties
+docker run -m 100GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx64g" --mount type=bind,source=/srv/data/iq26og/data/dbpediaMonotone/,target=/app/data --mount type=bind,source=/srv/data/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/dbpedia.properties
 ### Logging memory consumption stats by docker container
 
 docker ps
