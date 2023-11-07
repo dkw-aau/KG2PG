@@ -40,8 +40,9 @@ public class QueryUtilsNeo4j {
 
     //*****
     public String getCypherCreateNodeWithIri(String iriValue) {
-        return "CREATE (n:Node {iri: '" + iriValue + "'});";
+        return "MERGE (n:Node {iri: '" + iriValue + "'}) ON CREATE SET n += {iri: '" + iriValue + "'};";
     }
+
 
     public String getCypherAddLabelToNodeWithIri(String iriValue, String label) {
         return "MATCH (n {iri: '" + iriValue + "'}) SET n:" + label + ";";
