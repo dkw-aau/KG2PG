@@ -8,9 +8,7 @@ import org.neo4j.driver.*;
 import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.driver.exceptions.Neo4jException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +37,31 @@ public class QueryUtilsNeo4j {
             });
         }
     }
+
+    //*****
+    public String getCypherCreateNodeWithIri(String iriValue) {
+        return "CREATE (n:Node {iri: '" + iriValue + "'});";
+    }
+
+    public String getCypherAddLabelToNodeWithIri(String iriValue, String label) {
+        return "MATCH (n {iri: '" + iriValue + "'}) SET n:" + label + ";";
+    }
+
+    public String getCypherCreateEdgeBetweenTwoNodes(String sourceIri, String targetIri, String edgeName, String propertyKey, String propertyValue) {
+        return "MATCH (source {iri: '" + sourceIri + "'}), (target {iri: '" + targetIri + "'}) " +
+                "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": '" + propertyValue + "'}]->(target);";
+    }
+
+    public String getCypherCreateLiteralObjectNode(int id, String objectType, String objectValue, String type) {
+        return "CREATE (n:LitNode {id: " + id + ", object_type: '" + objectType + "', object_value: '" + objectValue + "', type: '" + type + "'});";
+    }
+
+    public String getCypherCreateEdgeBetweenAnIriAndLitNode(String sourceIri, int targetNodeId, String edgeName, String propertyKey, String propertyValue) {
+        return "MATCH (source {iri: '" + sourceIri + "'}), (target {id: " + targetNodeId + "}) " +
+                "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": '" + propertyValue + "'}]->(target);";
+    }
+
+    //******
 
     public void createNodeWithIri(String iriValue) {
         try (Session session = driver.session(SessionConfig.forDatabase(db))) {
@@ -187,6 +210,35 @@ public class QueryUtilsNeo4j {
             });
         }
     }
+
+
+    public void executeQueriesInBatches(LinkedHashSet<String> queries, int commitSize) {
+        StopWatch watch = new StopWatch();
+        watch.start();
+
+        try (Driver driver = this.driver) {
+            try (Session session = driver.session(SessionConfig.forDatabase(db))) {
+                Iterator<String> queryIterator = queries.iterator();
+
+                while (queryIterator.hasNext()) {
+                    try (Transaction transaction = session.beginTransaction()) {
+                        for (int i = 0; i < commitSize && queryIterator.hasNext(); i++) {
+                            String query = queryIterator.next();
+                            transaction.run(query);
+                        }
+                        System.out.println("Committing ... ");
+                        transaction.commit();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        watch.stop();
+        Utils.logTime("batchQueries()", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+    }
+
 
     public void close() {
         driver.close();

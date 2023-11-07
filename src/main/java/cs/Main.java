@@ -65,8 +65,8 @@ public class Main {
     private static void runS3pgMonotone() {
         DataTransUpdatesNpm dtNpm = new DataTransUpdatesNpm(paramVal("prefix_file_path"), paramVal("neo4j_db"), paramVal("neo4j_url"), paramVal("neo4j_username"), paramVal("neo4j_password"));
         dtNpm.addData(paramVal("added_triples_file_path"));
-        dtNpm.deleteData(paramVal("deleted_triples_file_path"));
-        dtNpm.updateData(paramVal("updated_triples_file_a_path"), paramVal("updated_triples_file_b_path"));
+        //dtNpm.deleteData(paramVal("deleted_triples_file_path"));
+        //dtNpm.updateData(paramVal("updated_triples_file_a_path"), paramVal("updated_triples_file_b_path"));
     }
 
     private static void runQueryBenchmark() {

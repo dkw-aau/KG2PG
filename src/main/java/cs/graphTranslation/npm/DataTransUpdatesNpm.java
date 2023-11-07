@@ -39,6 +39,7 @@ public class DataTransUpdatesNpm {
         Main.logger.info("Adding data using file: " + filePath);
         StopWatch watch = new StopWatch();
         watch.start();
+        LinkedHashSet<String> queries = new LinkedHashSet<>();
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -49,7 +50,8 @@ public class DataTransUpdatesNpm {
                     Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
                     // In case this is a new entity, a node will be created.
                     if (!isNodeExists(entityNode)) {
-                        createNode(entityNode);
+                        //queryUtil.createNodeWithIri(entityNode.getLabel());
+                        queries.add(queryUtil.getCypherCreateNodeWithIri(entityNode.getLabel()));
                     }
                     // In case the objectNode is an IRI, a node and an edge will be created.
                     if (isIri(objectNode)) {
@@ -66,20 +68,29 @@ public class DataTransUpdatesNpm {
                                 prefixMap.put(namespace, newPrefix);
                                 //System.out.println("Adding Label for Node: (Added new Namespace prefix -> )" + entityNode.getLabel() + " " + prefixedLabel);
                             }
-                            queryUtil.addLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel);
+                            //queryUtil.addLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel);
+                            queries.add(queryUtil.getCypherAddLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel));
                         } else {
                             if (!isNodeExists(objectNode)) {
-                                createNode(objectNode);
+                                //queryUtil.createNodeWithIri(objectNode.getLabel());
+                                queries.add(queryUtil.getCypherCreateNodeWithIri(objectNode.getLabel()));
                             }
                             //System.out.println("Create Edge for IRI:" + entityNode.getLabel() + " " + predicateNode.getLabel() + " " + objectNode.getLabel());
                             String prefixedEdge = getPrefixedEdge(propAsResource);
-                            queryUtil.createEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel());
+                            //queryUtil.createEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel());
+                            queries.add(queryUtil.getCypherCreateEdgeBetweenTwoNodes(entityNode.getLabel(), objectNode.getLabel(), prefixedEdge, "property", predicateNode.getLabel()));
                         }
                     } else {
                         ObjectParser object = parseObject(objectNode);
                         if (!predicateNode.toString().equals(Constants.RDF_TYPE)) {
                             String prefixedEdge = getPrefixedEdge(propAsResource);
-                            createEdgeForLiteralNode(entityNode, predicateNode, object.value(), object.dataType(), object.cypherType(), object.dataTypeLocalName(), prefixedEdge);
+                            //createEdgeForLiteralNode(entityNode, predicateNode, object.value(), object.dataType(), object.cypherType(), object.dataTypeLocalName(), prefixedEdge);
+                            totalLitNodeCount++;
+                            int id = (int) totalLitNodeCount + 1;
+                            //queryUtil.createLiteralObjectNode(id, object.dataType(), object.value(), object.cypherType());
+                            //queryUtil.createEdgeBetweenAnIriAndLitNode(entityNode.getLabel(), id, prefixedEdge, "property", predicateNode.getLabel());
+                            queries.add(queryUtil.getCypherCreateLiteralObjectNode(id, object.dataType(), object.value(), object.cypherType()));
+                            queries.add(queryUtil.getCypherCreateEdgeBetweenAnIriAndLitNode(entityNode.getLabel(), id, prefixedEdge, "property", predicateNode.getLabel()));
                         }
                     }
 
@@ -92,6 +103,9 @@ public class DataTransUpdatesNpm {
         }
         watch.stop();
         Utils.logTime("DataTransUpdatesNpm -- addData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+        System.out.println("Size of Queries: " + queries.size());
+        System.out.println("Batch Queries Execution");
+        queryUtil.executeQueriesInBatches(queries, 10000);
     }
 
     //Method to read rdf NT file which contains deleted triples
@@ -229,15 +243,8 @@ public class DataTransUpdatesNpm {
     }
 
     private boolean isNodeExists(Node node) {
-        boolean exists = queryUtil.nodeExistsWithIri(node.getLabel());
         //System.out.println(node.getLabel() + " node exist? " + exists);
-        return exists;
-    }
-
-    // Create method to create node in the PG using Cypher Query
-    private void createNode(Node node) {
-        System.out.println("Create Node for:" + node.getLabel());
-        queryUtil.createNodeWithIri(node.getLabel());
+        return queryUtil.nodeExistsWithIri(node.getLabel());
     }
 
     private void createEdgeForLiteralNode(Node entityNode, Node predicateNode, String value, String dataType, String cypherType, String dataTypeLocalName, String prefixedEdge) {
