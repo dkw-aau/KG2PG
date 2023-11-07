@@ -40,6 +40,7 @@ public class DataTransUpdatesNpm {
         StopWatch watch = new StopWatch();
         watch.start();
         LinkedHashSet<String> queries = new LinkedHashSet<>();
+        HashSet<Node> nodesSet = new HashSet<>();
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -49,10 +50,14 @@ public class DataTransUpdatesNpm {
                     Node objectNode = nodes[2];
                     Resource propAsResource = ResourceFactory.createResource(nodes[1].getLabel());
                     // In case this is a new entity, a node will be created.
-                    if (!isNodeExists(entityNode)) {
-                        //queryUtil.createNodeWithIri(entityNode.getLabel());
-                        queries.add(queryUtil.getCypherCreateNodeWithIri(entityNode.getLabel()));
+                    if(!nodesSet.contains(entityNode)){
+                        if (!isNodeExists(entityNode)) {
+                            nodesSet.add(entityNode);
+                            //queryUtil.createNodeWithIri(entityNode.getLabel());
+                            queries.add(queryUtil.getCypherCreateNodeWithIri(entityNode.getLabel()));
+                        }
                     }
+
                     // In case the objectNode is an IRI, a node and an edge will be created.
                     if (isIri(objectNode)) {
                         if (predicateNode.toString().equals(Constants.RDF_TYPE)) {
@@ -71,9 +76,12 @@ public class DataTransUpdatesNpm {
                             //queryUtil.addLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel);
                             queries.add(queryUtil.getCypherAddLabelToNodeWithIri(entityNode.getLabel(), prefixedLabel));
                         } else {
-                            if (!isNodeExists(objectNode)) {
-                                //queryUtil.createNodeWithIri(objectNode.getLabel());
-                                queries.add(queryUtil.getCypherCreateNodeWithIri(objectNode.getLabel()));
+                            if(!nodesSet.contains(objectNode)){
+                                if (!isNodeExists(objectNode)) {
+                                    nodesSet.add(objectNode);
+                                    //queryUtil.createNodeWithIri(objectNode.getLabel());
+                                    queries.add(queryUtil.getCypherCreateNodeWithIri(objectNode.getLabel()));
+                                }
                             }
                             //System.out.println("Create Edge for IRI:" + entityNode.getLabel() + " " + predicateNode.getLabel() + " " + objectNode.getLabel());
                             String prefixedEdge = getPrefixedEdge(propAsResource);
