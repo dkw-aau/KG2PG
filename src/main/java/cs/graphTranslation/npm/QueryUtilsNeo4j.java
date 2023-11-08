@@ -220,16 +220,17 @@ public class QueryUtilsNeo4j {
         try (Driver driver = this.driver) {
             try (Session session = driver.session(SessionConfig.forDatabase(db))) {
                 Iterator<String> queryIterator = queries.iterator();
-
+                int counter = 0;
                 while (queryIterator.hasNext()) {
                     try (Transaction transaction = session.beginTransaction()) {
                         for (int i = 0; i < commitSize && queryIterator.hasNext(); i++) {
                             String query = queryIterator.next();
-                            System.out.println(query);
+                            //System.out.println(query);
                             transaction.run(query);
                         }
-                        System.out.println("Committing ... ");
                         transaction.commit();
+                        System.out.println("Commit ... " + counter);
+                        counter++;
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
                     }
