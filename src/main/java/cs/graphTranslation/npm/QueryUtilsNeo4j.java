@@ -45,11 +45,11 @@ public class QueryUtilsNeo4j {
 
 
     public String getCypherAddLabelToNodeWithIri(String iriValue, String label) {
-        return "MATCH (n {iri: \"" + iriValue + "\"}) SET n:" + label + ";";
+        return "MATCH (n:Node {iri: \"" + iriValue + "\"}) SET n:" + label + ";";
     }
 
     public String getCypherCreateEdgeBetweenTwoNodes(String sourceIri, String targetIri, String edgeName, String propertyKey, String propertyValue) {
-        return "MATCH (source {iri: \"" + sourceIri + "\"}), (target {iri: \"" + targetIri + "\"}) " +
+        return "MATCH (source:Node {iri: \"" + sourceIri + "\"}), (target:Node {iri: \"" + targetIri + "\"}) " +
                 "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": \"" + propertyValue + "\"}]->(target);";
     }
 
@@ -58,7 +58,7 @@ public class QueryUtilsNeo4j {
     }
 
     public String getCypherCreateEdgeBetweenAnIriAndLitNode(String sourceIri, int targetNodeId, String edgeName, String propertyKey, String propertyValue) {
-        return "MATCH (source {iri: \"" + sourceIri + "\"}), (target {id: " + targetNodeId + "}) " +
+        return "MATCH (source:Node {iri: \"" + sourceIri + "\"}), (target:LitNode {id: " + targetNodeId + "}) " +
                 "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": \"" + propertyValue + "\"}]->(target);";
     }
 
