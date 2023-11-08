@@ -40,26 +40,26 @@ public class QueryUtilsNeo4j {
 
     //*****
     public String getCypherCreateNodeWithIri(String iriValue) {
-        return "MERGE (n:Node {iri: '" + iriValue + "'}) ON CREATE SET n += {iri: '" + iriValue + "'};";
+        return "MERGE (n:Node {iri: \"" + iriValue + "\"}) ON CREATE SET n += {iri: \"" + iriValue + "\"};";
     }
 
 
     public String getCypherAddLabelToNodeWithIri(String iriValue, String label) {
-        return "MATCH (n {iri: '" + iriValue + "'}) SET n:" + label + ";";
+        return "MATCH (n {iri: \"" + iriValue + "\"}) SET n:" + label + ";";
     }
 
     public String getCypherCreateEdgeBetweenTwoNodes(String sourceIri, String targetIri, String edgeName, String propertyKey, String propertyValue) {
-        return "MATCH (source {iri: '" + sourceIri + "'}), (target {iri: '" + targetIri + "'}) " +
-                "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": '" + propertyValue + "'}]->(target);";
+        return "MATCH (source {iri: \"" + sourceIri + "\"}), (target {iri: \"" + targetIri + "\"}) " +
+                "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": \"" + propertyValue + "\"}]->(target);";
     }
 
     public String getCypherCreateLiteralObjectNode(int id, String objectType, String objectValue, String type) {
-        return "CREATE (n:LitNode {id: " + id + ", object_type: '" + objectType + "', object_value: '" + objectValue + "', type: '" + type + "'});";
+        return "CREATE (n:LitNode {id: " + id + ", object_type: \"" + objectType + "\", object_value: \"" + objectValue + "\", type: \"" + type + "\"});";
     }
 
     public String getCypherCreateEdgeBetweenAnIriAndLitNode(String sourceIri, int targetNodeId, String edgeName, String propertyKey, String propertyValue) {
-        return "MATCH (source {iri: '" + sourceIri + "'}), (target {id: " + targetNodeId + "}) " +
-                "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": '" + propertyValue + "'}]->(target);";
+        return "MATCH (source {iri: \"" + sourceIri + "\"}), (target {id: " + targetNodeId + "}) " +
+                "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": \"" + propertyValue + "\"}]->(target);";
     }
 
     //******
@@ -230,6 +230,8 @@ public class QueryUtilsNeo4j {
                         }
                         System.out.println("Committing ... ");
                         transaction.commit();
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
                     }
                 }
             }
