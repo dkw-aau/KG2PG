@@ -205,6 +205,7 @@ public class DataTransUpdatesNpm {
         }
         String cypherType = typesMapper.getMap().get(dataType);
         if (cypherType == null) cypherType = "STRING";
+        value = Utils.removeDoubleQuotes(value);
         return new ObjectParser(value, dataType, dataTypeLocalName, cypherType);
     }
 
