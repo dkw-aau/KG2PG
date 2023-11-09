@@ -114,7 +114,7 @@ public class DataTransUpdatesNpm {
         Utils.logTime("DataTransUpdatesNpm -- addData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Queries: " + queries.size());
         System.out.println("Batch Queries Execution");
-        queryUtil.executeQueriesInBatches(queries, 10000);
+        queryUtil.executeQueriesInBatches(queries, 50000);
     }
 
     //Method to read rdf NT file which contains deleted triples
