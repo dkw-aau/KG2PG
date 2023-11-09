@@ -62,6 +62,20 @@ public class QueryUtilsNeo4j {
                 "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": \"" + propertyValue + "\"}]->(target);";
     }
 
+    public String getCypherDeleteRelationshipForLitNode(String sourceIri, String property, String prefixedEdge, String targetObjectValue) {
+        return "MATCH (source:Node {iri: \"" + sourceIri + "\"})-[rel:" + prefixedEdge + " {property: \"" + property + "\"}]->(target:LitNode {object_value: \"" + targetObjectValue + "\"}) DELETE rel;";
+    }
+
+
+    public String getCypherDeleteRelationshipForIriNode(String sourceIri, String property, String prefixedEdge, String targetIri) {
+        return "MATCH (source:Node {iri: \"" + sourceIri + "\"})-[rel:" + prefixedEdge + " {property: \"" + property + "\"}]->(target:Node {iri: \"" + targetIri + "\"}) DELETE rel;";
+    }
+
+    public String getCypherUpdateObjectValueForLitNode(String sourceIri, String prefixedEdge, String property, String targetObjectValue, String newObjectValue) {
+        return String.format("MATCH (source:Node{iri: \"%s\"})-[rel:%s {property: \"%s\"}]->(target:LitNode {object_value: %s}) SET target.object_value = %s", sourceIri, prefixedEdge, property, targetObjectValue, newObjectValue);
+    }
+
+
     //******
 
     public void createNodeWithIri(String iriValue) {
@@ -245,7 +259,7 @@ public class QueryUtilsNeo4j {
     }
 
 
-    public void close() {
+    /*public void close() {
         driver.close();
-    }
+    }*/
 }

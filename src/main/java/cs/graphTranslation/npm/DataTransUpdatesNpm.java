@@ -25,6 +25,7 @@ public class DataTransUpdatesNpm {
     QueryUtilsNeo4j queryUtil;
     Map<String, String> prefixMap;
     long totalLitNodeCount = 0;
+    int commitSize = 2000;
 
     public DataTransUpdatesNpm(String prefixFilePath, String db, String url, String username, String password) {
         this.queryUtil = new QueryUtilsNeo4j(db, url, username, password);
@@ -40,7 +41,6 @@ public class DataTransUpdatesNpm {
         StopWatch watch = new StopWatch();
         watch.start();
         LinkedHashSet<String> queries = new LinkedHashSet<>();
-        HashSet<Node> nodesSet = new HashSet<>();
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -114,7 +114,7 @@ public class DataTransUpdatesNpm {
         Utils.logTime("DataTransUpdatesNpm -- addData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Queries: " + queries.size());
         System.out.println("Batch Queries Execution");
-        queryUtil.executeQueriesInBatches(queries, 50000);
+        queryUtil.executeQueriesInBatches(queries, commitSize);
     }
 
     //Method to read rdf NT file which contains deleted triples
@@ -122,6 +122,7 @@ public class DataTransUpdatesNpm {
         Main.logger.info("Deleting data using file: " + filePath);
         StopWatch watch = new StopWatch();
         watch.start();
+        LinkedHashSet<String> queries = new LinkedHashSet<>();
         try {
             Files.lines(Path.of(filePath)).forEach(line -> {
                 try {
@@ -132,10 +133,12 @@ public class DataTransUpdatesNpm {
                     Resource propAsResource = ResourceFactory.createResource(predicateNode.getLabel());
                     String prefixedEdge = getPrefixedEdge(propAsResource);
                     if (isIri(objectNode)) {
-                        queryUtil.deleteRelationshipForIriNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, objectNode.getLabel());
+                        //queryUtil.deleteRelationshipForIriNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, objectNode.getLabel());
+                        queries.add(queryUtil.getCypherDeleteRelationshipForIriNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, objectNode.getLabel()));
                     } else {
                         ObjectParser object = parseObject(objectNode);
-                        queryUtil.deleteRelationshipForLitNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, object.value);
+                        //queryUtil.deleteRelationshipForLitNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, object.value);
+                        queries.add(queryUtil.getCypherDeleteRelationshipForLitNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, object.value));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -146,6 +149,9 @@ public class DataTransUpdatesNpm {
         }
         watch.stop();
         Utils.logTime("DataTransUpdatesNpm -- deleteData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+        System.out.println("Size of Delete Queries: " + queries.size());
+        System.out.println("Batch Delete Queries Execution");
+        queryUtil.executeQueriesInBatches(getFirstNQueries(queries, 10000), commitSize);
     }
 
     //Method to read rdf NT files ( A. updated triples with Old values, B. updated triples with New values)
@@ -154,6 +160,7 @@ public class DataTransUpdatesNpm {
         StopWatch watch = new StopWatch();
         watch.start();
         Map<Pair<Node, Node>, List<Node>> updatedTriples = processTripleFiles(filePathA, filePathB);
+        LinkedHashSet<String> queries = new LinkedHashSet<>();
         updatedTriples.forEach((key, objectValues) -> {
             Node entityNode = key.getLeft();
             Node predicateNode = key.getRight();
@@ -174,12 +181,16 @@ public class DataTransUpdatesNpm {
                     newVal = "\"" + newVal + "\"";
                 }
                 if (!predicateNode.toString().equals(Constants.RDF_TYPE)) {
-                    queryUtil.updateObjectValueForLitNode(entityNode.getLabel(), prefixedEdge, predicateNode.getLabel(), oldVal, newVal);
+                    //queryUtil.updateObjectValueForLitNode(entityNode.getLabel(), prefixedEdge, predicateNode.getLabel(), oldVal, newVal);
+                    queries.add(queryUtil.getCypherUpdateObjectValueForLitNode(entityNode.getLabel(), prefixedEdge, predicateNode.getLabel(), oldVal, newVal));
                 }
             }
         });
         watch.stop();
         Utils.logTime("DataTransUpdatesNpm -- updateData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
+        System.out.println("Size of Update Queries: " + queries.size());
+        System.out.println("Batch Update Queries Execution");
+        queryUtil.executeQueriesInBatches(getFirstNQueries(queries, 10000), commitSize);
     }
 
 
@@ -290,6 +301,21 @@ public class DataTransUpdatesNpm {
         }
 
         return literalDataType;
+    }
+
+
+    public static LinkedHashSet<String> getFirstNQueries(LinkedHashSet<String> queries, int n) {
+        LinkedHashSet<String> q = new LinkedHashSet<>();
+        int count = 0;
+        for (String query : queries) {
+            q.add(query);
+            count++;
+
+            if (count == n) {
+                break;
+            }
+        }
+        return q;
     }
 
 }
