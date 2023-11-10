@@ -62,6 +62,20 @@ public class QueryUtilsNeo4j {
                 "MERGE (source)-[:" + edgeName + " {" + propertyKey + ": \"" + propertyValue + "\"}]->(target);";
     }
 
+    public String getCypherIndexDeleteRelationshipForLitNode( String prefixedEdge) {
+        return "CREATE INDEX IF NOT EXISTS FOR ()-[r: " + prefixedEdge + "]-() ON (r.property)";
+    }
+
+    public String getCypherIndexDeleteRelationshipForIriNode( String prefixedEdge) {
+        return "CREATE INDEX IF NOT EXISTS FOR ()-[r: " + prefixedEdge + "]-() ON (r.property)";
+    }
+
+    public String getCypherIndexUpdateObjectValueForLitNode( String prefixedEdge) {
+        return "CREATE INDEX IF NOT EXISTS FOR ()-[r: " + prefixedEdge + "]-() ON (r.property)";
+    }
+
+
+    //**** Delete Queries ****
     public String getCypherDeleteRelationshipForLitNode(String sourceIri, String property, String prefixedEdge, String targetObjectValue) {
         return "MATCH (source:Node {iri: \"" + sourceIri + "\"})-[rel:" + prefixedEdge + " {property: \"" + property + "\"}]->(target:LitNode {object_value: \"" + targetObjectValue + "\"}) DELETE rel;";
     }
@@ -71,6 +85,7 @@ public class QueryUtilsNeo4j {
         return "MATCH (source:Node {iri: \"" + sourceIri + "\"})-[rel:" + prefixedEdge + " {property: \"" + property + "\"}]->(target:Node {iri: \"" + targetIri + "\"}) DELETE rel;";
     }
 
+    //**** Update Queries ****
     public String getCypherUpdateObjectValueForLitNode(String sourceIri, String prefixedEdge, String property, String targetObjectValue, String newObjectValue) {
         return String.format("MATCH (source:Node{iri: \"%s\"})-[rel:%s {property: \"%s\"}]->(target:LitNode {object_value: %s}) SET target.object_value = %s", sourceIri, prefixedEdge, property, targetObjectValue, newObjectValue);
     }
@@ -239,10 +254,10 @@ public class QueryUtilsNeo4j {
                     try (Transaction transaction = session.beginTransaction()) {
                         for (int i = 0; i < commitSize && queryIterator.hasNext(); i++) {
                             String query = queryIterator.next();
-                            //System.out.println(query);
-                            transaction.run(query);
+                            System.out.println(query);
+                            //transaction.run(query);
                         }
-                        transaction.commit();
+                        //transaction.commit();
                         System.out.println("Commit ... " + counter);
                         counter++;
                     } catch (Exception e) {
