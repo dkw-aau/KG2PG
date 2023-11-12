@@ -137,12 +137,13 @@ public class DataTransUpdatesNpm {
                         //queryUtil.deleteRelationshipForIriNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, objectNode.getLabel());
                         queries.add(queryUtil.getCypherDeleteRelationshipForIriNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, objectNode.getLabel()));
                         //indexQueries.add(queryUtil.getCypherIndexDeleteRelationshipForIriNode(prefixedEdge));
-                    } else {
+                    }
+                    /*else {
                         ObjectParser object = parseObject(objectNode);
                         //queryUtil.deleteRelationshipForLitNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, object.value);
                         queries.add(queryUtil.getCypherDeleteRelationshipForLitNode(entityNode.getLabel(), predicateNode.getLabel(), prefixedEdge, object.value));
                         //indexQueries.add(queryUtil.getCypherIndexDeleteRelationshipForLitNode(prefixedEdge));
-                    }
+                    }*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
