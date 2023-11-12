@@ -155,7 +155,7 @@ public class DataTransUpdatesNpm {
         Utils.logTime("DataTransUpdatesNpm -- deleteData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Delete Queries: " + queries.size());
         System.out.println("Batch Delete Queries Execution");
-        queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,10000, 10000) , commitSize);
+        queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,1000, 10000) , commitSize);
     }
 
     //Method to read rdf NT files ( A. updated triples with Old values, B. updated triples with New values)
@@ -196,7 +196,7 @@ public class DataTransUpdatesNpm {
         Utils.logTime("DataTransUpdatesNpm -- updateData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Update Queries: " + queries.size());
         System.out.println("Batch Update Queries Execution");
-        queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,10000, 10000), commitSize);
+        queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,1000, 10000), commitSize);
     }
 
 
