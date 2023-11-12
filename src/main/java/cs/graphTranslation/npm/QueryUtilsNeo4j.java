@@ -255,9 +255,9 @@ public class QueryUtilsNeo4j {
                         for (int i = 0; i < commitSize && queryIterator.hasNext(); i++) {
                             String query = queryIterator.next();
                             System.out.println(query);
-                            //transaction.run(query);
+                            transaction.run(query);
                         }
-                        //transaction.commit();
+                        transaction.commit();
                         System.out.println("Commit ... " + counter);
                         counter++;
                     } catch (Exception e) {
