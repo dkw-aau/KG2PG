@@ -19,7 +19,7 @@ public class S3PGBench {
         Main.logger.info("---- benchS3pgQueries ---- ");
         String filePath = ConfigManager.getProperty("resources_path") + "/s3pg_queries.csv";
         List<String[]> indexAndQuery = FilesUtil.readCsvAllDataOnceWithPipeSeparator(filePath);
-        String dbForSession = "dbpedia2022s3pg";
+        String dbForSession = "dbp22s3pg";
         executeQueries(indexAndQuery, getNeo4jDbUrlForS3pg(), dbForSession);
     }
 
@@ -41,31 +41,33 @@ public class S3PGBench {
 
     public void executeQueries(List<String[]> indexAndQuery, String uri, String dbForSession) {
         Neo4jConnector connector = new Neo4jConnector(uri, user, password);
-        connector.executeCypherQueriesWithAverages(indexAndQuery, dbForSession, 10);
+        connector.executeCypherQueriesWithAverages(indexAndQuery, dbForSession, 1);
         connector.close();
     }
 
     @NotNull
     private static String getNeo4jDbUrlForS3pg() {
-        //http://a256-gc1-17.srv.aau.dk:7474/browser/
+        //http://a256-gc1-17.srv.aau.dk:7574/browser/
         String host = "a256-gc1-17.srv.aau.dk";
-        int port = 7687;
-        String database = "dbpedia2022s3pg";
+        int port = 7688;
+        String database = "dbp22s3pg";
         return "bolt://" + host + ":" + port + "/" + database;
     }
 
     @NotNull
     private static String getNeo4jDbUrlForRdf2pg() {
+        //http://a256-gc1-17.srv.aau.dk:7674/browser/
         String host = "a256-gc1-17.srv.aau.dk";
-        int port = 7687;
+        int port = 7689;
         String database = "rdf2pgdbpedia2022";
         return "bolt://" + host + ":" + port + "/" + database;
     }
 
     @NotNull
     private static String getNeo4jDbUrlForNeoSem() {
-        String host = "a256-gc1-20.srv.aau.dk";
-        int port = 7687;
+        //http://a256-gc1-17.srv.aau.dk:7874/browser/
+        String host = "a256-gc1-17.srv.aau.dk";
+        int port = 7691;
         String database = "dbpedia2022neo2";
         return "bolt://" + host + ":" + port + "/" + database;
     }

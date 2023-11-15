@@ -116,6 +116,10 @@ public class Neo4jConnector {
 
                             transaction.commit();
                         }
+                        /*try (Transaction t = session.beginTransaction()) {
+                            t.run("CALL db.clearQueryCaches();");
+                            t.commit();
+                        }*/
                     }
 
                     // Calculate averages for execution time and fetch time

@@ -1,4 +1,5 @@
 Index,Query
+Q0|CALL apoc.warmup.run();
 Q1|MATCH (node:sch__Person) WHERE node.rdfs__label IS NOT NULL RETURN node.uri as entity, node.rdfs__label as propValue;
 Q2|MATCH (node:sch__Organization) WHERE node.rdfs__label IS NOT NULL RETURN node.uri as entity, node.rdfs__label as propValue;
 Q3|MATCH (node:sch__Movie)  WHERE node.rdfs__label IS NOT NULL RETURN node.uri as entity, node.rdfs__label as propValue;

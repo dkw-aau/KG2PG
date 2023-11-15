@@ -32,8 +32,9 @@ public class Main {
         logger.setLevel(Level.INFO);
         readConfig();
         //runS3pg();
-        runS3pgMonotone();
+        //runS3pgMonotone();
         //findDifferencesBetweenTwoRdfModels();
+        runQueryBenchmark();
     }
 
     private static void runS3pg() {
@@ -76,8 +77,8 @@ public class Main {
 
         //Benchmark Query Runtime Analysis on PGs transformed by different approaches
         S3PGBench s3PGBench = new S3PGBench();
-        s3PGBench.benchNeoSemQueries();
         s3PGBench.benchS3pgQueries();
+        s3PGBench.benchNeoSemQueries();
         s3PGBench.benchRdf2pgQueries();
     }
 

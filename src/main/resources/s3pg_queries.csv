@@ -1,14 +1,15 @@
 Index,Query
+Q0|CALL apoc.warmup.run();
 Q1|MATCH (node:ns712_Person) WHERE node.ns517_label IS NOT NULL RETURN node.iri as entity, node.ns517_label as propValue;
 Q2|MATCH (node:ns491_Organization) WHERE node.ns517_label IS NOT NULL RETURN node.iri as entity, node.ns517_label as propValue;
 Q3|MATCH (node:ns491_Movie) WHERE node.ns517_label IS NOT NULL RETURN node.iri as entity, node.ns517_label as propValue;
 Q4|MATCH (node:ns491_MusicAlbum) WHERE node.ns517_label IS NOT NULL RETURN node.iri as entity, node.ns517_label as propValue;
 Q5|MATCH (node:ns712_Person) WHERE node.ns359_fatherName IS NOT NULL RETURN node.iri as entity, node.ns359_fatherName as propValue;
-Q6|MATCH (person:ns712_Writer)-[:ns359_birthDate]->(dobNode) WHERE dobNode.object_type = 'http://www.w3.org/2001/XMLSchema#date' RETURN person.iri as entity, dobNode.object_value as birthDate;
-Q7|MATCH (person:ns712_Writer)-[:ns359_birthDate]->(dobNode) WHERE dobNode.object_type = 'http://www.w3.org/2001/XMLSchema#date' AND DATE(dobNode.object_value) > DATE('1955-01-01') RETURN person.iri as entity, dobNode.object_value as birthDate;
-Q8|MATCH (person:ns712_Film)-[:ns359_premiere]->(premNode) WHERE premNode.object_type = 'http://www.w3.org/2001/XMLSchema#date' RETURN person.iri as entity, premNode.object_value as entityValue;
-Q9|MATCH (snode:ns712_Airline)-[:ns359_assets]->(tnode) WHERE tnode.object_type = 'http://www.w3.org/2001/XMLSchema#integer' RETURN snode.iri as entity, tnode.object_value as entityValue;
-Q10|MATCH (snode:ns712_Weapon)-[:ns359_accuracy]->(tnode) WHERE tnode.object_type = 'http://dbpedia.org/datatype/second' RETURN snode.iri as entity, tnode.object_value as entityValue;
+Q6|MATCH (person:ns712_Writer)-[:ns359_birthDate]->(dobNode:LitNode) WHERE dobNode.object_type = 'http://www.w3.org/2001/XMLSchema#date' RETURN person.iri as entity, dobNode.object_value as birthDate;
+Q7|MATCH (person:ns712_Writer)-[:ns359_birthDate]->(dobNode:LitNode) WHERE dobNode.object_type = 'http://www.w3.org/2001/XMLSchema#date' AND DATE(dobNode.object_value) > DATE('1955-01-01') RETURN person.iri as entity, dobNode.object_value as birthDate;
+Q8|MATCH (person:ns712_Film)-[:ns359_premiere]->(premNode:LitNode) WHERE premNode.object_type = 'http://www.w3.org/2001/XMLSchema#date' RETURN person.iri as entity, premNode.object_value as entityValue;
+Q9|MATCH (snode:ns712_Airline)-[:ns359_assets]->(tnode:LitNode) WHERE tnode.object_type = 'http://www.w3.org/2001/XMLSchema#integer' RETURN snode.iri as entity, tnode.object_value as entityValue;
+Q10|MATCH (snode:ns712_Weapon)-[:ns359_accuracy]->(tnode:LitNode) WHERE tnode.object_type = 'http://dbpedia.org/datatype/second' RETURN snode.iri as entity, tnode.object_value as entityValue;
 Q11|MATCH (node:ns712_Person)-[:ns712_careerStation]->(tnode) RETURN node.iri as node_iri, tnode.iri as tnode_iri;
 Q12|MATCH (node:ns712_Person)-[:ns712_militaryService]->(tnode) RETURN node.iri as node_iri, tnode.iri as tnode_iri;
 Q13|MATCH (node:ns712_Person)-[:ns712_termPeriod]->(tnode) RETURN node.iri as node_iri, tnode.iri as tnode_iri;
