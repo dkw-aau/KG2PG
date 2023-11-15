@@ -41,7 +41,7 @@ public class S3PGBench {
 
     public void executeQueries(List<String[]> indexAndQuery, String uri, String dbForSession) {
         Neo4jConnector connector = new Neo4jConnector(uri, user, password);
-        connector.executeCypherQueriesWithAverages(indexAndQuery, dbForSession, 1);
+        connector.executeCypherQueriesWithAverages(indexAndQuery, dbForSession, 10);
         connector.close();
     }
 
