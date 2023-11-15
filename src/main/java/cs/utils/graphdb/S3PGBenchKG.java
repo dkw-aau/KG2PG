@@ -22,7 +22,8 @@ public class S3PGBenchKG {
 
     public void executeQueries() {
         //readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/kg_queries.csv");
-        readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/kg_queries.csv", 10);
+        readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/dbpedia_warmup.csv", 1, "warmup");
+        readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/kg_queries.csv", 10, "benchmark");
     }
 
     private void readQueriesFromFile(String fileAddress) {
@@ -50,12 +51,12 @@ public class S3PGBenchKG {
 
     }
 
-    private void readQueriesFromFileWithAverage(String fileAddress, int repetitions) {
+    private void readQueriesFromFileWithAverage(String fileAddress, int repetitions, String type) {
         List<String[]> indexAndQuery = FilesUtil.readCsvAllDataOnceWithPipeSeparator(fileAddress);
         FileWriter writer = null;
         try {
-            writer = new FileWriter(ConfigManager.getProperty("output_file_path") + "_kg_results.csv");
-            writer.write("Index,NumberOfResults,ExecutionTimeMilliSeconds,ExecutionTimeSeconds,ExecutionTimeMinutes\n");
+            writer = new FileWriter(ConfigManager.getProperty("output_file_path") + type + "_kg_results.csv");
+            writer.write("Index,ExecutionTimeMilliSeconds,ExecutionTimeSeconds,ExecutionTimeMinutes,NumberOfResults\n");
             indexAndQuery.remove(0);
             for (String[] array : indexAndQuery) {
                 String index = array[0];
@@ -82,8 +83,8 @@ public class S3PGBenchKG {
                 long averageExecutionTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(averageExecutionTimeMillis);
                 long averageExecutionTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(averageExecutionTimeMillis);
 
-                System.out.println(index + "," + query + "," + totalResults + "," + averageExecutionTimeMillis + "," + averageExecutionTimeSeconds + "," + averageExecutionTimeMinutes);
-                writer.write(index + "," + totalResults + "," + averageExecutionTimeMillis + "," + averageExecutionTimeSeconds + "," + averageExecutionTimeMinutes + "\n");
+                System.out.println(index + "," + averageExecutionTimeMillis + "," + averageExecutionTimeSeconds + "," + averageExecutionTimeMinutes + "," + totalResults);
+                writer.write(index + "," + averageExecutionTimeMillis + "," + averageExecutionTimeSeconds + "," + averageExecutionTimeMinutes + "," + totalResults + "\n");
             }
             writer.close();
         } catch (IOException e) {
