@@ -73,7 +73,7 @@ public class Main {
 
     private static void runQueryBenchmark() {
         //Benchmark Query Runtime Analysis on KG over GraphDB
-        //new S3PGBenchKG().executeQueries();
+        new S3PGBenchKG().executeQueries();
 
         //Benchmark Query Runtime Analysis on PGs transformed by different approaches
         S3PGBench s3PGBench = new S3PGBench();
