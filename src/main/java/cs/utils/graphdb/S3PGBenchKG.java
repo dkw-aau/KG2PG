@@ -22,7 +22,7 @@ public class S3PGBenchKG {
 
     public void executeQueries() {
         //readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/kg_queries.csv");
-        readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/dbpedia_warmup.csv", 1, "warmup");
+        //readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/dbpedia_warmup.csv", 1, "warmup");
         readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/kg_queries.csv", 10, "benchmark");
     }
 
