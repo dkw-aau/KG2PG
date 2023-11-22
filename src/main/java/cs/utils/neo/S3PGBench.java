@@ -47,8 +47,8 @@ public class S3PGBench {
 
     @NotNull
     private static String getNeo4jDbUrlForS3pg() {
-        //http://a256-gc1-17.srv.aau.dk:7574/browser/
-        String host = "a256-gc1-17.srv.aau.dk";
+        //http://server-address:7574/browser/
+        String host = "server-address";
         int port = 7688;
         String database = "dbp22s3pg";
         return "bolt://" + host + ":" + port + "/" + database;
@@ -56,8 +56,8 @@ public class S3PGBench {
 
     @NotNull
     private static String getNeo4jDbUrlForRdf2pg() {
-        //http://a256-gc1-17.srv.aau.dk:7674/browser/
-        String host = "a256-gc1-17.srv.aau.dk";
+        //http://server-address:7674/browser/
+        String host = "server-address";
         int port = 7689;
         String database = "rdf2pgdbpedia2022";
         return "bolt://" + host + ":" + port + "/" + database;
@@ -65,8 +65,8 @@ public class S3PGBench {
 
     @NotNull
     private static String getNeo4jDbUrlForNeoSem() {
-        //http://a256-gc1-17.srv.aau.dk:7874/browser/
-        String host = "a256-gc1-17.srv.aau.dk";
+        //http://server-address:7874/browser/
+        String host = "server-address";
         int port = 7691;
         String database = "dbpedia2022neo2";
         return "bolt://" + host + ":" + port + "/" + database;
