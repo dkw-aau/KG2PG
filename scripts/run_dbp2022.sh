@@ -9,11 +9,11 @@ docker build . -t $image
 echo "Clearing cache"
 sync; echo 1 > /proc/sys/vm/drop_caches
 
-container=kg2pg_diff
+container=kg2pg_container_dbpedia2022
 
 echo "About to run docker container: ${container}"
 
-docker run -m 600GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx500g" --mount type=bind,source=/user/cs.aau.dk/iq26og/data/,target=/app/data --mount type=bind,source=/user/cs.aau.dk/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/dbpediaBigServer.properties
+docker run -m 64GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx45g" --mount type=bind,source=/srv/data/iq26og/data/,target=/app/data --mount type=bind,source=/srv/data/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/dbpedia2022.properties
 ### Logging memory consumption stats by docker container
 
 docker ps
