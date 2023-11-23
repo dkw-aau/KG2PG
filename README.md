@@ -24,15 +24,16 @@ The first version is from 2020 and the second version is from 2022.
 The folder [dbpedia](https://github.com/dkw-aau/s3pg/tree/main/dbpedia) contains the files and scripts used to download
 each of the dataset.
 
-You can download the datasets we used in experiments
-from [this](https://bitbucket.org/kashifrabbani/s3pg/src/master/Datasets/) link.
+For convenience, we have made the datasets used for experiments available online. 
+You can download the DBpedia-2020 from [this](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2020) link and DBpedia-2022 from [this](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2022) link.
 
 #### 2. Bio2RDF Clinical Trials Dataset
 
 We downloaded this dataset from the official link: https://download.bio2rdf.org/#/current/clinicaltrials/
 
-You can download the datasets we used in experiments
-from [this](https://bitbucket.org/kashifrabbani/s3pg/src/master/Datasets/) link.
+For convenience, we have made the datasets used for experiments available online.
+You can download the Bio2rdf dataset from [this](https://bitbucket.org/kashifrabbani/s3pg-bio2rdf-ct) link.
+
 
 ### 2.2. SHACL shapes
 
@@ -40,8 +41,7 @@ Utilize QSE (Quality Shapes Extractor) to extract SHACL shapes from your dataset
 [QSE](https://github.com/dkw-aau/qse) GitHub repository contains the codebase and instructions to extract SHACL shapes
 from a given dataset.
 
-You can download the SHACL shapes used for the datasets used in our experiments from this
-link: [S3PG-SHACL-SHAPES](https://bitbucket.org/kashifrabbani/s3pg/src/master/)
+You can download the SHACL shapes for all of the above datasets using this link: [S3PG-SHACL-SHAPES](https://bitbucket.org/kashifrabbani/s3pg-shacl)
 
 ## 3. Transforming KGs to PGs using S3PG
 
