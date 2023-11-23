@@ -81,7 +81,7 @@ You will see logs and the output will be stored in the path of the output direct
 the experiments without script, please follow the instructions
 on [TODO](https://github.com/dkw-aau/KG2PG/blob/master/README_without_script.md) page.*
 
-### 5. S3PG Output
+#### 3.4. S3PG Output
 
 S3PG will output PG in CSV and JSON format.
 
@@ -332,7 +332,7 @@ The output contains the following files. We have showed the content of each file
 
 </details>
 
-## Step 4. Loading transformed Graphs into Neo4j
+## 4. Loading transformed Graphs into Neo4j
 
 Use neo4j admin import to load the files into Neo4j.
 
@@ -499,7 +499,7 @@ Use neo4j admin import to load the files into Neo4j.
   ```
 </details>
 
-## Step 5. Running Queries
+## 5. Running Queries
 
 Queries are available in the [resources](https://github.com/dkw-aau/KG2PG/tree/master/src/main/resources) directory.
 
