@@ -77,9 +77,7 @@ command ``` cd scripts ``` and then execute one of the following shell scripts f
 
 You will see logs and the output will be stored in the path of the output directory specified in the config file.
 
-*Note: You may have to execute ```chmod +rwx ``` for each script to solve the permissions issue. In case you want to run
-the experiments without script, please follow the instructions
-on [TODO](https://github.com/dkw-aau/KG2PG/blob/master/README_without_script.md) page.*
+*Note: You may have to execute ```chmod +rwx ``` for each script to solve the permissions issue. 
 
 #### 3.4. S3PG Output
 
