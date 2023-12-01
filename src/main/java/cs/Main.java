@@ -31,10 +31,10 @@ public class Main {
         configPath = args[0];
         logger.setLevel(Level.INFO);
         readConfig();
-        //runS3pg();
+        runS3pg();
         //runS3pgMonotone();
         //findDifferencesBetweenTwoRdfModels();
-        runQueryBenchmark();
+        //runQueryBenchmark();
     }
 
     private static void runS3pg() {
