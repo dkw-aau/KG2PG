@@ -502,3 +502,15 @@ Use neo4j admin import to load the files into Neo4j.
 Queries are available in the [resources](https://github.com/dkw-aau/KG2PG/tree/master/src/main/resources) directory.
 
 Once you have loaded PG into Neo4j. Next step is to run queries, use the benchmark() method in the Main file to run the queries.
+
+### License 
+[![CC BY-NC-ND 4.0][cc-by-nc-nd-shield]][cc-by-nc-nd]
+
+This work is licensed under a
+[Creative Commons Attribution-NonCommercial-NoDerivs 4.0 International License][cc-by-nc-nd].
+
+[![CC BY-NC-ND 4.0][cc-by-nc-nd-image]][cc-by-nc-nd]
+
+[cc-by-nc-nd]: https://creativecommons.org/licenses/by-nc-nd/4.0/
+[cc-by-nc-nd-image]: https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png
+[cc-by-nc-nd-shield]: https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg
