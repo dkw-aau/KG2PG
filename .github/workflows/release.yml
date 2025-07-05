@@ -20,11 +20,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v3
+      with:
+        gradle-version: '7.5.1'
         
     - name: Build JAR
-      run: ./gradlew clean shadowJar
+      run: gradle clean shadowJar
       
     - name: Rename JAR for release
       run: mv build/libs/kg2pg.jar kg2pg-${{ github.ref_name }}.jar
