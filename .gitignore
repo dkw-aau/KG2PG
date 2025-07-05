@@ -1,6 +1,6 @@
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+#!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 test-jar-run
@@ -15,7 +15,7 @@ test-jar-run
 *.ipr
 out/
 .idea
-gradle
+#gradle
 !**/src/main/**/out/
 !**/src/test/**/out/
 
