@@ -71,6 +71,8 @@ dependencies {
 
 // Include all resources and config in the JAR
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    
     // Copy config.properties to resources root (not in subfolder)
     from('.') {
         include 'config.properties'
@@ -90,6 +92,7 @@ processResources {
 }
 
 shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     mergeServiceFiles()
     manifest {
         attributes 'Main-Class': 'cs.Main'
