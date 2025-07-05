@@ -2,17 +2,23 @@
 
 Transform RDF graph data models to Property Graph (PG) data models using the S3PG algorithm.
 
+[![Latest Release](https://img.shields.io/github/v/release/dkw-aau/KG2PG)](https://github.com/dkw-aau/KG2PG/releases/latest)
+[![JAR Download](https://img.shields.io/badge/Download-JAR%20v1.0.4-blue)](https://github.com/dkw-aau/KG2PG/releases/download/v1.0.4/kg2pg-v1.0.4.jar)
+
 ## 🚀 Quick Start with JAR Release
 
 **New: Download and run KG2PG without building!**
 
 ### Option 1: Download Pre-built JAR
 ```bash
-# Download the latest JAR release
-wget https://github.com/dkw-aau/KG2PG/releases/latest/download/kg2pg-v1.0.0.jar
+# Download the latest JAR release (always gets the newest version)
+wget https://github.com/dkw-aau/KG2PG/releases/latest/download/kg2pg-v1.0.4.jar
+
+# Or download specific version (recommended for reproducibility)
+wget https://github.com/dkw-aau/KG2PG/releases/download/v1.0.4/kg2pg-v1.0.4.jar
 
 # Run with embedded sample data (creates timestamped output)
-java -jar kg2pg-v1.0.0.jar
+java -jar kg2pg-v1.0.4.jar
 ```
 
 ### Option 2: Use with Your Own Data
@@ -23,7 +29,18 @@ mkdir -p data
 # Copy your SHACL shapes to data/
 
 # Run with your data
-java -jar kg2pg-v1.0.0.jar
+java -jar kg2pg-v1.0.4.jar
+```
+
+### 🎯 Quick Test (30 seconds)
+```bash
+# Download and test immediately
+wget https://github.com/dkw-aau/KG2PG/releases/download/v1.0.4/kg2pg-v1.0.4.jar
+java -jar kg2pg-v1.0.4.jar
+
+# Check your results
+ls output/*/
+# You should see CSV files with property graph data!
 ```
 
 ### What You Get
@@ -606,7 +623,6 @@ Use neo4j admin import to load the files into Neo4j.
     SET n += value.properties;
     ```
 </details>
-
 <details>
 <summary>Execute the following script to load key value props in batches.</summary>
  
