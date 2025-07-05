@@ -1,4 +1,75 @@
-## 1. Getting the code
+# KG2PG: Knowledge Graph to Property Graph Transformation
+
+Transform RDF graph data models to Property Graph (PG) data models using the S3PG algorithm.
+
+## 🚀 Quick Start with JAR Release
+
+**New: Download and run KG2PG without building!**
+
+### Option 1: Download Pre-built JAR
+```bash
+# Download the latest JAR release
+wget https://github.com/dkw-aau/KG2PG/releases/latest/download/kg2pg-v1.0.0.jar
+
+# Run with embedded sample data (creates timestamped output)
+java -jar kg2pg-v1.0.0.jar
+```
+
+### Option 2: Use with Your Own Data
+```bash
+# Create data directory and add your files
+mkdir -p data
+# Copy your RDF files (.nt, .ttl) to data/
+# Copy your SHACL shapes to data/
+
+# Run with your data
+java -jar kg2pg-v1.0.0.jar
+```
+
+### What You Get
+- ✅ **Timestamped Output**: Each run creates a unique directory like `output/YourDataset_2025-07-05_15-25-09_1720188645/`
+- ✅ **No Conflicts**: Previous results are never overwritten
+- ✅ **Zero Configuration**: Works out of the box with embedded sample data
+- ✅ **Cross-Platform**: Same JAR works on Windows, macOS, and Linux
+- ✅ **Professional Results**: CSV and JSON format property graph outputs
+
+📖 **Detailed Usage**: See [JAR_USAGE.md](JAR_USAGE.md) for comprehensive instructions.
+
+---
+
+## 🐳 Docker Support (Multi-Architecture)
+
+```bash
+# Build for both Intel and ARM64 (Apple Silicon)
+docker buildx build --platform linux/amd64,linux/arm64 -t kg2pg .
+
+# Run with Docker
+docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/output:/app/output kg2pg
+```
+
+---
+
+## 🛠️ Building from Source
+
+### Quick Build for JAR Release
+```bash
+# Build executable JAR with embedded resources
+./build-jar.sh
+
+# Test the JAR
+./test-jar.sh
+
+# Prepare for release (comprehensive testing)
+./prepare-release.sh
+```
+
+### Traditional Gradle Build
+```bash
+# Build without JAR packaging
+./gradlew clean build
+```
+
+### Getting the Source Code
 
 Codebase to transform RDF graph data models to Property Graph (PG) data models is available
 at [https://github.com/dkw-aau/KG2PG/](https://github.com/dkw-aau/KG2PG/).
@@ -7,13 +78,25 @@ Start by cloning the code using the following command:
 
 ```bash
 git clone https://github.com/dkw-aau/KG2PG.git
+cd KG2PG
 ```
 
-## 2. Getting the data
+---
 
-Before using the S3PG transformation algorithm, ensure you have the necessary prerequisites in place.
+## 📊 Data Requirements
 
-### 2.1. RDF Datasets
+Before using the S3PG transformation algorithm, you have several options for data:
+
+### Option 1: Use Embedded Sample Data (Recommended for Testing)
+The JAR comes with embedded sample data - no additional downloads needed!
+
+### Option 2: Use Your Own Data
+- **RDF Dataset**: Your knowledge graph in RDF format (.nt, .ttl, .rdf)
+- **SHACL Shapes**: Shape constraints for your dataset (.ttl)
+
+### Option 3: Use Pre-configured Datasets
+
+### 📁 Large Datasets
 
 To begin, download the required datasets, i.e., DBpedia and Bio2RDF Clinical Trials Dataset
 
@@ -35,7 +118,7 @@ For convenience, we have made the datasets used for experiments available online
 You can download the Bio2rdf dataset from [this](https://bitbucket.org/kashifrabbani/s3pg-bio2rdf-ct) link.
 
 
-### 2.2. SHACL shapes
+### 🔍 SHACL Shapes Generation
 
 Utilize QSE (Quality Shapes Extractor) to extract SHACL shapes from your datasets.
 [QSE](https://github.com/dkw-aau/qse) GitHub repository contains the codebase and instructions to extract SHACL shapes
@@ -43,30 +126,86 @@ from a given dataset.
 
 You can download the SHACL shapes for all of the above datasets using this link: [S3PG-SHACL-SHAPES](https://bitbucket.org/kashifrabbani/s3pg-shacl)
 
-## 3. Transforming KGs to PGs using S3PG
+---
 
-Once you have downloaded the datasets (RDF knowledge graphs) and SHACL shapes for them, next step is to use S3PG
-transformation algorithm to transform them into property graphs.
+## 🔄 Transforming KGs to PGs using S3PG
 
-We used Docker and shell scripts to build and run the code on different datasets. We allow users to specify the
-configuration parameters in the config files depending on the dataset and user's requirement.
+### JAR-Based Transformation (Recommended)
 
-#### 3.1. Requirements
+#### Simple Transformation
+```bash
+# Download and run with embedded data
+java -jar kg2pg.jar
 
+# Or with your own data
+mkdir -p data
+# Add your .nt/.ttl files to data/
+java -jar kg2pg.jar
+```
+
+#### Custom Configuration
+```bash
+# Create config.properties with your settings
+echo "dataset_name=MyDataset" > config.properties
+echo "dataset_path=data/my-graph.nt" >> config.properties
+echo "shapes_path=data/my-shapes.ttl" >> config.properties
+echo "output_file_path=output/" >> config.properties
+
+java -jar kg2pg.jar
+```
+
+### Docker-Based Transformation
+```bash
+# Build the image
+docker build -t kg2pg .
+
+# Run with mounted data
+docker run --rm \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/output:/app/output \
+  kg2pg
+```
+
+### Legacy Shell Script Method
+
+Once you have downloaded the datasets (RDF knowledge graphs) and SHACL shapes for them, you can use the traditional
+shell script approach to transform them into property graphs.
+
+#### System Requirements
+
+**For JAR Usage:**
+- Java 17 or higher
+- Minimum 4GB RAM (16GB recommended for large datasets)
+- 1GB free disk space
+
+**For Building from Source:**
 The experiments run on a _single machine_. To reproduce the experiments the software used are *a GNU/Linux
-distribution (with git, bash, make, and wget)*, Docker, and Java  *version 15.0.2.fx-zulu*
+distribution (with git, bash, make, and wget)*, Docker, and Java  *version 17 or higher*
 having a machine with 256 GB (minimum required 16GB) and CPU with 16 cores (minimum required 1 core).
 
 We have prepared shell scripts and configuration files for each dataset to make the process of running experiments as
 much easy as possible.
 
-#### 3.2. Configuration Parameters
+#### Configuration Parameters
 
-Please update the configuration file for each dataset available in
+**For JAR usage:** Configuration is optional - works with embedded defaults.
+
+**For custom configuration:** Create a `config.properties` file:
+```properties
+dataset_name=MyDataset
+shapes_path=data/my-shapes.ttl
+dataset_path=data/my-graph.nt
+output_file_path=output/
+expected_number_classes=50
+expected_number_of_lines=1000
+is_wikidata=false
+```
+
+**For shell script usage:** Please update the configuration file for each dataset available in
 the [config](https://github.com/dkw-aau/KG2PG/tree/master/config) directory, i.e., `dbpedia2020`, `dbpedia2022`,
 and `bio2rdf` to set the correct paths for your machine.
 
-#### 3.3. Shell Scripts
+#### Shell Scripts (Legacy Method)
 
 Assuming that you are in the project's directory, you have updated the configuration file(s), and docker is installed on
 your machine, move into [scripts](https://github.com/dkw-aau/KG2PG/tree/master/scripts) directory using the
@@ -77,11 +216,34 @@ command ``` cd scripts ``` and then execute one of the following shell scripts f
 
 You will see logs and the output will be stored in the path of the output directory specified in the config file.
 
-*Note: You may have to execute ```chmod +rwx ``` for each script to solve the permissions issue. 
+*Note: You may have to execute ```chmod +rwx ``` for each script to solve the permissions issue.*
 
-#### 3.4. S3PG Output
+---
 
-S3PG will output PG in CSV and JSON format.
+## 📁 Output
+
+### Timestamped Output Directories
+Each run creates a unique timestamped directory to prevent conflicts:
+- **Format**: `output/DatasetName_YYYY-MM-DD_HH-MM-SS_timestamp/`
+- **Example**: `output/GraphNpm_2025-07-05_15-25-09_1720188645/`
+
+### Output Files
+S3PG outputs Property Graph data in multiple formats:
+
+**CSV Files:**
+- `PG_NODES_WD_LABELS.csv` - Node labels and identifiers
+- `PG_NODES_LITERALS.csv` - Node literal properties  
+- `PG_RELATIONS.csv` - Relationships/edges between nodes
+- `PG_PREFIX_MAP.csv` - Namespace prefix mappings
+
+**JSON Files:**
+- `PG_NODES_PROPS_JSON.json` - Node properties in JSON format
+
+**Schema Files:**
+- `PG_SCHEMA.txt` - Property graph schema definition
+
+**Runtime Files:**
+- `GraphNpm_RUNTIME_LOGS.csv` - Performance and runtime statistics
 
 The output contains the following files. We have showed the content of each file with example used in the paper.
 <details>
@@ -503,14 +665,61 @@ Queries are available in the [resources](https://github.com/dkw-aau/KG2PG/tree/m
 
 Once you have loaded PG into Neo4j. Next step is to run queries, use the benchmark() method in the Main file to run the queries.
 
-### License 
-[![CC BY-NC-ND 4.0][cc-by-nc-nd-shield]][cc-by-nc-nd]
+---
 
-This work is licensed under a
-[Creative Commons Attribution-NonCommercial-NoDerivs 4.0 International License][cc-by-nc-nd].
+## 🆚 Comparison: JAR vs Traditional Build
 
-[![CC BY-NC-ND 4.0][cc-by-nc-nd-image]][cc-by-nc-nd]
+| Feature | JAR Release | Traditional Build |
+|---------|-------------|------------------|
+| **Setup Time** | < 1 minute | ~10-15 minutes |
+| **Prerequisites** | Java 17+ only | Java + Gradle + Dependencies |
+| **Download Size** | 161MB (single file) | Full repository clone |
+| **Configuration** | Optional (embedded defaults) | Required (config files) |
+| **Data Setup** | Optional (embedded samples) | Required (download datasets) |
+| **Output Organization** | Automatic timestamped dirs | Manual organization |
+| **Cross-Platform** | ✅ Same file everywhere | ❓ Platform-specific builds |
+| **Docker Support** | ✅ Multi-architecture | ✅ Single architecture |
+| **Best For** | Quick testing, Production use | Development, Customization |
 
-[cc-by-nc-nd]: https://creativecommons.org/licenses/by-nc-nd/4.0/
-[cc-by-nc-nd-image]: https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png
-[cc-by-nc-nd-shield]: https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/dkw-aau/KG2PG/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/dkw-aau/KG2PG/discussions)
+- **Documentation**: [JAR_USAGE.md](JAR_USAGE.md)
+
+---
+
+## 🏆 Citation
+
+If you use KG2PG in your research, please cite our work:
+
+```bibtex
+@article{kg2pg2024,
+  title={KG2PG: Knowledge Graph to Property Graph Transformation using S3PG},
+  author={Your Authors},
+  journal={Your Journal},
+  year={2024}
+}
+```
+
+---
+
+*Made with ❤️ for the Knowledge Graph community*

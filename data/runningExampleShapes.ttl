@@ -10,6 +10,7 @@ shape:PersonShape
     rdf:type       sh:NodeShape ;
     sh:property    shape:namePersonShapeProperty ;
     sh:property    shape:dobPersonShapeProperty ;
+    sh:property    shape:agePersonShapeProperty ;
     sh:targetClass ex:Person .
 
 shape:namePersonShapeProperty
@@ -19,6 +20,14 @@ shape:namePersonShapeProperty
     sh:minCount 1 ;
     sh:maxCount 1 ;
     sh:path     ex:name .
+
+shape:agePersonShapeProperty
+    rdf:type    sh:PropertyShape ;
+    sh:NodeKind sh:Literal ;
+    sh:datatype xsd:integer  ;
+    sh:minCount 0 ;
+    sh:maxCount 1 ;
+    sh:path     ex:age .
 
 shape:dobPersonShapeProperty
     rdf:type    sh:PropertyShape ;

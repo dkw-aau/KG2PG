@@ -28,9 +28,17 @@ public class Main {
     private static final boolean isParsimonious = false;
 
     public static void main(String[] args) {
-        configPath = args[0];
+        // Handle config path - optional argument
+        if (args.length > 0) {
+            configPath = args[0];
+        }
+        
         logger.setLevel(Level.INFO);
         readConfig();
+        
+        // Ensure output directory exists
+        ConfigManager.ensureDirectoryExists(outputFilePath);
+        
         runS3pg();
         //runS3pgMonotone();
         //findDifferencesBetweenTwoRdfModels();
@@ -87,12 +95,17 @@ public class Main {
     }
 
     private static void readConfig() {
-        datasetPath = paramVal("dataset_path");
+        datasetPath = ConfigManager.getDataPath(paramVal("dataset_path"));
         datasetName = FilesUtil.getFileName(datasetPath);
         numberOfClasses = Integer.parseInt(paramVal("expected_number_classes")); // expected or estimated numberOfClasses
         numberOfInstances = Integer.parseInt(paramVal("expected_number_of_lines")) / 2; // expected or estimated numberOfInstances
         isWikiData = isActivated("is_wikidata");
-        outputFilePath = paramVal("output_file_path");
+        
+        // Create timestamped output directory
+        String baseOutputPath = paramVal("output_file_path");
+        outputFilePath = ConfigManager.createTimestampedOutputDirectory(baseOutputPath, datasetName);
+        
+        System.out.println("Output directory: " + outputFilePath);
     }
 
     private static boolean isActivated(String option) {

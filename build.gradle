@@ -69,6 +69,25 @@ dependencies {
     implementation group: 'org.topbraid', name: 'shacl', version: '1.4.2'
 }
 
+// Include all resources and config in the JAR
+processResources {
+    // Copy config.properties to resources root (not in subfolder)
+    from('.') {
+        include 'config.properties'
+    }
+    // Copy all config files
+    from('config') {
+        into 'config'
+    }
+    // Copy all data files (for embedded defaults)
+    from('data') {
+        into 'data'
+    }
+    // Copy all resource files from src/main/resources (if they exist)
+    from('src/main/resources') {
+        into '.'
+    }
+}
 
 shadowJar {
     mergeServiceFiles()
@@ -76,7 +95,11 @@ shadowJar {
         attributes 'Main-Class': 'cs.Main'
     }
     zip64 true
+    archiveBaseName = 'kg2pg'
+    archiveClassifier = ''
+    archiveVersion = ''
 }
+
 test {
     useJUnitPlatform()
 }

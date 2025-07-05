@@ -1,0 +1,3 @@
+GraphNpm,entityExtraction() ,0,0,0,0,,data/monotone/runningExampleGraph_v0.nt
+GraphNpm,propertiesToPgKeysAndEdges(),0,0,0,0,,data/monotone/runningExampleGraph_v0.nt
+GraphNpm,entityDataToCsvAndJson(),0,0,0,0,,data/monotone/runningExampleGraph_v0.nt

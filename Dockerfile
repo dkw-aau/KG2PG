@@ -1,14 +1,20 @@
-FROM gradle:7.5-jdk17-alpine AS builder
-RUN mkdir -p /app/KG2PG
-COPY . /app/KG2PG
-WORKDIR /app/KG2PG
-RUN gradle build
-RUN gradle shadowJar
+FROM gradle:8.14.2-jdk17-ubi-minimal AS builder
 
-FROM builder
-RUN mkdir -p /app/data
-RUN mkdir -p /app/local
-COPY --from=builder /app/KG2PG/build/libs/*-all.jar /app/app.jar
+WORKDIR /app
+COPY . .
+RUN gradle clean shadowJar --no-daemon
 
-ENTRYPOINT ["java","-jar", "/app/app.jar"]
-CMD ["configFile"]
+FROM openjdk:17-jre-slim
+
+WORKDIR /app
+
+# Copy the JAR file
+COPY --from=builder /app/build/libs/kg2pg.jar kg2pg.jar
+
+# Create default directory structure for user data
+RUN mkdir -p data output config
+
+# Copy sample config for user customization (optional)
+# COPY --from=builder /app/config.properties ./config.properties.example
+
+ENTRYPOINT ["java", "-jar", "kg2pg.jar"]

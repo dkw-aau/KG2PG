@@ -1,0 +1,162 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+<http://shaclshapes.org/HotelShape>
+    rdf:type                                 <http://www.w3.org/ns/shacl#NodeShape> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/addressHotelShapeProperty> ;
+    <http://www.w3.org/ns/shacl#targetClass> <http://schema.org/Hotel> .
+
+<http://shaclshapes.org/addressHotelShapeProperty>
+    rdf:type                          <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    owl:Thing ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+                                          <http://www.w3.org/ns/shacl#datatype> rdf:langString ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/City> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/City> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q515> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Town> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Settlement> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/PopulatedPlace> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q3957> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Dam> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Airport> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q486972> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q12323> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/Airport> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q1248784> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/AdministrativeRegion> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+                                          <http://www.w3.org/ns/shacl#datatype> xsd:integer ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Region> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/AdministrativeArea> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q3455524> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/ArchitecturalStructure> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Country> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/Country> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q6256> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Road> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Infrastructure> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/RouteOfTransportation> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q34442> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+                                          <http://www.w3.org/ns/shacl#datatype> xsd:gMonthDay ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Place> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Location> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/Place> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/CityDistrict> ; ] ) ;
+    <http://www.w3.org/ns/shacl#or>   ( [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    owl:Thing ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+                                          <http://www.w3.org/ns/shacl#datatype> rdf:langString ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/City> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/City> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q515> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Town> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Settlement> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/PopulatedPlace> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q3957> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Dam> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Airport> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q486972> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q12323> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/Airport> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q1248784> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/AdministrativeRegion> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+                                          <http://www.w3.org/ns/shacl#datatype> xsd:integer ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Region> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/AdministrativeArea> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q3455524> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/ArchitecturalStructure> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Country> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/Country> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q6256> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Road> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Infrastructure> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/RouteOfTransportation> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.wikidata.org/entity/Q34442> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+                                          <http://www.w3.org/ns/shacl#datatype> xsd:gMonthDay ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Place> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/Location> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://schema.org/Place> ; ]
+                                        [ <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#IRI> ;
+                                          <http://www.w3.org/ns/shacl#class>    <http://dbpedia.org/ontology/CityDistrict> ; ] ) ;
+    <http://www.w3.org/ns/shacl#path> <http://dbpedia.org/property/address> .
+
+
+<http://shaclshapes.org/UniversityShape>
+    rdf:type                                 <http://www.w3.org/ns/shacl#NodeShape> ;
+    <http://www.w3.org/ns/shacl#property>    <http://shaclshapes.org/addressUniversityShapeProperty> ;
+    <http://www.w3.org/ns/shacl#targetClass> <http://schema.org/University> .
+
+<http://shaclshapes.org/addressUniversityShapeProperty>
+    rdf:type                              <http://www.w3.org/ns/shacl#PropertyShape> ;
+    <http://www.w3.org/ns/shacl#NodeKind> <http://www.w3.org/ns/shacl#Literal> ;
+    <http://www.w3.org/ns/shacl#datatype> rdf:langString ;
+    <http://www.w3.org/ns/shacl#path>     <http://dbpedia.org/property/address> .
+
+

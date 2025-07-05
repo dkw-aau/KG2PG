@@ -77,7 +77,7 @@ public class DataTransFileToCsvNpm {
         entityDataToCsvAndJson();
         //groupingEntitiesByCommonProperties();
         Main.logger.info("Post Processing: Graph Data Translation - Writing prefix map to file.");
-        FilesUtil.writeStringToStringMapToFile(prefixMap, Constants.PG_PREFIX_MAP);
+        FilesUtil.writeStringToStringMapToFile(prefixMap, Constants.getPGPrefixMapPath());
         Main.logger.info("STATS: " + "No. of Classes: " + classEntityCount.size());
     }
 
@@ -139,10 +139,10 @@ public class DataTransFileToCsvNpm {
         //propertySet = new HashSet<>();
         TypesMapper typesMapper = new TypesMapper();
         typesMapper.initTypesForCypher();
-        PrintWriter pgLiteralNodesPrintWriter = createPrintWriter(Constants.PG_NODES_LITERALS);
+        PrintWriter pgLiteralNodesPrintWriter = createPrintWriter(Constants.getPGNodesLiteralsPath());
         pgLiteralNodesPrintWriter.println("id:ID|object_value|object_type|type|:LABEL");
 
-        PrintWriter pgRelsPrintWriter = createPrintWriter(Constants.PG_RELATIONS);
+        PrintWriter pgRelsPrintWriter = createPrintWriter(Constants.getPGRelationsPath());
         pgRelsPrintWriter.println(":START_ID|property|:END_ID|:TYPE");
 
         try {
@@ -422,8 +422,8 @@ public class DataTransFileToCsvNpm {
         StopWatch watch = new StopWatch();
         watch.start();
         ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
-        try (FileWriter csvWriter = new FileWriter(Constants.PG_NODES_WD_LABELS)) {
-            try (PrintWriter jsonWriter = new PrintWriter(new BufferedWriter(new FileWriter(Constants.PG_NODES_PROPS_JSON)))) {
+        try (FileWriter csvWriter = new FileWriter(Constants.getPGNodesWdLabelsPath())) {
+            try (PrintWriter jsonWriter = new PrintWriter(new BufferedWriter(new FileWriter(Constants.getPGNodesPropsJsonPath())))) {
                 csvWriter.append("iri:ID|:LABEL\n");
                 jsonWriter.write("["); // Insert '[' at the beginning of the file
                 Iterator<Map.Entry<Node, EntityData>> iterator = entityDataHashMap.entrySet().iterator();

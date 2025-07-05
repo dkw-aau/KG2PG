@@ -3,6 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+test-jar-run
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -23,12 +24,12 @@ gradle
 .DS_Store
 
 # ignore files in folder foo
-Output/DBpedia/*
+#Output/DBpedia/*
 # but keep the folder
 !Output/DBpedia/.keep
 
 
 # ignore files in folder foo
-Output/runningExample/*
+#Output/runningExample/*
 # but keep the folder
 !Output/runningExample/.keep

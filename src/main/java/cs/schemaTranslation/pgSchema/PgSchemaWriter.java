@@ -178,7 +178,7 @@ public class PgSchemaWriter {
 
     public void writePgSchemaSyntaxToFile() {
         try {
-            FileWriter fileWriter = new FileWriter(Constants.PG_SCHEMA_SYNTAX_FILE_PATH);
+            FileWriter fileWriter = new FileWriter(Constants.getPGSchemaFilePath());
             PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println(" // Node Types");
             pgNodeTypes.forEach(printWriter::println);

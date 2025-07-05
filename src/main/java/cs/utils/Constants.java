@@ -27,17 +27,69 @@ public class Constants {
     public static String PG_NODE_INDEXES_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_NODE_INDEXES_FILE_PATH.cypher";
 
     public static String PG_EMPTY_IRI_NODE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_EMPTY_IRI_NODE_QUERIES.csv";
+    // Output file paths - use Main.outputFilePath which includes timestamp
+    public static String getPGSchemaFilePath() {
+        return cs.Main.outputFilePath + "PG_SCHEMA.txt";
+    }
+    
+    public static String getPGNodesWdLabelsPath() {
+        return cs.Main.outputFilePath + "PG_NODES_WD_LABELS.csv";
+    }
+    
+    public static String getPGNodesLiteralsPath() {
+        return cs.Main.outputFilePath + "PG_NODES_LITERALS.csv";
+    }
+    
+    public static String getPGRelationsPath() {
+        return cs.Main.outputFilePath + "PG_RELATIONS.csv";
+    }
+    
+    public static String getPGPrefixMapPath() {
+        return cs.Main.outputFilePath + "PG_PREFIX_MAP.csv";
+    }
+    
+    public static String getPGNodesPropsJsonPath() {
+        return cs.Main.outputFilePath + "PG_NODES_PROPS_JSON.json";
+    }
+    
+    public static String getPGKvQueryFilePath() {
+        return cs.Main.outputFilePath + "PG_KV_QUERIES.cypher";
+    }
+    
+    public static String getPGEdgeQueryFilePath() {
+        return cs.Main.outputFilePath + "PG_EDGE_QUERIES.cypher";
+    }
+    
+    public static String getPGSchemaQueryFilePath() {
+        return cs.Main.outputFilePath + "PG_SCHEMA_QUERIES.cypher";
+    }
+    
+    public static String getPGMonAddQueriesPath() {
+        return cs.Main.outputFilePath + "PG_MON_ADD_QUERIES.txt";
+    }
+    
+    public static String getPGMonDelQueriesPath() {
+        return cs.Main.outputFilePath + "PG_MON_DEL_QUERIES.txt";
+    }
+    
+    public static String getPGMonUpdateQueriesPath() {
+        return cs.Main.outputFilePath + "PG_MON_UPDATE_QUERIES.txt";
+    }
+    
+    // Backward compatibility - these will be deprecated
     public static String PG_KV_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_KV_QUERIES.cypher";
     public static String PG_EDGE_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_EDGE_QUERIES.cypher";
-
     public static String PG_SCHEMA_QUERY_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA_QUERIES.cypher";
-
-
     public static String PG_SCHEMA_SYNTAX_FILE_PATH = ConfigManager.getProperty("output_file_path")  + "PG_SCHEMA.txt";
-
     public static String PG_NODES_WD_LABELS = ConfigManager.getProperty("output_file_path")  + "PG_NODES_WD_LABELS.csv";
     public static String PG_NODES_LITERALS = ConfigManager.getProperty("output_file_path")  + "PG_NODES_LITERALS.csv";
     public static String PG_RELATIONS = ConfigManager.getProperty("output_file_path") + "PG_RELATIONS.csv";
     public static String PG_PREFIX_MAP = ConfigManager.getProperty("output_file_path")  + "PG_PREFIX_MAP.csv";
     public static String PG_NODES_PROPS_JSON = ConfigManager.getProperty("output_file_path")  + "PG_NODES_PROPS_JSON.json";
+    public static String PG_MON_ADD_QUERIES = ConfigManager.getProperty("output_file_path")  + "PG_MON_ADD_QUERIES.txt";
+    public static String PG_MON_DEL_QUERIES = ConfigManager.getProperty("output_file_path")  + "PG_MON_DEL_QUERIES.txt";
+    public static String PG_MON_UPDATE_QUERIES = ConfigManager.getProperty("output_file_path")  + "PG_MON_UPDATE_QUERIES.txt";
+
+
+
 }

@@ -17,7 +17,7 @@ public class S3PGBench {
 
     public void benchS3pgQueries() {
         Main.logger.info("---- benchS3pgQueries ---- ");
-        String filePath = ConfigManager.getProperty("resources_path") + "/s3pg_queries.csv";
+        String filePath = getResourceFilePath("s3pg_queries.csv");
         List<String[]> indexAndQuery = FilesUtil.readCsvAllDataOnceWithPipeSeparator(filePath);
         String dbForSession = "dbp22s3pg";
         executeQueries(indexAndQuery, getNeo4jDbUrlForS3pg(), dbForSession);
@@ -25,7 +25,7 @@ public class S3PGBench {
 
     public void benchRdf2pgQueries() {
         Main.logger.info("---- benchRdf2pgQueries ---- ");
-        String filePath = ConfigManager.getProperty("resources_path") + "/rdf2pg_queries.csv";
+        String filePath = getResourceFilePath("rdf2pg_queries.csv");
         List<String[]> indexAndQuery = FilesUtil.readCsvAllDataOnceWithPipeSeparator(filePath);
         String dbForSession = "rdf2pgdbpedia2022";
         executeQueries(indexAndQuery, getNeo4jDbUrlForRdf2pg(), dbForSession);
@@ -33,10 +33,21 @@ public class S3PGBench {
 
     public void benchNeoSemQueries() {
         Main.logger.info("---- benchNeoSemQueries ---- ");
-        String filePath = ConfigManager.getProperty("resources_path") + "/ns_queries.csv";
+        String filePath = getResourceFilePath("ns_queries.csv");
         List<String[]> indexAndQuery = FilesUtil.readCsvAllDataOnceWithPipeSeparator(filePath);
         String dbForSession = "dbpedia2022neo2";
         executeQueries(indexAndQuery, getNeo4jDbUrlForNeoSem(), dbForSession);
+    }
+    
+    private String getResourceFilePath(String fileName) {
+        // Try to get from resources_path config first (for backward compatibility)
+        String resourcesPath = ConfigManager.getProperty("resources_path");
+        if (resourcesPath != null) {
+            return resourcesPath + "/" + fileName;
+        }
+        
+        // Fall back to relative path or embedded resource
+        return ConfigManager.getResourcePath(fileName);
     }
 
     public void executeQueries(List<String[]> indexAndQuery, String uri, String dbForSession) {

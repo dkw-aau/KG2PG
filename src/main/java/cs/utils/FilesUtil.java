@@ -90,8 +90,19 @@ public class FilesUtil {
     public static String readQuery(String query) {
         String q = null;
         try {
-            String queriesDirectory = ConfigManager.getProperty("resources_path") + "/queries/";
-            q = new String(Files.readAllBytes(Paths.get(queriesDirectory + query + ".txt")));
+            // Try to read from resources using the new ConfigManager method
+            try (InputStream is = ConfigManager.getResourceStream("queries/" + query + ".txt")) {
+                q = new String(is.readAllBytes());
+            } catch (IOException e) {
+                // Fallback to old method if resources_path is configured
+                String resourcesPath = ConfigManager.getProperty("resources_path");
+                if (resourcesPath != null) {
+                    String queriesDirectory = resourcesPath + "/queries/";
+                    q = new String(Files.readAllBytes(Paths.get(queriesDirectory + query + ".txt")));
+                } else {
+                    throw e;
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,8 +112,19 @@ public class FilesUtil {
     public static String readSHACLQuery(String query) {
         String q = null;
         try {
-            String queriesDirectory = ConfigManager.getProperty("resources_path") + "/shacl_queries/";
-            q = new String(Files.readAllBytes(Paths.get(queriesDirectory + query + ".txt")));
+            // Try to read from resources using the new ConfigManager method
+            try (InputStream is = ConfigManager.getResourceStream("shacl_queries/" + query + ".txt")) {
+                q = new String(is.readAllBytes());
+            } catch (IOException e) {
+                // Fallback to old method if resources_path is configured
+                String resourcesPath = ConfigManager.getProperty("resources_path");
+                if (resourcesPath != null) {
+                    String queriesDirectory = resourcesPath + "/shacl_queries/";
+                    q = new String(Files.readAllBytes(Paths.get(queriesDirectory + query + ".txt")));
+                } else {
+                    throw e;
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -113,8 +135,19 @@ public class FilesUtil {
     public static String readShaclStatsQuery(String query, String type) {
         String q = null;
         try {
-            String queriesDirectory = ConfigManager.getProperty("resources_path") + "/shacl_stats_queries/" + type + "/";
-            q = new String(Files.readAllBytes(Paths.get(queriesDirectory + query + ".txt")));
+            // Try to read from resources using the new ConfigManager method
+            try (InputStream is = ConfigManager.getResourceStream("shacl_stats_queries/" + type + "/" + query + ".txt")) {
+                q = new String(is.readAllBytes());
+            } catch (IOException e) {
+                // Fallback to old method if resources_path is configured
+                String resourcesPath = ConfigManager.getProperty("resources_path");
+                if (resourcesPath != null) {
+                    String queriesDirectory = resourcesPath + "/shacl_stats_queries/" + type + "/";
+                    q = new String(Files.readAllBytes(Paths.get(queriesDirectory + query + ".txt")));
+                } else {
+                    throw e;
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,4 @@
+VERSION=1.0.0
+BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+BUILD_HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+FEATURES="JAR release, embedded resources, timestamped output, multi-arch Docker"

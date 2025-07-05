@@ -21,9 +21,20 @@ public class S3PGBenchKG {
     }
 
     public void executeQueries() {
-        //readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/kg_queries.csv");
-        //readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/dbpedia_warmup.csv", 1, "warmup");
-        readQueriesFromFileWithAverage(ConfigManager.getProperty("resources_path") + "/kg_queries.csv", 10, "benchmark");
+        //readQueriesFromFile(ConfigManager.getResourcePath("kg_queries.csv"));
+        //readQueriesFromFileWithAverage(ConfigManager.getResourcePath("dbpedia_warmup.csv"), 1, "warmup");
+        readQueriesFromFileWithAverage(getResourceFilePath("kg_queries.csv"), 10, "benchmark");
+    }
+    
+    private String getResourceFilePath(String fileName) {
+        // Try to get from resources_path config first (for backward compatibility)
+        String resourcesPath = ConfigManager.getProperty("resources_path");
+        if (resourcesPath != null) {
+            return resourcesPath + "/" + fileName;
+        }
+        
+        // Fall back to relative path or embedded resource
+        return ConfigManager.getResourcePath(fileName);
     }
 
     private void readQueriesFromFile(String fileAddress) {

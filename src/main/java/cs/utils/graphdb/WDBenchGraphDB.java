@@ -20,16 +20,27 @@ public class WDBenchGraphDB {
 
     public void executeQueries() {
         System.out.println("execute multiple_bgps");
-        readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/wikidata_queries/multiple_bgps.csv", "multiple_bgps");
+        readQueriesFromFile(getResourceFilePath("wikidata_queries/multiple_bgps.csv"), "multiple_bgps");
 
         System.out.println("execute single_bgps");
-        readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/wikidata_queries/single_bgps.csv", "single_bgps");
+        readQueriesFromFile(getResourceFilePath("wikidata_queries/single_bgps.csv"), "single_bgps");
 
         System.out.println("execute opts");
-        readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/wikidata_queries/opts.csv", "opts");
+        readQueriesFromFile(getResourceFilePath("wikidata_queries/opts.csv"), "opts");
 
         System.out.println("execute paths");
-        readQueriesFromFile(ConfigManager.getProperty("resources_path") + "/wikidata_queries/paths.csv", "paths");
+        readQueriesFromFile(getResourceFilePath("wikidata_queries/paths.csv"), "paths");
+    }
+    
+    private String getResourceFilePath(String fileName) {
+        // Try to get from resources_path config first (for backward compatibility)
+        String resourcesPath = ConfigManager.getProperty("resources_path");
+        if (resourcesPath != null) {
+            return resourcesPath + "/" + fileName;
+        }
+        
+        // Fall back to relative path or embedded resource
+        return ConfigManager.getResourcePath(fileName);
     }
 
     private void readQueriesFromFile(String fileAddress, String type) {

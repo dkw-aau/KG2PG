@@ -14,6 +14,8 @@ import org.semanticweb.yars.nx.Literal;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,6 +115,7 @@ public class DataTransUpdatesNpm {
         watch.stop();
         Utils.logTime("DataTransUpdatesNpm -- addData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Queries: " + queries.size());
+        writeQueriesToFile(queries, Constants.PG_MON_ADD_QUERIES);
         //System.out.println("Batch Queries Execution");
         //queryUtil.executeQueriesInBatches(queries, commitSize);
     }
@@ -155,7 +158,8 @@ public class DataTransUpdatesNpm {
         Utils.logTime("DataTransUpdatesNpm -- deleteData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Delete Queries: " + queries.size());
         System.out.println("Batch Delete Queries Execution");
-        queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,1000, 10000) , commitSize);
+        //queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,1000, 10000) , commitSize);
+        writeQueriesToFile(queries, Constants.PG_MON_DEL_QUERIES);
     }
 
     //Method to read rdf NT files ( A. updated triples with Old values, B. updated triples with New values)
@@ -195,8 +199,9 @@ public class DataTransUpdatesNpm {
         watch.stop();
         Utils.logTime("DataTransUpdatesNpm -- updateData() ", TimeUnit.MILLISECONDS.toSeconds(watch.getTime()), TimeUnit.MILLISECONDS.toMinutes(watch.getTime()));
         System.out.println("Size of Update Queries: " + queries.size());
-        System.out.println("Batch Update Queries Execution");
-        queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,1000, 10000), commitSize);
+        //System.out.println("Batch Update Queries Execution");
+        //queryUtil.executeQueriesInBatches(getFirstNQueriesAfterM(queries,1000, 10000), commitSize);
+        writeQueriesToFile(queries, Constants.PG_MON_UPDATE_QUERIES);
     }
 
 
@@ -340,6 +345,18 @@ public class DataTransUpdatesNpm {
         }
 
         return q;
+    }
+
+
+    private static void writeQueriesToFile(LinkedHashSet<String> set, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (String query : set) {
+                writer.write(query);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

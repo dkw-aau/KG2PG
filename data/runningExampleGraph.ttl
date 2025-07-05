@@ -11,6 +11,7 @@ ex:Bob
     ex:dob         "1995-01-01"^^xsd:date ;
     ex:studiesAt   ex:MIT ;
     ex:takesCourse ex:CompSci202 ;
+    ex:takesCourse 1 ;
     ex:takesCourse "Web Engineering" .
 
 ex:John
