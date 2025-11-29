@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 cd ..
 
 ### Build Docker Image
@@ -7,13 +8,17 @@ docker build . -t $image
 
 ### Clear Cache
 echo "Clearing cache"
-sync; echo 1 > /proc/sys/vm/drop_caches
+[ "$EUID" -eq 0 ] && sync && echo 1 > /proc/sys/vm/drop_caches || echo "cache not cleared, needs sudo"
+
 
 container=kg2pg_container_bio2rdf
 
 echo "About to run docker container: ${container}"
 
-docker run -m 32GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx25g" --mount type=bind,source=/srv/data/iq26og/data/,target=/app/data --mount type=bind,source=/srv/data/iq26og/git/KG2PG/,target=/app/local $image /app/local/config/bio2rdf.properties
+docker run -m 32GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx25g" \
+	--mount type=bind,source=$(pwd)/data/,target=/app/data \
+	--mount type=bind,source=$(pwd),target=/app/local $image \
+	/app/local/config/bio2rdf.properties
 ### Logging memory consumption stats by docker container
 
 docker ps

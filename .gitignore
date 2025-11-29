@@ -33,3 +33,6 @@ out/
 #Output/runningExample/*
 # but keep the folder
 !Output/runningExample/.keep
+
+data/*.nt
+data/*.ttl
