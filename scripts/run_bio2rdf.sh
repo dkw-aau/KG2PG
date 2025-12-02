@@ -13,12 +13,23 @@ echo "Clearing cache"
 
 container=kg2pg_container_bio2rdf
 
+# Remove container if it already exists
+echo "Checking for existing container..."
+if docker ps -a --format '{{.Names}}' | grep -q "^${container}$"; then
+    echo "Removing existing container: ${container}"
+    docker rm -f $container
+fi
+
+# Create output directory if it doesn't exist
+mkdir -p output/bio2rdf
+
 echo "About to run docker container: ${container}"
 
 docker run -m 32GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx25g" \
 	--mount type=bind,source=$(pwd)/data/,target=/app/data \
-	--mount type=bind,source=$(pwd),target=/app/local $image \
-	/app/local/config/bio2rdf.properties
+	--mount type=bind,source=$(pwd)/output/,target=/app/output \
+	--mount type=bind,source=$(pwd)/config/,target=/app/config $image \
+	/app/config/bio2rdf.properties
 ### Logging memory consumption stats by docker container
 
 docker ps
@@ -42,4 +53,33 @@ done
 
 status=$(docker container inspect -f '{{.State.Status}}' $container)
 
-echo "Status of the ${container} is ${status}" ### Container exited
+# Check exit code
+exit_code=$(docker container inspect -f '{{.State.ExitCode}}' $container)
+echo ""
+echo "========================================="
+echo "Container ${container} has exited"
+echo "Exit Code: ${exit_code}"
+echo "========================================="
+echo ""
+
+# Show container logs
+echo "========================================="
+echo "Container Logs:"
+echo "========================================="
+docker logs $container
+echo ""
+
+# Check if output was generated
+echo "========================================="
+echo "Checking output directory..."
+echo "========================================="
+if [ -d "output/bio2rdf" ]; then
+    echo "Files in output/bio2rdf/:"
+    ls -lh output/bio2rdf/
+else
+    echo "ERROR: Output directory not found!"
+fi
+echo ""
+
+echo "To view logs again, run: docker logs ${container}"
+echo "To remove the container, run: docker rm ${container}"
