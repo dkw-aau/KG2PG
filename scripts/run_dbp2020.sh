@@ -39,7 +39,8 @@ status=$(docker container inspect -f '{{.State.Status}}' $container)
 
 echo "Status of the ${container} is ${status}"
 
-### Keep it in sleep for 1 minutes while this container is running
+### Monitor container while processing
+elapsed=0
 while :
 do
   status=$(docker container inspect -f '{{.State.Status}}' $container)
@@ -47,8 +48,9 @@ do
     break
   fi
   docker stats --no-stream | cat >>   "${container}-Docker-Stats.csv"
-  echo "Sleeping for 1 minutes : $(date +%T)"
+  echo "⏳ Processing dataset... Elapsed: ${elapsed} min - $(date +%T)"
   sleep 1m
+  ((elapsed++))
 done
 
 status=$(docker container inspect -f '{{.State.Status}}' $container)
@@ -69,17 +71,53 @@ echo "========================================="
 docker logs $container
 echo ""
 
-# Check if output was generated
+# Validate results
 echo "========================================="
-echo "Checking output directory..."
+echo "VALIDATION RESULTS"
 echo "========================================="
-if [ -d "output/DBpedia2020" ]; then
-    echo "Files in output/DBpedia2020/:"
-    ls -lh output/DBpedia2020/
+
+if [ ${exit_code} -eq 0 ]; then
+    echo "✅ Container completed successfully (Exit Code: 0)"
 else
-    echo "ERROR: Output directory not found!"
+    echo "❌ Container failed (Exit Code: ${exit_code})"
 fi
+
+echo ""
+echo "Output Directory: $(pwd)/output/DBpedia2020/"
 echo ""
 
-echo "To view logs again, run: docker logs ${container}"
-echo "To remove the container, run: docker rm ${container}"
+if [ -d "output/DBpedia2020" ]; then
+    echo "Generated Files:"
+    ls -lh output/DBpedia2020/
+    echo ""
+    
+    # Count files in timestamped subdirectory
+    if ls output/DBpedia2020/dbpedia_ml_* 1> /dev/null 2>&1; then
+        file_count=$(find output/DBpedia2020/dbpedia_ml_* -type f | wc -l | tr -d ' ')
+        echo "Total files generated: ${file_count}"
+        echo ""
+        echo "Key files to check:"
+        echo "  - PG_NODES_WD_LABELS.csv (node labels)"
+        echo "  - PG_RELATIONS.csv (relationships)"
+        echo "  - PG_SCHEMA.txt (schema definition)"
+    fi
+else
+    echo "❌ ERROR: Output directory not found!"
+fi
+
+echo ""
+echo "========================================="
+echo "Next Steps:"
+echo "========================================="
+echo "1. View output files:"
+echo "   ls -lh $(pwd)/output/DBpedia2020/"
+echo ""
+echo "2. Check node count:"
+echo "   wc -l $(pwd)/output/DBpedia2020/*/PG_NODES_WD_LABELS.csv"
+echo ""
+echo "3. Check relationship count:"
+echo "   wc -l $(pwd)/output/DBpedia2020/*/PG_RELATIONS.csv"
+echo ""
+echo "4. View logs: docker logs ${container}"
+echo "5. Remove container: docker rm ${container}"
+echo "========================================="

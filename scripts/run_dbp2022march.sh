@@ -40,7 +40,8 @@ status=$(docker container inspect -f '{{.State.Status}}' $container)
 
 echo "Status of the ${container} is ${status}"
 
-### Keep it in sleep for 1 minutes while this container is running
+### Monitor container while processing
+elapsed=0
 while :
 do
   status=$(docker container inspect -f '{{.State.Status}}' $container)
@@ -48,8 +49,9 @@ do
     break
   fi
   docker stats --no-stream | cat >>   "${container}-Docker-Stats.csv"
-  echo "Sleeping for 1 minutes : $(date +%T)"
+  echo "⏳ Processing dataset... Elapsed: ${elapsed} min - $(date +%T)"
   sleep 1m
+  ((elapsed++))
 done
 
 status=$(docker container inspect -f '{{.State.Status}}' $container)
