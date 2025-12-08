@@ -46,6 +46,17 @@ cd scripts
 
 **Expected output:** Files in `output/bio2rdf/`
 
+**Validation:**
+```bash
+# Check results (note: lowercase 'output')
+ls -lh output/bio2rdf/
+
+# Count nodes
+wc -l output/bio2rdf/*/PG_NODES_WD_LABELS.csv
+```
+
+See [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) for complete validation instructions.
+
 ### DBpedia 2020
 
 ```bash
@@ -58,6 +69,18 @@ cd scripts
 
 **Expected output:** Files in `output/DBpedia2020/`
 
+**Validation:**
+```bash
+# Check results (note: lowercase 'output', correct name 'DBpedia2020')
+ls -lh output/DBpedia2020/
+
+# Count nodes and edges
+wc -l output/DBpedia2020/*/PG_NODES_WD_LABELS.csv
+wc -l output/DBpedia2020/*/PG_RELATIONS.csv
+```
+
+See [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) for complete validation instructions.
+
 ### DBpedia 2022
 
 ```bash
@@ -69,6 +92,17 @@ cd scripts
 ```
 
 **Expected output:** Files in `output/dbp22dec/`
+
+**Validation:**
+```bash
+# Check results
+ls -lh output/dbp22dec/
+
+# Count nodes
+wc -l output/dbp22dec/*/PG_NODES_WD_LABELS.csv
+```
+
+See [VALIDATION_GUIDE.md](VALIDATION_GUIDE.md) for complete validation instructions.
 
 ## Available Scripts
 
@@ -113,7 +147,30 @@ All Docker scripts include:
 
 ## Troubleshooting
 
-If the container exits with errors:
+### Output Directory Not Found
+
+**Problem:** `ls: cannot access 'Output/DBpedia/': No such file or directory`
+
+**Solution:** Use lowercase `output/` and correct dataset name:
+
+```bash
+# WRONG - capitalized or incorrect name
+ls Output/DBpedia/          # ❌
+ls output/DBpedia/          # ❌
+
+# CORRECT - lowercase, correct dataset name  
+ls output/DBpedia2020/      # ✅ for DBpedia 2020
+ls output/bio2rdf/          # ✅ for Bio2RDF
+ls output/dbp22dec/         # ✅ for DBpedia 2022
+ls output/runningExample/   # ✅ for test dataset
+```
+
+The script output shows the exact path. Look for:
+```
+Output Directory: /full/path/to/output/DBpedia2020/
+```
+
+### Container Exits with Errors
 
 ```bash
 # View container logs

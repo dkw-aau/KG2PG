@@ -17,41 +17,70 @@ cd scripts
 ./test_runningExample.sh
 ```
 
-## 🔄 Reproducing Results on Datasets used in Paper
+## 📖 For Reviewers
 
-To reproduce results from the paper:
+**→ See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) - Complete guide for reproducing paper results**
 
-### Step 1: Download Datasets and Shapes
+This guide covers:
+- Hardware requirements (what you can reproduce on 8GB/32GB/64GB RAM)
+- Step-by-step instructions
+- Validation commands
+- Common issues and solutions
+- How to write your reproducibility report
 
-Download the datasets and SHACL shapes, then place them in the `data/` directory:
+## 🔄 Reproducing Paper Results
 
-- **Datasets**: [DBpedia-2020](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2020) | [DBpedia-2022](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2022) | [Bio2RDF](https://bitbucket.org/kashifrabbani/s3pg-bio2rdf-ct)
-- **SHACL Shapes**: [Download here](https://bitbucket.org/kashifrabbani/s3pg-shacl/src/master/)
+**Note:** Paper used 256GB RAM. Different datasets have different requirements.
 
-### Step 2: Run with Docker
+### What You Can Reproduce
 
-Configuration files (`config/*.properties`) and shell scripts (`scripts/*.sh`) are already provided. Simply run:
+| Your RAM | Datasets You Can Run |
+|----------|---------------------|
+| 8GB+ | Running Example |
+| 32GB+ | Running Example + DBpedia 2020 + Bio2RDF ✅ |
+| 64GB+ | All datasets including DBpedia 2022 |
 
-```bash
-docker build -t kg2pg:dockerImage .
-cd scripts
-./run_bio2rdf.sh      # For Bio2RDF dataset
-./run_dbp2020.sh      # For DBpedia 2020
-./run_dbp2022.sh      # For DBpedia 2022
-```
+### Quick Reproduction
 
-➡️ **See [DOCKER_USAGE.md](DOCKER_USAGE.md) for complete guide**
+1. **Download data** (datasets + SHACL shapes):
+   - [DBpedia-2020](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2020) | [DBpedia-2022](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2022) | [Bio2RDF](https://bitbucket.org/kashifrabbani/s3pg-bio2rdf-ct)
+   - [SHACL Shapes](https://bitbucket.org/kashifrabbani/s3pg-shacl/src/master/)
+
+2. **Place in `data/` directory**
+
+3. **Run:**
+   ```bash
+   docker build -t kg2pg:dockerImage .
+   cd scripts
+   ./run_dbp2020.sh      # 32GB RAM, ~10-15 min
+   ```
+
+4. **Validate:**
+   ```bash
+   ls -lh output/DBpedia2020/
+   wc -l output/DBpedia2020/*/PG_NODES_WD_LABELS.csv
+   ```
+
+**→ Full instructions: [REPRODUCIBILITY.md](REPRODUCIBILITY.md)**
 
 ---
 
 ## 📖 Documentation
 
-- **[Docker Usage Guide](DOCKER_USAGE.md)** - Complete Docker setup and usage
-- **[JAR Usage Guide](JAR_USAGE.md)** - Standalone JAR instructions  
-- **[Output Format](OUTPUT_FORMAT.md)** - Generated files and schemas
-- **[Neo4j Import](NEO4J_IMPORT.md)** - Load data into Neo4j
-- **[Build Instructions](BUILD_INSTRUCTIONS.md)** - Build from source
-- **[Docker Testing](DOCKER_TESTING.md)** - Troubleshooting guide
+**For Reviewers:**
+- **[REPRODUCIBILITY.md](REPRODUCIBILITY.md)** ⭐ Complete reproduction guide
+
+**For Users:**
+- [Docker Usage](DOCKER_USAGE.md) - Docker setup and usage
+- [JAR Usage](JAR_USAGE.md) - Standalone JAR instructions  
+- [Output Format](OUTPUT_FORMAT.md) - Generated files explained
+- [Neo4j Import](NEO4J_IMPORT.md) - Load data into Neo4j
+- [Build Instructions](BUILD_INSTRUCTIONS.md) - Build from source
+
+**Troubleshooting:**
+- [Validation Guide](VALIDATION_GUIDE.md) - Verify results
+- [Hardware Requirements](HARDWARE_REQUIREMENTS.md) - Memory requirements
+- [Docker Testing](DOCKER_TESTING.md) - Debug issues
 
 ---
 
