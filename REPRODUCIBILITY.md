@@ -146,23 +146,6 @@ cat output/DBpedia2020/*/PG_SCHEMA.txt | head -20
 
 ## For Your Reproducibility Report
 
-### If you have 32GB RAM:
-
-**Suggested statement:**
-
-> "Successfully reproduced the following experiments on commodity hardware (32GB RAM):
-> - Running Example - Validates algorithm correctness
-> - DBpedia 2020 - Large-scale real-world dataset  
-> - Bio2RDF Clinical Trials - Domain-specific dataset
-> 
-> These reproductions validate the paper's core claims about the transformation algorithm and its real-world applicability. Full reproduction of DBpedia 2022 experiments requires 64GB+ RAM as stated in the paper (256GB machine used)."
-
-### If you have 64GB+ RAM:
-
-**Suggested statement:**
-
-> "Successfully reproduced all paper experiments including DBpedia 2022 datasets. Results match paper metrics within acceptable variance (±5%)."
-
 ### Why some datasets need more RAM:
 
 - DBpedia 2022 is **significantly larger** than DBpedia 2020
@@ -232,4 +215,3 @@ docker exec neo4j neo4j-admin database import full \
 - [ ] Compare with paper
 - [ ] Document in reproducibility report
 
-**Expected outcome:** Tool works correctly, generates valid output, results comparable to paper within acceptable variance.
