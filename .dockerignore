@@ -1,6 +1,11 @@
 target/
 build/
 data/
+output/
 .idea
 .gradle
 .DS_Store
+.git/
+.gitignore
+*.md
+node_modules/

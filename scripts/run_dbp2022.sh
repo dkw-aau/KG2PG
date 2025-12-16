@@ -21,7 +21,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${container}$"; then
 fi
 
 # Create output directory if it doesn't exist
-mkdir -p output/dbp22dec
+mkdir -p output/Dbpedia2022
 
 echo "About to run docker container: ${container}"
 
@@ -75,9 +75,9 @@ echo ""
 echo "========================================="
 echo "Checking output directory..."
 echo "========================================="
-if [ -d "output/dbp22dec" ]; then
-    echo "Files in output/dbp22dec/:"
-    ls -lh output/dbp22dec/
+if [ -d "output/Dbpedia2022" ]; then
+    echo "Files in output/Dbpedia2022/:"
+    ls -lh output/Dbpedia2022/
 else
     echo "ERROR: Output directory not found!"
 fi
