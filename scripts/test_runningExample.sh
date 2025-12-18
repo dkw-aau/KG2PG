@@ -5,6 +5,9 @@
 set -e
 cd "$(dirname "$0")/.."
 
+pwd
+sleep 3
+
 container=kg2pg_container_runningExample
 image=kg2pg:dockerImage
 
