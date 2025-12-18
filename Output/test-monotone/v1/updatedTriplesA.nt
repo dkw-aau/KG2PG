@@ -1,3 +1,0 @@
-<http://x.y/Bob> <http://x.y/takesCourse> "12"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<http://x.y/Bob> <http://x.y/name> "Bob" .
-<http://x.y/MitsAddress> <http://x.y/street> "77 Massachusetts Avenue" .

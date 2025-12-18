@@ -1,4 +1,0 @@
-iri|property|propertyLocalName|value
-http://x.y/Stanford|http://www.w3.org/2000/01/rdf-schema#label|label|STANFORD UNIVERSITY USA
-http://x.y/MIT|http://www.w3.org/2000/01/rdf-schema#label|label|Massachusetts Institute of Technology
-http://x.y/Math101|http://www.w3.org/2000/01/rdf-schema#kind|kind|Maths 101
