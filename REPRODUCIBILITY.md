@@ -37,6 +37,28 @@ Download datasets and SHACL shapes, place in `data/` directory:
 - **Datasets**: [DBpedia-2020](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2020) | [DBpedia-2022](https://bitbucket.org/kashifrabbani/s3pg-dbpedia2022) | [Bio2RDF](https://bitbucket.org/kashifrabbani/s3pg-bio2rdf-ct)
 - **SHACL Shapes**: [Download here](https://bitbucket.org/kashifrabbani/s3pg-shacl/src/master/)
 
+**For example you can download the `dbpedia2020` to run with the `run_dbp2020.sh` script** as follows (check actual file URL from bitbucket)
+if downloaded correctly it should be `6.6G` of size with name  `dbpedia2020.nt.tar.gz` and once extracted it should produce the file `dbpedia_ml.nt`
+
+```bash
+cd data/dbpedia/
+wget https://bitbucket.org/kashifrabbani/s3pg-dbpedia2020/raw/bbde680272a312f76c1e98663da850cdf6099c06/dbpedia2020.nt.tar.gz
+tar -xvf dbpedia2020.nt.tar.gz 
+ls -lh dbpedia_ml.nt 
+```
+the last command should produce something like
+
+```bash
+-rw-r--r-- 1 ubuntu ubuntu 6.6G Sep 30  2021 dbpedia_ml.nt
+```
+
+return to the main directory after downloading the files
+
+```bash
+cd ../../
+```
+
+
 ### Step 2: Run Experiments
 
 ```bash
@@ -53,9 +75,12 @@ cd scripts
 
 ### Step 3: Validate Results
 
-After container exits with code 0, check output:
+After container exits with code 0, check `output` folder created in the main directory:
 
 ```bash
+# Return to main `KG2PG` directory if you are not there already
+cd ../
+
 # View generated files (note: lowercase 'output')
 ls -lh output/DBpedia2020/
 
