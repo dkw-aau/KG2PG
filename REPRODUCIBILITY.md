@@ -52,7 +52,15 @@ the last command should produce something like
 -rw-r--r-- 1 ubuntu ubuntu 6.6G Sep 30  2021 dbpedia_ml.nt
 ```
 
-return to the main directory after downloading the files
+Confirm that the file is unzipped in the same folder and with the same name as the one specified 
+in the respective config file in the folder `/config`.
+Foe example in: `KG2PG/config/dbpedia2020.properties` we see
+
+```bash
+dataset_path=data/dbpedia/dbpedia_ml.nt
+```
+
+Then, return to the main directory after downloading the files
 
 ```bash
 cd ../../
