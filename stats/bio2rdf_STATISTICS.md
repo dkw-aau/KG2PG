@@ -1,4 +1,4 @@
-# Graph Statistics Report
+# bio2RDF PG Statistics Report
 
 **Generated:** 2026-01-12 09:58:34
 
