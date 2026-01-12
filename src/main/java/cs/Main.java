@@ -25,7 +25,7 @@ public class Main {
     public static boolean isWikiData;
     public static Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     private static final ResourceEncoder resourceEncoder = new ResourceEncoder();
-    private static final boolean isParsimonious = false;
+    private static final boolean isParsimonious = true;
 
     public static void main(String[] args) {
         // Handle config path - optional argument
