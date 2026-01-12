@@ -79,29 +79,104 @@ cd scripts
 ./run_dbp2022.sh      # Requires 64GB RAM, ~20-30 min
 ```
 
-**While running:** You'll see `⏳ Processing dataset... Elapsed: X min` - this is normal, container is working.
+**What you'll see:**
+
+The script will:
+1. Build the Docker image
+2. Start the container in the background
+3. Show clear warnings that it's waiting for completion
+4. Display progress updates every minute with timestamp
+5. Show recent log activity every 5 minutes
+
+**Example output:**
+```
+=========================================
+⚠️  IMPORTANT: Container is running in background
+⚠️  This script will WAIT until processing completes
+⚠️  Do NOT terminate this script prematurely
+=========================================
+
+Started at: Mon Jan 12 13:07:58 UTC 2026
+
+⏳ [13:08:00] Elapsed: 0 min - Container is actively processing...
+⏳ [13:09:01] Elapsed: 1 min - Container is actively processing...
+⏳ [13:10:03] Elapsed: 2 min - Container is actively processing...
+...
+⏳ [13:13:07] Elapsed: 5 min - Container is actively processing...
+   📋 Recent activity:
+      13:08:12.288 [main] INFO ROOT - SHACL shapes read successfully...
+      13:08:12.440 [main] INFO ROOT - SHACL shapes parsed successfully...
+      13:08:12.605 [main] INFO ROOT - Phase 1: Graph Data Translation...
+...
+
+✅ Container has finished!
+Completed at: Mon Jan 12 13:18:14 UTC 2026
+Total elapsed time: 10 minutes
+```
+
+**Important:** The script blocks until processing completes. Do NOT terminate it - wait for the completion message.
 
 ### Step 3: Validate Results
 
-After container exits with code 0, check `output` folder created in the main directory:
+After the script completes successfully (exit code 0), the output summary shows:
 
-```bash
-# Return to main `KG2PG` directory if you are not there already
-cd ../
+```
+=========================================
+RESULTS
+=========================================
+✅ Container completed successfully (Exit Code: 0)
 
-# View generated files (note: lowercase 'output')
-ls -lh output/DBpedia2020/
+Output Directory: /home/ubuntu/git/KG2PG/output/bio2rdf/bio2rdf_ct_2026-01-09_10-28-01_1767954481848
 
-# Count nodes and edges
-wc -l output/DBpedia2020/*/PG_NODES_WD_LABELS.csv
-wc -l output/DBpedia2020/*/PG_RELATIONS.csv
+Generated Files:
+-rwx------ 1 7474 7474         464 Jan  9 11:20 PG_PREFIX_MAP.csv
+-rwx------ 1 7474 7474  5365251795 Jan  9 11:20 PG_NODES_PROPS_JSON.json
+-rwx------ 1 7474 7474  1131384655 Jan  9 11:20 PG_NODES_WD_LABELS.csv
+-rwx------ 1 7474 7474 10697778669 Jan  9 11:17 PG_RELATIONS.csv
+-rwx------ 1 7474 7474  4096728914 Jan  9 11:17 PG_NODES_LITERALS.csv
+-rwx------ 1 7474 7474       80792 Jan  9 10:28 PG_SCHEMA.txt
+...
+
 ```
 
-**Success criteria:**
-- ✅ Exit code 0
-- ✅ Files exist in `output/DatasetName/`
-- ✅ CSV files have content (not empty)
-- ✅ Node/edge counts are reasonable
+**Next: Compute Statistics**
+
+Use the included Python script to calculate accurate PG statistics.
+
+**Note:** The script automatically processes all CSV files in the output timestamped directory. For example, for bio2rdf, the directory `/home/ubuntu/git/KG2PG/output/bio2rdf/bio2rdf_ct_2026-01-09_10-28-01_1767954481848` contains all the PG files. The script automatically finds and processes `PG_NODES_LITERALS.csv`, `PG_NODES_WD_LABELS.csv`, and `PG_RELATIONS.csv` files.
+
+```bash
+# From the main KG2PG directory, provide the path to the timestamped output directory
+python3 scripts/count_pg_stats.py output/bio2rdf/bio2rdf_ct_2026-01-09_10-28-01_1767954481848
+
+# Or for verbose output (shows relation type distribution)
+python3 scripts/count_pg_stats.py --verbose output/bio2rdf/bio2rdf_ct_2026-01-09_10-28-01_1767954481848
+```
+
+
+**Example statistics output (Bio2RDF dataset):**
+```
+============================================================
+Statistics for: /home/ubuntu/git/KG2PG/output/bio2rdf/bio2rdf_ct_2026-01-09_10-28-01_1767954481848
+============================================================
+Number of Nodes (in files):            40,351,791
+Nodes with invalid refs:                        0
+Number of Edges:                       59,377,504
+Number of Relation Types:                     103
+Processing Time:                           945.34s
+============================================================
+
+Note: Neo4j import only includes nodes/edges with valid ID
+references. Discrepancies may come from orphaned node refs.
+```
+
+A detailed report with relation type distribution will be saved as `STATISTICS.md` in the output directory. See [`data/bio2rdf/STATISTICS.md`](data/bio2rdf/STATISTICS.md) for a complete example report generated for bio2rdf dataset.
+
+**Verifying Against Paper Results:**
+
+These statistics enable direct comparison with values reported in the paper. The image below shows Table 5 from the paper with Bio2RDF results highlighted. The script correctly counted **40,351,791 nodes**, **59,377,504 edges**, and **103 relation types**, matching the paper exactly. Use the same process to verify results for other datasets.
+
+![images/table_5_bio2rdf_highlighted.png](images/table_5_bio2rdf_highlighted.png)
 
 ## Common Issues
 
@@ -138,44 +213,6 @@ docker logs kg2pg_container_dbpedia2020
 1. Use cloud VM (AWS/GCP/Azure): ~$0.50/hour for 64GB RAM
 2. Use university cluster (request high-memory node)
 3. Validate with smaller datasets that fit your RAM
-
-## Output Files Explained
-
-Each run creates a timestamped directory with these files:
-
-```
-output/DBpedia2020/dbpedia_ml_2025-12-06_14-35-06_*/
-├── PG_NODES_WD_LABELS.csv      # Node labels and types
-├── PG_NODES_LITERALS.csv       # Literal property values
-├── PG_RELATIONS.csv            # Edges/relationships
-├── PG_PREFIX_MAP.csv           # Namespace prefixes
-├── PG_NODES_PROPS_JSON.json    # Key-value properties
-├── PG_SCHEMA.txt               # Schema definition
-└── *_RUNTIME_LOGS.csv          # Performance metrics
-```
-
-**Quick validation:**
-```bash
-# Count nodes
-wc -l output/DBpedia2020/*/PG_NODES_WD_LABELS.csv
-
-# Count edges
-wc -l output/DBpedia2020/*/PG_RELATIONS.csv
-
-# View schema
-cat output/DBpedia2020/*/PG_SCHEMA.txt | head -20
-```
-
-## Comparing with Paper
-
-1. Find the relevant table/figure in the paper
-2. Extract counts from your output (commands above)
-3. Compare:
-   - ✅ Exact match or ±5% = Perfect
-   - ⚠️ ±10-20% = Acceptable (version/data differences)
-   - ❌ >20% = Investigate
-
-**Note:** Different hardware = different runtimes (expected). Compare node/edge counts, not execution time.
 
 ## For Your Reproducibility Report
 
@@ -241,10 +278,12 @@ docker exec neo4j neo4j-admin database import full \
 - [ ] Clone repository
 - [ ] Download datasets to `data/`
 - [ ] Build Docker image
-- [ ] Run appropriate script for your RAM
-- [ ] Verify exit code 0
+- [ ] Run appropriate script for your RAM (`cd scripts && ./run_dbp2020.sh`)
+- [ ] Wait for completion message (do NOT terminate script early)
+- [ ] Verify exit code 0 in output
 - [ ] Check output files exist in `output/` (lowercase)
-- [ ] Count nodes/edges
+- [ ] **Run statistics:** `python3 count_pg_stats.py`
+- [ ] Review `STATISTICS.md` in output directory
 - [ ] Compare with paper
 - [ ] Document in reproducibility report
 
