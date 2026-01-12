@@ -15,6 +15,26 @@ from pathlib import Path
 from collections import Counter
 
 
+def print_usage():
+    """Print usage instructions."""
+    print("\nUsage: python3 count_pg_stats.py [OPTIONS] [DIRECTORY]")
+    print("\nOptions:")
+    print("  -v, --verbose    Show detailed relation types distribution")
+    print("  -h, --help       Show this help message")
+    print("\nArguments:")
+    print("  DIRECTORY        Path to directory containing PG CSV files")
+    print("                   (PG_NODES_LITERALS.csv, PG_NODES_WD_LABELS.csv, PG_RELATIONS.csv)")
+    print("\nBehavior:")
+    print("  - If DIRECTORY is provided: Searches that directory for PG files")
+    print("  - If no DIRECTORY: Searches the default 'output' folder in project root")
+    print("  - The STATISTICS.md report will be created in the same directory as the PG files")
+    print("\nExamples:")
+    print("  python3 count_pg_stats.py")
+    print("  python3 count_pg_stats.py /path/to/output/folder")
+    print("  python3 count_pg_stats.py --verbose /path/to/output/folder")
+    print()
+
+
 def print_progress(message, level="INFO"):
     """Print progress message with timestamp."""
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -236,32 +256,60 @@ def print_statistics(output_dir, verbose=False):
 
 def main():
     """Main function to process all output directories."""
-    base_output_dir = '/home/ubuntu/git/KG2PG/output'
+    # Check for help flag
+    if '--help' in sys.argv or '-h' in sys.argv:
+        print_usage()
+        sys.exit(0)
+    
+    # Get the script's directory and navigate to the project root
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    base_output_dir = project_root / 'output'
+    base_output_dir = str(base_output_dir)
     verbose = '--verbose' in sys.argv or '-v' in sys.argv
     
     # Check if a specific directory is provided
     target_dir = None
     for arg in sys.argv[1:]:
-        if not arg.startswith('-') and os.path.isdir(arg):
-            target_dir = arg
-            break
+        if not arg.startswith('-'):
+            if os.path.isdir(arg):
+                target_dir = arg
+                break
+            else:
+                print_progress(f"Provided directory does not exist: {arg}", "ERROR")
+                print("\nPlease provide a valid directory path containing PG CSV files:")
+                print("  - PG_NODES_LITERALS.csv")
+                print("  - PG_NODES_WD_LABELS.csv (optional)")
+                print("  - PG_RELATIONS.csv")
+                print("\nThe STATISTICS.md file will be created in the directory where these files are found.")
+                print("\nRun 'python3 count_pg_stats.py --help' for usage information.")
+                sys.exit(1)
     
     script_start = time.time()
     print_progress(f"Starting script execution")
     
-    if not os.path.exists(base_output_dir):
-        print_progress(f"Output directory not found: {base_output_dir}", "ERROR")
-        sys.exit(1)
-    
-    # Find all graph output directories
-    output_dirs = []
-    
+    # Determine which directory to search in
     if target_dir:
         print_progress(f"Searching in target directory: {target_dir}")
         search_dir = target_dir
     else:
+        if not os.path.exists(base_output_dir):
+            print_progress(f"Default output directory not found: {base_output_dir}", "ERROR")
+            print("\nYou have two options:")
+            print("  1. Create the output directory and run KG2PG to generate PG files")
+            print("  2. Provide a specific directory path as an argument:")
+            print(f"     python3 {sys.argv[0]} /path/to/directory/with/pg/files")
+            print("\nThe directory should contain:")
+            print("  - PG_NODES_LITERALS.csv")
+            print("  - PG_NODES_WD_LABELS.csv (optional)")
+            print("  - PG_RELATIONS.csv")
+            print("\nRun 'python3 count_pg_stats.py --help' for more information.")
+            sys.exit(1)
         print_progress(f"Searching in base directory: {base_output_dir}")
         search_dir = base_output_dir
+    
+    # Find all graph output directories
+    output_dirs = []
     
     print_progress(f"Looking for directories with PG_NODES_LITERALS.csv and PG_RELATIONS.csv")
     
@@ -271,7 +319,16 @@ def main():
             print_progress(f"Found graph directory: {os.path.basename(root)}")
     
     if not output_dirs:
-        print_progress(f"No graph directories found", "WARNING")
+        print_progress(f"No directories with PG CSV files found in: {search_dir}", "ERROR")
+        print("\nExpected files in a directory:")
+        print("  - PG_NODES_LITERALS.csv")
+        print("  - PG_NODES_WD_LABELS.csv (optional)")
+        print("  - PG_RELATIONS.csv")
+        print("\nPossible solutions:")
+        print("  1. Run KG2PG to generate the PG CSV files first")
+        print("  2. Check if you provided the correct directory path")
+        print("  3. Verify the CSV files exist and have the correct names")
+        print("\nRun 'python3 count_pg_stats.py --help' for usage information.")
         sys.exit(1)
     
     # Sort directories for consistent output
