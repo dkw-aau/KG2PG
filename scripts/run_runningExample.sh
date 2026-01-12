@@ -4,14 +4,12 @@ cd ..
 
 ### Build Docker Image
 image=kg2pg:dockerImage
-echo "Building Docker image: ${image}..."
 docker build . -t $image
 
-### Clear Cache (optional, requires sudo)
-echo "Clearing cache (skipping if not sudo)..."
-[ "$EUID" -eq 0 ] && sync && echo 1 > /proc/sys/vm/drop_caches || echo "Cache not cleared (needs sudo, but not required)"
+### Clear Cache
+echo "Clearing cache"
+[ "$EUID" -eq 0 ] && sync && echo 1 > /proc/sys/vm/drop_caches || echo "cache not cleared, needs sudo"
 
-### Container configuration
 container=kg2pg_container_runningExample
 
 # Remove container if it already exists
@@ -25,60 +23,78 @@ fi
 mkdir -p output/runningExample
 
 echo "About to run docker container: ${container}"
-echo "Container will process:"
-echo "  - Dataset: data/runningExampleGraph.nt"
-echo "  - Shapes: data/runningExampleShapes.ttl"
-echo "  - Output: output/runningExample/"
-echo ""
 
-# Run the container with proper mounts and memory limits
 docker run -m 8GB -d --name $container -e "JAVA_TOOL_OPTIONS=-Xmx6g" \
 	--mount type=bind,source=$(pwd)/data/,target=/app/data \
 	--mount type=bind,source=$(pwd)/output/,target=/app/output \
 	--mount type=bind,source=$(pwd)/config/,target=/app/config $image \
 	/app/config/runningExample.properties
+### Logging memory consumption stats by docker container
 
-### Show running containers
 docker ps
 
-# Get the status of the current docker container
-status=$(docker container inspect -f '{{.State.Status}}' $container)
-echo "Status of ${container} is: ${status}"
+echo ""
+echo "========================================="
+echo "⚠️  IMPORTANT: Container is running in background"
+echo "⚠️  This script will WAIT until processing completes"
+echo "⚠️  Do NOT terminate this script prematurely"
+echo "========================================="
+echo ""
+echo "Started at: $(date)"
+echo ""
 
-### Monitor the container and log stats
-stats_file="${container}-Docker-Stats.csv"
-echo "Logging stats to: ${stats_file}"
+# Disable exit on error for the monitoring loop
+set +e
 
-while :
-do
-  status=$(docker container inspect -f '{{.State.Status}}' $container)
-  if [ "$status" == "exited" ]; then
-    echo "Container has exited"
-    break
+# Monitor container until it stops
+elapsed=0
+while docker ps -q --filter "name=${container}" --filter "status=running" | grep -q .; do
+  # Collect stats (suppress errors)
+  docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}" ${container} 2>/dev/null | tail -n +2 >> "${container}-Docker-Stats.csv" 2>&1 || true
+  
+  # Show progress
+  echo "⏳ [$(date +%T)] Elapsed: ${elapsed} min - Container is actively processing..."
+  
+  # Show recent logs every 5 minutes for visibility
+  if [ $((elapsed % 5)) -eq 0 ] && [ $elapsed -gt 0 ]; then
+    echo "   📋 Recent activity:"
+    docker logs --tail 3 $container 2>&1 | sed 's/^/      /' || true
   fi
-  docker stats --no-stream | cat >> "${stats_file}"
-  echo "Container still running... sleeping for 1 minute : $(date +%T)"
+  
   sleep 1m
+  ((elapsed++))
 done
+
+# Re-enable exit on error
+set -e
+
+echo ""
+echo "✅ Container has finished!"
+echo "Completed at: $(date)"
+echo "Total elapsed time: ${elapsed} minutes"
+echo ""
+
+# Get final status and exit code
+status=$(docker container inspect -f '{{.State.Status}}' $container)
+exit_code=$(docker container inspect -f '{{.State.ExitCode}}' $container)
 
 # Check exit code
 exit_code=$(docker container inspect -f '{{.State.ExitCode}}' $container)
 echo ""
 echo "========================================="
-echo "Container ${container} has exited"
-echo "Exit Code: ${exit_code}"
+echo "RESULTS"
 echo "========================================="
-echo ""
 
-# Show container logs
-echo "========================================="
-echo "Container Logs:"
-echo "========================================="
-docker logs $container
-echo ""
+if [ ${exit_code} -eq 0 ]; then
+    echo "✅ Container completed successfully (Exit Code: 0)"
+else
+    echo "❌ Container failed (Exit Code: ${exit_code})"
+    echo ""
+    echo "Last 10 lines of logs:"
+    docker logs --tail 10 $container 2>&1 | sed 's/^/  /'
+fi
 
-# Check if output was generated
-echo "========================================="
+echo ""
 echo "Checking output directory..."
 echo "========================================="
 if [ -d "output/runningExample" ]; then
@@ -89,6 +105,5 @@ else
 fi
 echo ""
 
-# Optionally clean up the container (comment out if you want to keep it for inspection)
 echo "To view logs again, run: docker logs ${container}"
 echo "To remove the container, run: docker rm ${container}"
