@@ -2,6 +2,7 @@ target/
 build/
 data/
 output/
+neo4j/
 .idea
 .gradle
 .DS_Store

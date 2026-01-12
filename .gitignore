@@ -36,3 +36,8 @@ out/
 
 data/*.nt
 data/*.ttl
+
+
+output
+output/*
+neo4j/
