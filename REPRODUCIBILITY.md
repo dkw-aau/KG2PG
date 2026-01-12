@@ -170,7 +170,7 @@ Note: Neo4j import only includes nodes/edges with valid ID
 references. Discrepancies may come from orphaned node refs.
 ```
 
-A detailed report with relation type distribution will be saved as `STATISTICS.md` in the output directory. See [`data/bio2rdf/STATISTICS.md`](stats/bio2rdf_STATISTICS.md) for a complete example report generated for bio2rdf dataset.
+A detailed report with relation type distribution will be saved as `STATISTICS.md` in the output directory. See [`stats/bio2rdf_STATISTICS.md`](stats/bio2rdf_STATISTICS.md) for a complete example report generated for bio2rdf dataset.
 
 **Verifying Against Paper Results:**
 
