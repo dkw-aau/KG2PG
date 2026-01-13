@@ -23,9 +23,9 @@ public class Main {
     public static int numberOfClasses;
     public static int numberOfInstances;
     public static boolean isWikiData;
+    public static boolean isParsimonious;
     public static Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     private static final ResourceEncoder resourceEncoder = new ResourceEncoder();
-    private static final boolean isParsimonious = true;
 
     public static void main(String[] args) {
         // Handle config path - optional argument
@@ -100,6 +100,7 @@ public class Main {
         numberOfClasses = Integer.parseInt(paramVal("expected_number_classes")); // expected or estimated numberOfClasses
         numberOfInstances = Integer.parseInt(paramVal("expected_number_of_lines")) / 2; // expected or estimated numberOfInstances
         isWikiData = isActivated("is_wikidata");
+        isParsimonious = isActivated("is_parsimonious");
         
         // Create timestamped output directory
         String baseOutputPath = paramVal("output_file_path");
