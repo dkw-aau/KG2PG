@@ -7,9 +7,15 @@ We have addressed your concerns as follows:
 ## 1. Correspondence of Results and Table 5
 Regarding the numbers you obtained:
 
-Bio2RDF: The discrepancy you noticed (e.g., the 5.8M vs. the 26M+16M+16M reported in Table 5) was primarily due to a configuration flag in Main.java called isParsimonious. This flag was incorrectly set to false in the repository, but it must be true to produce the parsimonious model results reported in the paper.
+Bio2RDF: The discrepancy you noticed (e.g., the 5.8M vs. the 26M+16M+16M reported in Table 5) was primarily due to a configuration flag called isParsimonious. This flag was previously hardcoded to false in Main.java, but it must be true to produce the parsimonious model results reported in the paper.
 
-Correction: With the flag now set to true, the Bio2RDF counts match the paper exactly. We have updated the REPRODUCIBILITY.md file with a detailed mapping that explains exactly which output files correspond to which metrics in Table 5 to facilitate verification.
+**What does "parsimonious" mean?** S3PG offers two transformation approaches (see paper sections 4.1.1 and 4.2):
+- **Parsimonious model** (used in Table 5): Single-value properties are stored as key-value attributes directly within nodes, resulting in a more compact and efficient representation. For example, a student's registration number would be stored as a property within the Student node.
+- **Non-parsimonious model**: All properties are modeled as separate nodes and edges, even single-value ones. This approach is less space-efficient but supports schema evolution (e.g., when a single-value property later becomes multi-valued) while maintaining monotonicity of the transformation.
+
+The parsimonious approach produces significantly fewer nodes and edges (as reported in Table 5) because it avoids creating separate node-edge structures for properties that can be encoded as simple key-value pairs within nodes.
+
+Correction: We have now parameterized this flag as a configurable property `is_parsimonious` in all dataset configuration files (bio2rdf.properties, dbpedia2020.properties, etc.), with the default value set to true. This eliminates the need to modify Java code to switch between transformation modes. With this property correctly set to true, the Bio2RDF counts now match the paper exactly. We have also updated the REPRODUCIBILITY.md file with a detailed mapping that explains exactly which output files correspond to which metrics in Table 5 to facilitate verification.
 
 DBpedia 2020: We have identified a discrepancy in this specific dataset. It appears the version currently hosted in our storage bucket is slightly different from the one used during the final evaluation of the paper. We have documented the current statistics for this version in the README and are working to restore the original 2020 version. However, DBpedia 2022 and Bio2RDF now match the paper’s reported results perfectly.
 

@@ -67,7 +67,27 @@ cd ../../
 ```
 
 
-### Step 2: Run Experiments
+### Step 2: Configure Transformation Mode
+
+**Important:** The paper reports results using the **parsimonious model** (see paper sections 4.1.1 and 4.2).
+
+Each dataset configuration file in `config/` contains an `is_parsimonious` flag:
+
+```properties
+# Parsimonious vs Non-Parsimonious Transformation (see paper sections 4.1.1 and 4.2)
+# true:  Parsimonious model - single-value properties stored as key-value attributes within nodes (more compact)
+# false: Non-parsimonious model - all properties modeled as separate nodes and edges (supports schema evolution)
+is_parsimonious=true
+```
+
+**Default value is `true`** (matches paper results). To reproduce Table 5 results, ensure this is set to `true` in:
+- `config/bio2rdf.properties`
+- `config/dbpedia2020.properties`
+- `config/dbpedia2022.properties`
+
+The parsimonious model produces significantly fewer nodes and edges because it stores single-value properties as node attributes instead of creating separate node-edge structures.
+
+### Step 3: Run Experiments
 
 ```bash
 docker build -t kg2pg:dockerImage .
@@ -116,7 +136,7 @@ Total elapsed time: 10 minutes
 
 **Important:** The script blocks until processing completes. Do NOT terminate it - wait for the completion message.
 
-### Step 3: Validate Results
+### Step 4: Validate Results
 
 After the script completes successfully (exit code 0), the output summary shows:
 
