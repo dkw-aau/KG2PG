@@ -1,4 +1,8 @@
-# Reproducibility Guide for Reviewers
+# Reproducibility Guide : Transforming RDF Graphs to Property Graphs using Standardized Schemas
+
+**Paper DOI:** 10.1145/3698817  
+**Paper URL:** https://dl.acm.org/doi/10.1145/3698817  
+
 
 This guide helps you reproduce the paper results and validate the experiments.
 
